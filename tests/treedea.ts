@@ -1,13 +1,15 @@
 import * as anchor from "@project-serum/anchor";
 
+import { attachNodeAccounts, createNodeAccounts } from './../ts/tree';
 import { createKeypairs, mintToken, printAccounts, provider } from "./utils";
 import { createRootAccounts, createTreeAccounts } from "../ts";
 
-import { IdeaTree } from "../target/types/idea_tree";
+import { MAX_CHILD_PER_NODE } from "../ts/constants";
 import { Program } from "@project-serum/anchor";
+import { Treedea } from "../target/types/treedea";
 
-describe("idea-tree", () => {
-  const program = anchor.workspace.IdeaTree as Program<IdeaTree>;
+describe("TreeDea", () => {
+  const program = anchor.workspace.Treedea as Program<Treedea>;
   let id = anchor.web3.Keypair.generate()
   let admin = anchor.web3.Keypair.generate()
   let user1 = anchor.web3.Keypair.generate()
@@ -27,13 +29,23 @@ describe("idea-tree", () => {
 
     let root = await program.account.root.fetch(rootAccounts.root)
     console.log(root)
-    
-    const rootRazor = "DeFi Protocol?"
-    const treeAccounts = createTreeAccounts(program, id.publicKey, voteMint, rootRazor)
+
+    const rootTag = "DeFi Protocol?"
+    const treeAccounts = createTreeAccounts(program, rootAccounts.root, rootTag)
     printAccounts(treeAccounts)
-    await program.methods.createTree(rootRazor).accounts(treeAccounts).rpc({ skipPreflight: true })
-    
+    await program.methods.createTree(rootTag).accounts(treeAccounts).rpc({ skipPreflight: true })
+
     let tree = await program.account.tree.fetch(treeAccounts.tree)
-    console.log(tree)
+    let rootNode = await program.account.node.fetch(treeAccounts.rootNode)
+    console.log(tree, rootNode)
+
+    const tags = ["Solana", "Ethereum", "Polygon", "Arbitrum", "Optimism"]
+    let nodeAccounts = []
+    for (const tag of tags) {
+      nodeAccounts.push(createNodeAccounts(program, rootAccounts.root, treeAccounts.tree, treeAccounts.rootNode, tag))
+      console.log(tag)
+      printAccounts(nodeAccounts[nodeAccounts.length - 1])
+      await program.methods.createNode(tag).accounts(nodeAccounts[nodeAccounts.length - 1]).rpc({ skipPreflight: true })
+    }
   });
 });

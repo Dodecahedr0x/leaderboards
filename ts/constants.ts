@@ -5,5 +5,4 @@ export const VOTE_MINT_SEED = "vote-mint";
 export const TAG_SEED = "tag";
 export const NODE_SEED = "node";
 
-export const defaultCommitment = "confirmed"
-export const skipPreflight = true
+export const MAX_CHILD_PER_NODE = 3

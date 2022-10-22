@@ -14,7 +14,7 @@ pub fn create_tree(ctx: Context<CreateTree>, tag: String) -> Result<()> {
 
     let root_node = &mut ctx.accounts.root_node;
     root_node.tree = ctx.accounts.tree.key();
-    root_node.parent = Pubkey::new(&[0]);
+    root_node.parent = Pubkey::default();
     root_node.tags.push(tag);
 
     Ok(())
@@ -59,7 +59,7 @@ pub struct CreateTree<'info> {
         seeds = [
             NODE_SEED.as_bytes(),
             &tree.key().to_bytes(),
-            &Pubkey::new(&[0]).to_bytes(),
+            Pubkey::default().to_bytes().as_ref(),
             &tag.as_ref(),
         ],
         bump,

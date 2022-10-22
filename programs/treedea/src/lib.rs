@@ -9,7 +9,7 @@ use instructions::*;
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
-pub mod idea_tree {
+pub mod treedea {
     use super::*;
 
     pub fn create_root(ctx: Context<CreateRoot>, id: Pubkey, admin: Pubkey) -> Result<()> {
