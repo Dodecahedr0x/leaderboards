@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 
+use crate::errors::TreeDeaErrors;
 use crate::seeds::{NODE_SEED, NOTE_SEED, ROOT_SEED, TREE_SEED};
 use crate::state::{Node, Note, Root, Tree, MAX_DESCRIPTION_LENGTH, MAX_URI_LENGTH};
 
@@ -17,7 +18,9 @@ pub fn create_note(
     note.website = website;
     note.image = image;
     note.description = description;
-    note.parent = ctx.accounts.parent_node.key();
+    note.tags = ctx.accounts.node.tags.clone();
+    note.parent = ctx.accounts.node.key();
+    note.stake = 0;
 
     Ok(())
 }
@@ -49,17 +52,18 @@ pub struct CreateNote<'info> {
     )]
     pub tree: Account<'info, Tree>,
 
-    /// The parent node to attach to
+    /// The node to attach to
     #[account(
         seeds = [
             NODE_SEED.as_bytes(),
             &tree.key().to_bytes(),
-            &parent_node.parent.key().to_bytes(),
-            &parent_node.tags.last().unwrap().as_ref(),
+            &node.parent.key().to_bytes(),
+            &node.tags.last().unwrap().as_ref(),
         ],
         bump,
+        constraint = node.children.len() == 0 @ TreeDeaErrors::InvalidNode
     )]
-    pub parent_node: Account<'info, Node>,
+    pub node: Account<'info, Node>,
 
     /// The new note
     #[account(
@@ -72,9 +76,9 @@ pub struct CreateNote<'info> {
             &id.to_bytes()
         ],
         bump,
-        constraint = website.len() <= MAX_URI_LENGTH,
-        constraint = image.len() <= MAX_URI_LENGTH,
-        constraint = description.len() <= MAX_DESCRIPTION_LENGTH,
+        constraint = website.len() <= MAX_URI_LENGTH @ TreeDeaErrors::StringTooLong,
+        constraint = image.len() <= MAX_URI_LENGTH @ TreeDeaErrors::StringTooLong,
+        constraint = description.len() <= MAX_DESCRIPTION_LENGTH @ TreeDeaErrors::StringTooLong,
     )]
     pub note: Account<'info, Note>,
 

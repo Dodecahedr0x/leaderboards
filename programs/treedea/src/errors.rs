@@ -19,4 +19,7 @@ pub enum TreeDeaErrors {
 
     #[msg("Not enough stake to replace")]
     NotEnoughStake,
+
+    #[msg("Invalid node")]
+    InvalidNode,
 }

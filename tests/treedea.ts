@@ -37,7 +37,16 @@ describe("TreeDea", () => {
     let rootNode = await program.account.node.fetch(treeAccounts.rootNode)
     console.log(tree, rootNode)
 
-    // Create node
+    // Create notes on the root
+    let rootNoteAccounts = []
+    for (let i = 0; i < MAX_NOTES_PER_NODE; i++) {
+      const id = anchor.web3.Keypair.generate().publicKey;
+      rootNoteAccounts.push(createNoteAccounts(program, rootAccounts.root, treeAccounts.tree, treeAccounts.rootNode, id, treeAccounts.rootNode.toString(), "", "Test note"))
+      printAccounts(rootNoteAccounts[rootNoteAccounts.length - 1])
+      await program.methods.createNote(id, treeAccounts.rootNode.toString(), "", "Test note").accounts(rootNoteAccounts[rootNoteAccounts.length - 1]).rpc({ skipPreflight: true })
+    }
+
+    // Create children nodes
     const tags = ["Solana", "Ethereum", "Polygon", "Arbitrum", "Optimism"]
     let nodeAccounts = []
     for (const tag of tags) {
@@ -46,7 +55,7 @@ describe("TreeDea", () => {
       await program.methods.createNode(tag).accounts(nodeAccounts[nodeAccounts.length - 1]).rpc({ skipPreflight: true })
     }
 
-    // Attach node
+    // Attach nodes
     for (let i = 0; i <= MAX_CHILD_PER_NODE; i++) {
       const attachAccounts = attachNodeAccounts(program, rootAccounts.root, treeAccounts.tree, treeAccounts.rootNode, nodeAccounts[i].node)
       printAccounts(attachAccounts)
@@ -58,14 +67,7 @@ describe("TreeDea", () => {
       }
     }
 
-    // Create notes
-    let rootNoteAccounts = []
-    for (let i = 0; i < MAX_NOTES_PER_NODE; i++) {
-      const id = anchor.web3.Keypair.generate().publicKey;
-      rootNoteAccounts.push(createNoteAccounts(program, rootAccounts.root, treeAccounts.tree, treeAccounts.rootNode, id, treeAccounts.rootNode.toString(), "", "Test note"))
-      printAccounts(rootNoteAccounts[rootNoteAccounts.length - 1])
-      await program.methods.createNote(id, treeAccounts.rootNode.toString(), "", "Test note").accounts(rootNoteAccounts[rootNoteAccounts.length - 1]).rpc({ skipPreflight: true })
-    }
+    // Create notes on first child
     console.log((await program.account.node.fetch(treeAccounts.rootNode)).children.map(e => e.toString()))
     console.log((await program.account.node.fetch(nodeAccounts[0].node)).parent.toString())
     console.log(anchor.web3.PublicKey.findProgramAddressSync([Buffer.from(NOTE_SEED), treeAccounts.tree.toBuffer(), anchor.web3.PublicKey.default.toBuffer(), Buffer.from(tags[0])], program.programId)[0].toString())

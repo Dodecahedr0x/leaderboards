@@ -87,7 +87,9 @@ pub struct Note {
     pub website: String,
     pub image: String,
     pub description: String,
+    pub tags: Vec<String>,
     pub parent: Pubkey,
+    pub stake: u64,
 }
 
 impl Note {
@@ -95,5 +97,7 @@ impl Note {
         + 32 // ID
         + (4 + MAX_URI_LENGTH) * 2 // Website and image
         + (4 + MAX_DESCRIPTION_LENGTH) // Description
-        + 32; // Parent
+        + (4 + MAX_TAGS * MAX_TAG_LENGTH) // Tags
+        + 32 // Parent
+        + 8; // Stake
 }
