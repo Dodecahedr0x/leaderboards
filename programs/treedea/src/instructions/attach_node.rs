@@ -3,14 +3,11 @@ use anchor_lang::prelude::*;
 use crate::seeds::{NODE_SEED, ROOT_SEED, TREE_SEED};
 use crate::state::{Node, Root, Tree, MAX_CHILD_PER_NODE};
 
-pub fn attach_node(ctx: Context<AttachNode>, tag: String) -> Result<()> {
+pub fn attach_node(ctx: Context<AttachNode>) -> Result<()> {
     msg!("Attaching child node");
 
     let parent_node = &mut ctx.accounts.parent_node;
-    let node = &mut ctx.accounts.node;
-    node.parent = parent_node.key();
-
-    if parent_node.children.len() >= MAX_CHILD_PER_NODE {}
+    parent_node.children.push(ctx.accounts.node.key());
 
     Ok(())
 }
@@ -52,10 +49,11 @@ pub struct AttachNode<'info> {
             &parent_node.tags.last().unwrap().as_ref(),
         ],
         bump,
+        constraint = parent_node.children.len() < MAX_CHILD_PER_NODE,
     )]
     pub parent_node: Account<'info, Node>,
 
-    /// The new node
+    /// The attached node
     #[account(
         mut,
         seeds = [
@@ -65,21 +63,8 @@ pub struct AttachNode<'info> {
             &node.tags.last().unwrap().as_ref(),
         ],
         bump,
-        constraint = node.stake > weaker_node.stake || parent_node.children.len() < MAX_CHILD_PER_NODE,
     )]
     pub node: Account<'info, Node>,
-
-    /// The node being replaced
-    #[account(
-        seeds = [
-            NODE_SEED.as_bytes(),
-            &tree.key().to_bytes(),
-            &parent_node.key().to_bytes(),
-            &weaker_node.tags.last().unwrap().as_ref(),
-        ],
-        bump,
-    )]
-    pub weaker_node: Account<'info, Node>,
 
     /// Common Solana programs
     pub system_program: Program<'info, System>,
