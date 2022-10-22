@@ -3,11 +3,14 @@ use anchor_lang::prelude::*;
 /// Indicates the maximum depth of the tree
 pub const MAX_TAGS: usize = 10;
 
+/// Character length of a tag
+pub const MAX_TAG_LENGTH: usize = 256;
+
 /// Maximum number of notes that can be attached to a tree
 pub const MAX_NOTES_PER_NODE: usize = 3;
 
-/// Character length of a tag
-pub const MAX_TAG_LENGTH: usize = 256;
+/// The maximum
+pub const MAX_CHILD_PER_NODE: usize = 3;
 
 #[account]
 pub struct Root {
@@ -32,10 +35,13 @@ pub struct Tree {
 
     /// The root node of the tree
     pub root_node: Pubkey,
+
+    /// Title of the tree
+    pub title: String,
 }
 
 impl Tree {
-    pub const LEN: usize = 8 + 2 * 32;
+    pub const LEN: usize = 8 + 2 * 32 + (4 + MAX_TAG_LENGTH);
 }
 
 #[account]
@@ -46,20 +52,14 @@ pub struct Node {
     /// The parent of this node
     pub parent: Pubkey,
 
-    /// The left child
-    pub left_child: Option<Pubkey>,
+    /// Children nodes
+    pub children: Vec<Pubkey>,
 
-    /// The right child
-    pub right_child: Option<Pubkey>,
-
-    /// The razor tag that defines what tags children will have
-    pub razor: String,
+    /// The total staked on notes of this node
+    pub stake: u64,
 
     /// The set of tags of this node
     pub tags: Vec<String>,
-
-    /// The set of nagative tags of this node
-    pub not_tags: Vec<String>,
 
     /// The set of notes currently attached to this node
     pub notes: Vec<Pubkey>,
@@ -68,10 +68,10 @@ pub struct Node {
 impl Node {
     pub const LEN: usize = 8 // Discriminator
         + 32 // Tree
-        + 3 * 33 // Parent and child
-        + (4 + MAX_TAG_LENGTH) // Razor
+        + 32 // Parent
+        + (4 + MAX_CHILD_PER_NODE * 32) // Children
+        + 8 // Stake
         + (4 + (4 + MAX_TAG_LENGTH) * MAX_TAGS) // Tags
-        + (4 + (4 + MAX_TAG_LENGTH) * MAX_TAGS) // Negative Tags
         + (4 + MAX_NOTES_PER_NODE * 32); // Notes
 }
 

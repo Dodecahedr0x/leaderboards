@@ -1,3 +1,4 @@
+mod errors;
 mod instructions;
 mod seeds;
 mod state;

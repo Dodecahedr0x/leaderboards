@@ -1,6 +1,6 @@
-# Idea Tree
+# TreeDea
 
-Anchor implementation of the Idea Tree, a token-curated binary tree registry where participants stake to control the nodes closest to the root.
+Anchor implementation of the TreeDea, a token-curated binary tree registry where participants stake to control the nodes closest to the root.
 
 ## Concepts
 
