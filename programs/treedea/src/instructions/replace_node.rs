@@ -1,19 +1,26 @@
 use anchor_lang::prelude::*;
 
+use crate::errors::TreeDeaErrors;
 use crate::seeds::{NODE_SEED, ROOT_SEED, TREE_SEED};
 use crate::state::{Node, Root, Tree, MAX_CHILD_PER_NODE};
 
-pub fn attach_node(ctx: Context<AttachNode>) -> Result<()> {
-    msg!("Attaching child node");
+pub fn replace_node(ctx: Context<ReplaceNode>) -> Result<()> {
+    msg!("Replacing a node");
 
     let parent_node = &mut ctx.accounts.parent_node;
+    let position = parent_node
+        .children
+        .iter()
+        .position(|&n| n == ctx.accounts.weaker_node.key())
+        .unwrap();
+    parent_node.children.remove(position);
     parent_node.children.push(ctx.accounts.node.key());
 
     Ok(())
 }
 
 #[derive(Accounts)]
-pub struct AttachNode<'info> {
+pub struct ReplaceNode<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
@@ -48,7 +55,9 @@ pub struct AttachNode<'info> {
             &parent_node.tags.last().unwrap().as_ref(),
         ],
         bump,
-        constraint = parent_node.children.len() < MAX_CHILD_PER_NODE,
+        constraint = parent_node.children.len() == MAX_CHILD_PER_NODE @ TreeDeaErrors::NodeNotFull,
+        constraint = parent_node.children.iter().find(|&n| n == &node.key()).is_none() @ TreeDeaErrors::AlreadyAChild,
+        constraint = parent_node.children.iter().find(|&n| n == &weaker_node.key()).is_some() @ TreeDeaErrors::NotAChild,
     )]
     pub parent_node: Account<'info, Node>,
 
@@ -62,8 +71,22 @@ pub struct AttachNode<'info> {
             &node.tags.last().unwrap().as_ref(),
         ],
         bump,
+        constraint = node.stake > weaker_node.stake @ TreeDeaErrors::NotEnoughStake,
     )]
     pub node: Account<'info, Node>,
+
+    /// The weaker node being replaced
+    #[account(
+        mut,
+        seeds = [
+            NODE_SEED.as_bytes(),
+            &tree.key().to_bytes(),
+            &parent_node.key().to_bytes(),
+            &weaker_node.tags.last().unwrap().as_ref(),
+        ],
+        bump,
+    )]
+    pub weaker_node: Account<'info, Node>,
 
     /// Common Solana programs
     pub system_program: Program<'info, System>,

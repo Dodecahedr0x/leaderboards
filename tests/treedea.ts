@@ -19,7 +19,7 @@ describe("idea-tree", () => {
     voteMint = (await mintToken(provider, admin, user1.publicKey)).mint
   })
 
-  it("Create a tree", async () => {
+  it("Create a tree and win a node auction", async () => {
     const rootAccounts = createRootAccounts(program, id.publicKey, voteMint)
     printAccounts(rootAccounts)
 
