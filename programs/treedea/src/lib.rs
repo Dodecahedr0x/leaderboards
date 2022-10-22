@@ -23,4 +23,12 @@ pub mod treedea {
     pub fn create_node(ctx: Context<CreateNode>, tag: String) -> Result<()> {
         instructions::create_node(ctx, tag)
     }
+
+    pub fn attach_node(ctx: Context<AttachNode>) -> Result<()> {
+        instructions::attach_node(ctx)
+    }
+
+    pub fn replace_node(ctx: Context<ReplaceNode>) -> Result<()> {
+        instructions::replace_node(ctx)
+    }
 }

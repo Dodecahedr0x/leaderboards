@@ -4,6 +4,7 @@ import { createAssociatedTokenAccount, createMint, mintToChecked } from "@solana
 
 import { PROGRAM_ID as METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata"
 import { PublicKey } from '@solana/web3.js';
+import { assert } from "chai";
 
 export const provider = anchor.getProvider() as anchor.AnchorProvider;
 
@@ -34,7 +35,7 @@ export const getTokenMetadata = (tokenMint: anchor.web3.PublicKey) => {
   return tokenMetadataAddress;
 };
 
-export const printAccounts = (accounts: {[key: string]: PublicKey}) => {
+export const printAccounts = (accounts: { [key: string]: PublicKey }) => {
   console.log(Object.entries(accounts).map(([k, v]) => [k, v.toString()]))
 }
 
@@ -69,4 +70,13 @@ export const mintToken = async (
   );
 
   return { mint, tokenAccount }
+}
+
+export const expectRevert = async (promise: Promise<any>) => {
+  try {
+    await promise
+    assert(false)
+  } catch (err) {
+    console.log(err)
+  }
 }

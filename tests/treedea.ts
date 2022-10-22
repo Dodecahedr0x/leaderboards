@@ -1,12 +1,13 @@
 import * as anchor from "@project-serum/anchor";
 
 import { attachNodeAccounts, createNodeAccounts } from './../ts/tree';
-import { createKeypairs, mintToken, printAccounts, provider } from "./utils";
+import { createKeypairs, expectRevert, mintToken, printAccounts, provider } from "./utils";
 import { createRootAccounts, createTreeAccounts } from "../ts";
 
 import { MAX_CHILD_PER_NODE } from "../ts/constants";
 import { Program } from "@project-serum/anchor";
 import { Treedea } from "../target/types/treedea";
+import { expect } from "chai";
 
 describe("TreeDea", () => {
   const program = anchor.workspace.Treedea as Program<Treedea>;
@@ -46,6 +47,17 @@ describe("TreeDea", () => {
       console.log(tag)
       printAccounts(nodeAccounts[nodeAccounts.length - 1])
       await program.methods.createNode(tag).accounts(nodeAccounts[nodeAccounts.length - 1]).rpc({ skipPreflight: true })
+    }
+
+    for (let i = 0; i <= MAX_CHILD_PER_NODE; i++) {
+      const attachAccounts = attachNodeAccounts(program, rootAccounts.root, treeAccounts.tree, treeAccounts.rootNode, nodeAccounts[i].node)
+      printAccounts(attachAccounts)
+
+      if (i < MAX_CHILD_PER_NODE) {
+        await program.methods.attachNode().accounts(attachAccounts).rpc({ skipPreflight: true })
+      } else {
+        await expectRevert(program.methods.attachNode().accounts(attachAccounts).rpc({ skipPreflight: true }))
+      }
     }
   });
 });
