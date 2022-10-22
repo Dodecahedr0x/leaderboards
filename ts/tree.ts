@@ -1,7 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 
 import { ASSOCIATED_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@project-serum/anchor/dist/cjs/utils/token';
-import { NODE_SEED, ROOT_AUTHORITY_SEED, ROOT_SEED, TREE_SEED, VOTE_MINT_SEED } from "./constants"
+import { NODE_SEED, NOTE_SEED, ROOT_AUTHORITY_SEED, ROOT_SEED, TREE_SEED, VOTE_MINT_SEED } from "./constants"
 
 import { Program } from "@project-serum/anchor"
 import { PublicKey } from "@solana/web3.js"
@@ -57,6 +57,19 @@ export const attachNodeAccounts = (program: Program<Treedea>, root: PublicKey, t
     tree,
     parentNode,
     node,
+    systemProgram: anchor.web3.SystemProgram.programId,
+    rent: anchor.web3.SYSVAR_RENT_PUBKEY
+  }
+}
+
+export const createNoteAccounts = (program: Program<Treedea>, root: PublicKey, tree: PublicKey, parentNode: PublicKey, id: PublicKey, website: string, image: string, description: string) => {
+  const [note,] = PublicKey.findProgramAddressSync([Buffer.from(NOTE_SEED), tree.toBuffer(), id.toBuffer()], program.programId)
+
+  return {
+    root,
+    tree,
+    parentNode,
+    note,
     systemProgram: anchor.web3.SystemProgram.programId,
     rent: anchor.web3.SYSVAR_RENT_PUBKEY
   }

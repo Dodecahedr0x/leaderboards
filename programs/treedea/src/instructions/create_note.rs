@@ -5,6 +5,7 @@ use crate::state::{Node, Note, Root, Tree, MAX_DESCRIPTION_LENGTH, MAX_URI_LENGT
 
 pub fn create_note(
     ctx: Context<CreateNote>,
+    id: Pubkey,
     website: String,
     image: String,
     description: String,
@@ -12,6 +13,7 @@ pub fn create_note(
     msg!("Creating a note");
 
     let note = &mut ctx.accounts.note;
+    note.id = id;
     note.website = website;
     note.image = image;
     note.description = description;
@@ -21,7 +23,7 @@ pub fn create_note(
 }
 
 #[derive(Accounts)]
-#[instruction(website: String, image: String, description: String)]
+#[instruction(id: Pubkey, website: String, image: String, description: String)]
 pub struct CreateNote<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
@@ -67,9 +69,7 @@ pub struct CreateNote<'info> {
         seeds = [
             NOTE_SEED.as_bytes(),
             &tree.key().to_bytes(),
-            &website.as_ref(),
-            &image.as_ref(),
-            &description.as_ref(),
+            &id.to_bytes()
         ],
         bump,
         constraint = website.len() <= MAX_URI_LENGTH,

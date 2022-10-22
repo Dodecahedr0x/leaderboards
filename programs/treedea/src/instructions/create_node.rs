@@ -8,7 +8,7 @@ pub fn create_node(ctx: Context<CreateNode>, tag: String) -> Result<()> {
 
     let node = &mut ctx.accounts.node;
     node.tree = ctx.accounts.tree.key();
-    node.parent = node.key();
+    node.parent = ctx.accounts.parent_node.key();
     node.tags = ctx.accounts.parent_node.tags.clone();
     node.tags.push(tag);
 

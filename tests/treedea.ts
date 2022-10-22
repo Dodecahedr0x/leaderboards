@@ -1,13 +1,12 @@
 import * as anchor from "@project-serum/anchor";
 
-import { attachNodeAccounts, createNodeAccounts } from './../ts/tree';
+import { MAX_CHILD_PER_NODE, MAX_NOTES_PER_NODE, NOTE_SEED } from "../ts/constants";
+import { attachNodeAccounts, createNodeAccounts, createNoteAccounts } from './../ts/tree';
 import { createKeypairs, expectRevert, mintToken, printAccounts, provider } from "./utils";
 import { createRootAccounts, createTreeAccounts } from "../ts";
 
-import { MAX_CHILD_PER_NODE } from "../ts/constants";
 import { Program } from "@project-serum/anchor";
 import { Treedea } from "../target/types/treedea";
-import { expect } from "chai";
 
 describe("TreeDea", () => {
   const program = anchor.workspace.Treedea as Program<Treedea>;
@@ -24,7 +23,6 @@ describe("TreeDea", () => {
 
   it("Create a tree and win a node auction", async () => {
     const rootAccounts = createRootAccounts(program, id.publicKey, voteMint)
-    printAccounts(rootAccounts)
 
     await program.methods.createRoot(id.publicKey, admin.publicKey).accounts(rootAccounts).rpc({ skipPreflight: true })
 
@@ -33,22 +31,22 @@ describe("TreeDea", () => {
 
     const rootTag = "DeFi Protocol?"
     const treeAccounts = createTreeAccounts(program, rootAccounts.root, rootTag)
-    printAccounts(treeAccounts)
     await program.methods.createTree(rootTag).accounts(treeAccounts).rpc({ skipPreflight: true })
 
     let tree = await program.account.tree.fetch(treeAccounts.tree)
     let rootNode = await program.account.node.fetch(treeAccounts.rootNode)
     console.log(tree, rootNode)
 
+    // Create node
     const tags = ["Solana", "Ethereum", "Polygon", "Arbitrum", "Optimism"]
     let nodeAccounts = []
     for (const tag of tags) {
       nodeAccounts.push(createNodeAccounts(program, rootAccounts.root, treeAccounts.tree, treeAccounts.rootNode, tag))
-      console.log(tag)
       printAccounts(nodeAccounts[nodeAccounts.length - 1])
       await program.methods.createNode(tag).accounts(nodeAccounts[nodeAccounts.length - 1]).rpc({ skipPreflight: true })
     }
 
+    // Attach node
     for (let i = 0; i <= MAX_CHILD_PER_NODE; i++) {
       const attachAccounts = attachNodeAccounts(program, rootAccounts.root, treeAccounts.tree, treeAccounts.rootNode, nodeAccounts[i].node)
       printAccounts(attachAccounts)
@@ -58,6 +56,25 @@ describe("TreeDea", () => {
       } else {
         await expectRevert(program.methods.attachNode().accounts(attachAccounts).rpc({ skipPreflight: true }))
       }
+    }
+
+    // Create notes
+    let rootNoteAccounts = []
+    for (let i = 0; i < MAX_NOTES_PER_NODE; i++) {
+      const id = anchor.web3.Keypair.generate().publicKey;
+      rootNoteAccounts.push(createNoteAccounts(program, rootAccounts.root, treeAccounts.tree, treeAccounts.rootNode, id, treeAccounts.rootNode.toString(), "", "Test note"))
+      printAccounts(rootNoteAccounts[rootNoteAccounts.length - 1])
+      await program.methods.createNote(id, treeAccounts.rootNode.toString(), "", "Test note").accounts(rootNoteAccounts[rootNoteAccounts.length - 1]).rpc({ skipPreflight: true })
+    }
+    console.log((await program.account.node.fetch(treeAccounts.rootNode)).children.map(e => e.toString()))
+    console.log((await program.account.node.fetch(nodeAccounts[0].node)).parent.toString())
+    console.log(anchor.web3.PublicKey.findProgramAddressSync([Buffer.from(NOTE_SEED), treeAccounts.tree.toBuffer(), anchor.web3.PublicKey.default.toBuffer(), Buffer.from(tags[0])], program.programId)[0].toString())
+    let noteAccounts = []
+    for (const node of nodeAccounts) {
+      const id = anchor.web3.Keypair.generate().publicKey;
+      noteAccounts.push(createNoteAccounts(program, rootAccounts.root, treeAccounts.tree, node.node, id, node.node.toString(), "", "Test note"))
+      printAccounts(noteAccounts[noteAccounts.length - 1])
+      await program.methods.createNote(id, node.node.toString(), "", "Test note").accounts(noteAccounts[noteAccounts.length - 1]).rpc({ skipPreflight: true })
     }
   });
 });

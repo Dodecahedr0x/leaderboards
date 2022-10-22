@@ -83,6 +83,7 @@ impl Node {
 
 #[account]
 pub struct Note {
+    pub id: Pubkey,
     pub website: String,
     pub image: String,
     pub description: String,
@@ -91,6 +92,7 @@ pub struct Note {
 
 impl Note {
     pub const LEN: usize = 8 // Discriminator
+        + 32 // ID
         + (4 + MAX_URI_LENGTH) * 2 // Website and image
         + (4 + MAX_DESCRIPTION_LENGTH) // Description
         + 32; // Parent

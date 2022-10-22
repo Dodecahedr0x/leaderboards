@@ -31,4 +31,14 @@ pub mod treedea {
     pub fn replace_node(ctx: Context<ReplaceNode>) -> Result<()> {
         instructions::replace_node(ctx)
     }
+
+    pub fn create_note(
+        ctx: Context<CreateNote>,
+        id: Pubkey,
+        website: String,
+        image: String,
+        description: String,
+    ) -> Result<()> {
+        instructions::create_note(ctx, id, website, image, description)
+    }
 }
