@@ -16,11 +16,11 @@ pub mod idea_tree {
         instructions::create_root(ctx, id, admin)
     }
 
-    pub fn create_tree(ctx: Context<CreateTree>, razor: String) -> Result<()> {
-        instructions::create_tree(ctx, razor)
+    pub fn create_tree(ctx: Context<CreateTree>, tag: String) -> Result<()> {
+        instructions::create_tree(ctx, tag)
     }
 
-    pub fn create_tag(ctx: Context<CreateTag>) -> Result<()> {
-        instructions::create_tag(ctx)
+    pub fn create_node(ctx: Context<CreateNode>, tag: String) -> Result<()> {
+        instructions::create_node(ctx, tag)
     }
 }

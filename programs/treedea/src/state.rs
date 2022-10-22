@@ -4,13 +4,19 @@ use anchor_lang::prelude::*;
 pub const MAX_TAGS: usize = 10;
 
 /// Character length of a tag
-pub const MAX_TAG_LENGTH: usize = 256;
+pub const MAX_TAG_LENGTH: usize = 64;
 
 /// Maximum number of notes that can be attached to a tree
 pub const MAX_NOTES_PER_NODE: usize = 3;
 
 /// The maximum
 pub const MAX_CHILD_PER_NODE: usize = 3;
+
+/// Character length of a URI
+pub const MAX_URI_LENGTH: usize = 200;
+
+/// Character length of a description
+pub const MAX_DESCRIPTION_LENGTH: usize = 200;
 
 #[account]
 pub struct Root {
@@ -76,6 +82,16 @@ impl Node {
 }
 
 #[account]
-pub struct Tag {
-    pub data: u64,
+pub struct Note {
+    pub website: String,
+    pub image: String,
+    pub description: String,
+    pub parent: Pubkey,
+}
+
+impl Note {
+    pub const LEN: usize = 8 // Discriminator
+        + (4 + MAX_URI_LENGTH) * 2 // Website and image
+        + (4 + MAX_DESCRIPTION_LENGTH) // Description
+        + 32; // Parent
 }

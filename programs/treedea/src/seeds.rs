@@ -10,7 +10,7 @@ pub const ROOT_SEED: &str = "root";
 pub const TREE_SEED: &str = "tree";
 
 #[constant]
-pub const TAG_SEED: &str = "tag";
+pub const NODE_SEED: &str = "node";
 
 #[constant]
-pub const NODE_SEED: &str = "node";
+pub const NOTE_SEED: &str = "note";
