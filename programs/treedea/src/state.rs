@@ -101,3 +101,17 @@ impl Note {
         + 32 // Parent
         + 8; // Stake
 }
+
+#[account]
+pub struct StakeAccount {
+    pub staker: Pubkey,
+    pub stake: u64,
+    pub note: Pubkey,
+}
+
+impl StakeAccount {
+    pub const LEN: usize = 8 // Discriminator
+        + 32 // Staker
+        + 8 // Stake
+        + 32; // Note
+}

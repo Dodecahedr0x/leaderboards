@@ -6,8 +6,8 @@ use crate::state::{Node, Note, Root, Tree, MAX_CHILD_PER_NODE};
 pub fn attach_note(ctx: Context<AttachNote>) -> Result<()> {
     msg!("Attaching child note");
 
-    let parent_node = &mut ctx.accounts.parent_node;
-    parent_node.notes.push(ctx.accounts.note.key());
+    let node = &mut ctx.accounts.node;
+    node.notes.push(ctx.accounts.note.key());
 
     Ok(())
 }
@@ -44,13 +44,13 @@ pub struct AttachNote<'info> {
         seeds = [
             NODE_SEED.as_bytes(),
             &tree.key().to_bytes(),
-            &parent_node.parent.key().to_bytes(),
-            &parent_node.tags.last().unwrap().as_ref(),
+            &node.parent.key().to_bytes(),
+            &node.tags.last().unwrap().as_ref(),
         ],
         bump,
-        constraint = parent_node.notes.len() < MAX_CHILD_PER_NODE,
+        constraint = node.notes.len() < MAX_CHILD_PER_NODE,
     )]
-    pub parent_node: Account<'info, Node>,
+    pub node: Account<'info, Node>,
 
     /// The attached note
     #[account(

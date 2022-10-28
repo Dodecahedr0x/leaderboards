@@ -14,3 +14,6 @@ pub const NODE_SEED: &str = "node";
 
 #[constant]
 pub const NOTE_SEED: &str = "note";
+
+#[constant]
+pub const STAKE_SEED: &str = "stake";

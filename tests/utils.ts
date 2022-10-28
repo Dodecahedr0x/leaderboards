@@ -1,7 +1,8 @@
 import * as anchor from "@project-serum/anchor";
 
-import { createAssociatedTokenAccount, createMint, mintToChecked } from "@solana/spl-token"
+import { createAssociatedTokenAccount, createMint, mintTo, mintToChecked } from "@solana/spl-token"
 
+import { BN } from "bn.js";
 import { PROGRAM_ID as METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata"
 import { PublicKey } from '@solana/web3.js';
 import { assert } from "chai";
@@ -59,14 +60,13 @@ export const mintToken = async (
     destination
   );
 
-  await mintToChecked(
+  await mintTo(
     provider.connection,
     creator,
     mint,
     tokenAccount,
     creator.publicKey,
-    1,
-    0
+    10 ** 9,
   );
 
   return { mint, tokenAccount }

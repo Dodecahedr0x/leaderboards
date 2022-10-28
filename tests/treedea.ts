@@ -44,6 +44,7 @@ describe("TreeDea", () => {
       rootNoteAccounts.push(createNoteAccounts(program, rootAccounts.root, treeAccounts.tree, treeAccounts.rootNode, id, treeAccounts.rootNode.toString(), "", "Test note"))
       printAccounts(rootNoteAccounts[rootNoteAccounts.length - 1])
       await program.methods.createNote(id, treeAccounts.rootNode.toString(), "", "Test note").accounts(rootNoteAccounts[rootNoteAccounts.length - 1]).rpc({ skipPreflight: true })
+      await program.methods.attachNote().accounts(rootNoteAccounts[rootNoteAccounts.length - 1]).rpc({ skipPreflight: true })
     }
 
     // Create children nodes
@@ -77,6 +78,7 @@ describe("TreeDea", () => {
       noteAccounts.push(createNoteAccounts(program, rootAccounts.root, treeAccounts.tree, node.node, id, node.node.toString(), "", "Test note"))
       printAccounts(noteAccounts[noteAccounts.length - 1])
       await program.methods.createNote(id, node.node.toString(), "", "Test note").accounts(noteAccounts[noteAccounts.length - 1]).rpc({ skipPreflight: true })
+      await program.methods.attachNote().accounts(noteAccounts[noteAccounts.length - 1]).rpc({ skipPreflight: true })
     }
   });
 });

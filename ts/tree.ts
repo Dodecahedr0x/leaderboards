@@ -74,3 +74,16 @@ export const createNoteAccounts = (program: Program<Treedea>, root: PublicKey, t
     rent: anchor.web3.SYSVAR_RENT_PUBKEY
   }
 }
+
+export const attachNoteAccounts = (program: Program<Treedea>, root: PublicKey, tree: PublicKey, node: PublicKey, id: PublicKey, website: string, image: string, description: string) => {
+  const [note,] = PublicKey.findProgramAddressSync([Buffer.from(NOTE_SEED), tree.toBuffer(), id.toBuffer()], program.programId)
+
+  return {
+    root,
+    tree,
+    node,
+    note,
+    systemProgram: anchor.web3.SystemProgram.programId,
+    rent: anchor.web3.SYSVAR_RENT_PUBKEY
+  }
+}

@@ -41,4 +41,8 @@ pub mod treedea {
     ) -> Result<()> {
         instructions::create_note(ctx, id, website, image, description)
     }
+
+    pub fn attach_note(ctx: Context<AttachNote>) -> Result<()> {
+        instructions::attach_note(ctx)
+    }
 }

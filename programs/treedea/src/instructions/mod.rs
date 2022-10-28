@@ -5,6 +5,7 @@ mod create_note;
 mod create_root;
 mod create_tree;
 mod replace_node;
+mod stake_on_note;
 
 pub use attach_node::*;
 pub use attach_note::*;
@@ -13,3 +14,4 @@ pub use create_note::*;
 pub use create_root::*;
 pub use create_tree::*;
 pub use replace_node::*;
+pub use stake_on_note::*;
