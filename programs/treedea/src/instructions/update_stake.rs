@@ -5,29 +5,60 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 use crate::seeds::{NODE_SEED, NOTE_SEED, ROOT_AUTHORITY_SEED, ROOT_SEED, STAKE_SEED, TREE_SEED};
 use crate::state::{Node, Note, Root, StakeAccount, Tree};
 
-pub fn stake_on_note(ctx: Context<StakeOnNote>, stake: u64) -> Result<()> {
-    msg!("Creating the global root");
-
+pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
     let node = &mut ctx.accounts.node;
-    node.stake += stake;
     let note = &mut ctx.accounts.note;
-    note.stake += stake;
+    let stake_account = &mut ctx.accounts.stake_account;
 
-    let transfer_ctx = CpiContext::new(
-        ctx.accounts.token_program.to_account_info(),
-        Transfer {
-            from: ctx.accounts.staker_account.to_account_info(),
-            to: ctx.accounts.vote_account.to_account_info(),
-            authority: ctx.accounts.signer.to_account_info(),
-        },
-    );
-    token::transfer(transfer_ctx, stake)?;
+    if stake >= 0 {
+        msg!("Staking {} tokens", stake);
+        let stake = stake as u64;
+
+        node.stake += stake;
+        note.stake += stake;
+        stake_account.stake += stake;
+
+        let transfer_ctx = CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            Transfer {
+                from: ctx.accounts.staker_account.to_account_info(),
+                to: ctx.accounts.vote_account.to_account_info(),
+                authority: ctx.accounts.signer.to_account_info(),
+            },
+        );
+        token::transfer(transfer_ctx, stake)?;
+    } else {
+        msg!("Unstaking {} tokens", stake);
+        let stake = -stake as u64;
+
+        node.stake -= stake;
+        note.stake -= stake;
+        stake_account.stake -= stake;
+
+        let authority_bump = *ctx.bumps.get("root_authority").unwrap();
+        let authority_seeds = &[
+            ROOT_AUTHORITY_SEED.as_bytes(),
+            &ctx.accounts.root.key().to_bytes(),
+            &[authority_bump],
+        ];
+        let signer_seeds = &[&authority_seeds[..]];
+        let transfer_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            Transfer {
+                from: ctx.accounts.staker_account.to_account_info(),
+                to: ctx.accounts.vote_account.to_account_info(),
+                authority: ctx.accounts.signer.to_account_info(),
+            },
+            signer_seeds,
+        );
+        token::transfer(transfer_ctx, stake)?;
+    }
 
     Ok(())
 }
 
 #[derive(Accounts)]
-pub struct StakeOnNote<'info> {
+pub struct UpdateStake<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
@@ -36,7 +67,7 @@ pub struct StakeOnNote<'info> {
     #[account(
         seeds = [
             ROOT_AUTHORITY_SEED.as_bytes(),
-            &root.id.to_bytes()
+            &root.key().to_bytes()
         ],
         bump,
     )]
@@ -49,8 +80,13 @@ pub struct StakeOnNote<'info> {
             &root.id.to_bytes(),
         ],
         bump,
+        has_one = vote_mint,
     )]
     pub root: Account<'info, Root>,
+
+    /// The token used to vote for nodes and tags
+    #[account(owner = token::ID)]
+    pub vote_mint: Account<'info, Mint>,
 
     /// The tree
     #[account(
@@ -89,9 +125,7 @@ pub struct StakeOnNote<'info> {
 
     /// The account storing vote tokens
     #[account(
-        init_if_needed,
-        payer = signer,
-        space = StakeAccount::LEN,
+        mut,
         seeds = [
             STAKE_SEED.as_bytes(),
             &note.key().to_bytes(),
@@ -99,11 +133,7 @@ pub struct StakeOnNote<'info> {
         ],
         bump
     )]
-    pub stake_account: Account<'info, StakeAccount>,
-
-    /// The token used to vote for nodes and tags
-    #[account(owner = token::ID)]
-    pub vote_mint: Account<'info, Mint>,
+    pub stake_account: Box<Account<'info, StakeAccount>>,
 
     /// The account storing vote tokens
     #[account(
@@ -112,7 +142,7 @@ pub struct StakeOnNote<'info> {
         associated_token::mint = vote_mint,
         associated_token::authority = signer,
     )]
-    pub staker_account: Account<'info, TokenAccount>,
+    pub staker_account: Box<Account<'info, TokenAccount>>,
 
     /// The account storing vote tokens
     #[account(
@@ -121,7 +151,7 @@ pub struct StakeOnNote<'info> {
         associated_token::mint = vote_mint,
         associated_token::authority = root_authority,
     )]
-    pub vote_account: Account<'info, TokenAccount>,
+    pub vote_account: Box<Account<'info, TokenAccount>>,
 
     /// Common Solana programs
     pub token_program: Program<'info, Token>,

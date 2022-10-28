@@ -45,4 +45,12 @@ pub mod treedea {
     pub fn attach_note(ctx: Context<AttachNote>) -> Result<()> {
         instructions::attach_note(ctx)
     }
+
+    pub fn create_stake(ctx: Context<CreateStake>) -> Result<()> {
+        instructions::create_stake(ctx)
+    }
+
+    pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
+        instructions::update_stake(ctx, stake)
+    }
 }

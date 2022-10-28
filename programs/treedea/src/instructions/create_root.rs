@@ -28,7 +28,7 @@ pub struct CreateRoot<'info> {
     #[account(
         seeds = [
             ROOT_AUTHORITY_SEED.as_bytes(),
-            &id.to_bytes()
+            &root.key().to_bytes()
         ],
         bump,
     )]

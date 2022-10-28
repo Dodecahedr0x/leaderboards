@@ -112,6 +112,6 @@ pub struct StakeAccount {
 impl StakeAccount {
     pub const LEN: usize = 8 // Discriminator
         + 32 // Staker
-        + 8 // Stake
-        + 32; // Note
+        + 32 // Note
+        + 8; // Stake
 }
