@@ -6,6 +6,7 @@ mod create_note;
 mod create_root;
 mod create_stake;
 mod create_tree;
+mod move_note;
 mod replace_node;
 mod update_stake;
 
@@ -17,5 +18,6 @@ pub use create_note::*;
 pub use create_root::*;
 pub use create_stake::*;
 pub use create_tree::*;
+pub use move_note::*;
 pub use replace_node::*;
 pub use update_stake::*;

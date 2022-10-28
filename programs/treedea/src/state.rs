@@ -44,6 +44,9 @@ pub struct Tree {
 
     /// Title of the tree
     pub title: String,
+
+    /// Total staked on this tree
+    pub stake: u64,
 }
 
 impl Tree {

@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use crate::seeds::{NOTE_SEED, ROOT_SEED, STAKE_SEED, TREE_SEED};
 use crate::state::{Note, Root, StakeAccount, Tree};
 
-pub fn close_stake(ctx: Context<CloseStake>) -> Result<()> {
+pub fn close_stake(_ctx: Context<CloseStake>) -> Result<()> {
     Ok(())
 }
 

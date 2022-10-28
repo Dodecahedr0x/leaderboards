@@ -6,6 +6,7 @@ use crate::seeds::{NODE_SEED, NOTE_SEED, ROOT_AUTHORITY_SEED, ROOT_SEED, STAKE_S
 use crate::state::{Node, Note, Root, StakeAccount, Tree};
 
 pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
+    let tree = &mut ctx.accounts.tree;
     let node = &mut ctx.accounts.node;
     let note = &mut ctx.accounts.note;
     let stake_account = &mut ctx.accounts.stake_account;
@@ -14,6 +15,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         let stake = stake as u64;
         msg!("Staking {} tokens", stake);
 
+        tree.stake += stake;
         node.stake += stake;
         note.stake += stake;
         stake_account.stake += stake;
@@ -31,6 +33,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         let stake = -stake as u64;
         msg!("Unstaking {} tokens", stake);
 
+        tree.stake -= stake;
         node.stake -= stake;
         note.stake -= stake;
         stake_account.stake -= stake;
@@ -90,6 +93,7 @@ pub struct UpdateStake<'info> {
 
     /// The tree
     #[account(
+        mut,
         seeds = [
             TREE_SEED.as_bytes(),
             &root.key().to_bytes(),

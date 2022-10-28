@@ -10,6 +10,7 @@ import {
   createNodeAccounts,
   createNoteAccounts,
   createStakeAccounts,
+  moveNoteAccounts,
 } from "./../ts/tree";
 import {
   createKeypairs,
@@ -144,7 +145,6 @@ describe("TreeDea", () => {
         treeAccounts.rootNode,
         nodeAccounts[i].node
       );
-      printAccounts(attachAccounts);
 
       if (i < MAX_CHILD_PER_NODE) {
         await program.methods
@@ -184,7 +184,6 @@ describe("TreeDea", () => {
           "Test note"
         )
       );
-      printAccounts(noteAccounts[noteAccounts.length - 1]);
       await program.methods
         .createNote(id, node.node.toString(), "", "Test note")
         .accounts(noteAccounts[noteAccounts.length - 1])
@@ -197,12 +196,13 @@ describe("TreeDea", () => {
       let note = await program.account.note.fetch(
         noteAccounts[noteAccounts.length - 1].note
       );
+      expect(note.parent.toString()).to.equal(node.node.toString());
       expect(note.website).to.equal(node.node.toString());
       expect(note.image).to.equal("");
       expect(note.description).to.equal("Test note");
     }
 
-    // Stake on a note of a child node
+    // Stake on a note of a child node and then unstake
     const stake = new anchor.BN(1000);
     const user1Program = new Program(
       program.idl,
@@ -215,7 +215,7 @@ describe("TreeDea", () => {
         }
       )
     );
-    const stakeAccounts = createStakeAccounts(
+    let stakeAccounts = createStakeAccounts(
       user1Program,
       rootAccounts.root,
       voteMint,
@@ -262,5 +262,32 @@ describe("TreeDea", () => {
     await expectRevert(
       user1Program.account.stakeAccount.fetch(stakeAccounts.stakeAccount)
     );
+
+    // Stake on a note and then upgrade the note
+    await user1Program.methods
+      .createStake()
+      .accounts(stakeAccounts)
+      .rpc({ skipPreflight: true });
+    await user1Program.methods
+      .updateStake(stake)
+      .accounts(stakeAccounts)
+      .rpc({ skipPreflight: true });
+
+    let moveAccounts = moveNoteAccounts(
+      user1Program,
+      rootAccounts.root,
+      treeAccounts.tree,
+      noteAccounts[0].node,
+      treeAccounts.rootNode,
+      noteAccounts[0].note
+    );
+    await user1Program.methods
+      .moveNote()
+      .accounts(moveAccounts)
+      .rpc({ skipPreflight: true });
+
+    let note = await program.account.note.fetch(noteAccounts[0].note);
+    expect(note.parent.toString()).to.equal(treeAccounts.rootNode.toString());
+    // rootNode = await program.account.node.fetch(treeAccounts.rootNode);
   });
 });

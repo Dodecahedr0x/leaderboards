@@ -208,3 +208,21 @@ export const createStakeAccounts = (
     rent: anchor.web3.SYSVAR_RENT_PUBKEY,
   };
 };
+
+export const moveNoteAccounts = (
+  program: Program<Treedea>,
+  root: PublicKey,
+  tree: PublicKey,
+  sourceNode: PublicKey,
+  destinationNode: PublicKey,
+  note: PublicKey
+) => {
+  return {
+    root,
+    tree,
+    sourceNode,
+    destinationNode,
+    note,
+    systemProgram: anchor.web3.SystemProgram.programId,
+  };
+};

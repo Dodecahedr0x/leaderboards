@@ -22,4 +22,7 @@ pub enum TreeDeaErrors {
 
     #[msg("Invalid node")]
     InvalidNode,
+
+    #[msg("Tags do not match")]
+    TagsMismatch,
 }

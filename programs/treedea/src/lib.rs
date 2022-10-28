@@ -57,4 +57,8 @@ pub mod treedea {
     pub fn close_stake(ctx: Context<CloseStake>) -> Result<()> {
         instructions::close_stake(ctx)
     }
+
+    pub fn move_note(ctx: Context<MoveNote>) -> Result<()> {
+        instructions::move_note(ctx)
+    }
 }
