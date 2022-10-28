@@ -25,4 +25,13 @@ pub enum TreeDeaErrors {
 
     #[msg("Tags do not match")]
     TagsMismatch,
+
+    #[msg("Target note is not a child of the node")]
+    NotChildNote,
+
+    #[msg("Target note is not attached to the node")]
+    NotOnNode,
+
+    #[msg("Target note is already on the node")]
+    AlreadyOnNode,
 }

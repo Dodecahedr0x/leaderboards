@@ -1,10 +1,15 @@
 import * as anchor from "@project-serum/anchor";
 
-import { createAssociatedTokenAccount, createMint, mintTo, mintToChecked } from "@solana/spl-token"
+import {
+  createAssociatedTokenAccount,
+  createMint,
+  mintTo,
+  mintToChecked,
+} from "@solana/spl-token";
 
 import { BN } from "bn.js";
-import { PROGRAM_ID as METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata"
-import { PublicKey } from '@solana/web3.js';
+import { PROGRAM_ID as METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
+import { PublicKey } from "@solana/web3.js";
 import { assert } from "chai";
 
 export const provider = anchor.getProvider() as anchor.AnchorProvider;
@@ -20,7 +25,11 @@ export const createKeypair = async (provider: anchor.Provider) => {
 };
 
 export const createKeypairs = async (provider: anchor.Provider, n: number) => {
-  return await Promise.all(Array(n).fill(0).map(e => createKeypair(provider)));
+  return await Promise.all(
+    Array(n)
+      .fill(0)
+      .map((e) => createKeypair(provider))
+  );
 };
 
 export const getTokenMetadata = (tokenMint: anchor.web3.PublicKey) => {
@@ -37,13 +46,13 @@ export const getTokenMetadata = (tokenMint: anchor.web3.PublicKey) => {
 };
 
 export const printAccounts = (accounts: { [key: string]: PublicKey }) => {
-  console.log(Object.entries(accounts).map(([k, v]) => [k, v.toString()]))
-}
+  console.log(Object.entries(accounts).map(([k, v]) => [k, v.toString()]));
+};
 
 export const mintToken = async (
   provider: anchor.Provider,
   creator: anchor.web3.Keypair,
-  destination: anchor.web3.PublicKey,
+  destination: anchor.web3.PublicKey
 ) => {
   const mint = await createMint(
     provider.connection,
@@ -66,17 +75,15 @@ export const mintToken = async (
     mint,
     tokenAccount,
     creator.publicKey,
-    10 ** 9,
+    10 ** 9
   );
 
-  return { mint, tokenAccount }
-}
+  return { mint, tokenAccount };
+};
 
 export const expectRevert = async (promise: Promise<any>) => {
   try {
-    await promise
-    assert(false)
-  } catch (err) {
-    console.log(err)
-  }
-}
+    await promise;
+    assert(false);
+  } catch (err) {}
+};

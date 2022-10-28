@@ -226,3 +226,21 @@ export const moveNoteAccounts = (
     systemProgram: anchor.web3.SystemProgram.programId,
   };
 };
+
+export const replaceNoteAccounts = (
+  program: Program<Treedea>,
+  root: PublicKey,
+  tree: PublicKey,
+  node: PublicKey,
+  note: PublicKey,
+  weakNote: PublicKey
+) => {
+  return {
+    root,
+    tree,
+    node,
+    note,
+    weakNote,
+    systemProgram: anchor.web3.SystemProgram.programId,
+  };
+};

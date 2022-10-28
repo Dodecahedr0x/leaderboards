@@ -61,4 +61,8 @@ pub mod treedea {
     pub fn move_note(ctx: Context<MoveNote>) -> Result<()> {
         instructions::move_note(ctx)
     }
+
+    pub fn replace_note(ctx: Context<ReplaceNote>) -> Result<()> {
+        instructions::replace_note(ctx)
+    }
 }

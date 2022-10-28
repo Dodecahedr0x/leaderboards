@@ -11,6 +11,7 @@ import {
   createNoteAccounts,
   createStakeAccounts,
   moveNoteAccounts,
+  replaceNoteAccounts,
 } from "./../ts/tree";
 import {
   createKeypairs,
@@ -288,6 +289,20 @@ describe("TreeDea", () => {
 
     let note = await program.account.note.fetch(noteAccounts[0].note);
     expect(note.parent.toString()).to.equal(treeAccounts.rootNode.toString());
+
+    // Replace a note on the root
+    const replaceAccounts = replaceNoteAccounts(
+      user1Program,
+      rootAccounts.root,
+      treeAccounts.tree,
+      treeAccounts.rootNode,
+      noteAccounts[0].note,
+      rootNoteAccounts[0].note
+    );
+    await user1Program.methods
+      .replaceNote()
+      .accounts(replaceAccounts)
+      .rpc({ skipPreflight: true });
     // rootNode = await program.account.node.fetch(treeAccounts.rootNode);
   });
 });
