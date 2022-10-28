@@ -53,4 +53,8 @@ pub mod treedea {
     pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         instructions::update_stake(ctx, stake)
     }
+
+    pub fn close_stake(ctx: Context<CloseStake>) -> Result<()> {
+        instructions::close_stake(ctx)
+    }
 }

@@ -229,5 +229,14 @@ describe("TreeDea", () => {
     console.log(
       await user1Program.account.stakeAccount.fetch(stakeAccounts.stakeAccount)
     );
+
+    await user1Program.methods
+      .closeStake()
+      .accounts(stakeAccounts)
+      .rpc({ skipPreflight: true });
+
+    await expectRevert(
+      user1Program.account.stakeAccount.fetch(stakeAccounts.stakeAccount)
+    );
   });
 });
