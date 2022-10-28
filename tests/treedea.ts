@@ -21,7 +21,9 @@ import {
 import { createRootAccounts, createTreeAccounts } from "../ts";
 
 import { Program } from "@project-serum/anchor";
+import { PublicKey } from "@solana/web3.js";
 import { Treedea } from "../target/types/treedea";
+import { expect } from "chai";
 
 describe("TreeDea", () => {
   const program = anchor.workspace.Treedea as Program<Treedea>;
@@ -45,7 +47,9 @@ describe("TreeDea", () => {
       .rpc({ skipPreflight: true });
 
     let root = await program.account.root.fetch(rootAccounts.root);
-    console.log(root);
+    expect(root.id.toString()).to.equal(id.publicKey.toString());
+    expect(root.admin.toString()).to.equal(admin.publicKey.toString());
+    expect(root.voteMint.toString()).to.equal(voteMint.toString());
 
     const rootTag = "DeFi Protocol?";
     const treeAccounts = createTreeAccounts(
@@ -59,8 +63,17 @@ describe("TreeDea", () => {
       .rpc({ skipPreflight: true });
 
     let tree = await program.account.tree.fetch(treeAccounts.tree);
+    expect(tree.root.toString()).to.equal(rootAccounts.root.toString());
+    expect(tree.rootNode.toString()).to.equal(treeAccounts.rootNode.toString());
+    expect(tree.title).to.equal(rootTag);
+
     let rootNode = await program.account.node.fetch(treeAccounts.rootNode);
-    console.log(tree, rootNode);
+    expect(rootNode.tree.toString()).to.equal(treeAccounts.tree.toString());
+    expect(rootNode.parent.toString()).to.equal(PublicKey.default.toString());
+    expect(rootNode.stake.toString()).to.equal("0");
+    expect(rootNode.children.toString()).to.equal([].toString());
+    expect(rootNode.tags.toString()).to.equal([rootTag].toString());
+    expect(rootNode.notes.toString()).to.equal([].toString());
 
     // Create notes on the root
     let rootNoteAccounts = [];
@@ -78,7 +91,6 @@ describe("TreeDea", () => {
           "Test note"
         )
       );
-      printAccounts(rootNoteAccounts[rootNoteAccounts.length - 1]);
       await program.methods
         .createNote(id, treeAccounts.rootNode.toString(), "", "Test note")
         .accounts(rootNoteAccounts[rootNoteAccounts.length - 1])
@@ -88,6 +100,11 @@ describe("TreeDea", () => {
         .accounts(rootNoteAccounts[rootNoteAccounts.length - 1])
         .rpc({ skipPreflight: true });
     }
+
+    rootNode = await program.account.node.fetch(treeAccounts.rootNode);
+    expect(rootNode.notes.map((e) => e.toString()).toString()).to.equal(
+      rootNoteAccounts.map((e) => e.note.toString()).toString()
+    );
 
     // Create children nodes
     const tags = ["Solana", "Ethereum", "Polygon", "Arbitrum", "Optimism"];
@@ -102,11 +119,20 @@ describe("TreeDea", () => {
           tag
         )
       );
-      printAccounts(nodeAccounts[nodeAccounts.length - 1]);
       await program.methods
         .createNode(tag)
         .accounts(nodeAccounts[nodeAccounts.length - 1])
         .rpc({ skipPreflight: true });
+
+      let node = await program.account.node.fetch(
+        nodeAccounts[nodeAccounts.length - 1].node
+      );
+      expect(node.tree.toString()).to.equal(treeAccounts.tree.toString());
+      expect(node.parent.toString()).to.equal(treeAccounts.rootNode.toString());
+      expect(node.stake.toString()).to.equal("0");
+      expect(node.tags.toString()).to.equal([rootTag, tag].toString());
+      expect(node.children.toString()).to.equal([].toString());
+      expect(node.notes.toString()).to.equal([].toString());
     }
 
     // Attach nodes
@@ -125,6 +151,13 @@ describe("TreeDea", () => {
           .attachNode()
           .accounts(attachAccounts)
           .rpc({ skipPreflight: true });
+
+        let node = await program.account.node.fetch(treeAccounts.rootNode);
+        expect(
+          node.children
+            .map((e) => e.toString())
+            .includes(nodeAccounts[i].node.toString())
+        );
       } else {
         await expectRevert(
           program.methods
@@ -136,25 +169,6 @@ describe("TreeDea", () => {
     }
 
     // Create notes on first child
-    console.log(
-      (await program.account.node.fetch(treeAccounts.rootNode)).children.map(
-        (e) => e.toString()
-      )
-    );
-    console.log(
-      (await program.account.node.fetch(nodeAccounts[0].node)).parent.toString()
-    );
-    console.log(
-      anchor.web3.PublicKey.findProgramAddressSync(
-        [
-          Buffer.from(NOTE_SEED),
-          treeAccounts.tree.toBuffer(),
-          anchor.web3.PublicKey.default.toBuffer(),
-          Buffer.from(tags[0]),
-        ],
-        program.programId
-      )[0].toString()
-    );
     let noteAccounts = [];
     for (const node of nodeAccounts) {
       const id = anchor.web3.Keypair.generate().publicKey;
@@ -179,6 +193,13 @@ describe("TreeDea", () => {
         .attachNote()
         .accounts(noteAccounts[noteAccounts.length - 1])
         .rpc({ skipPreflight: true });
+
+      let note = await program.account.note.fetch(
+        noteAccounts[noteAccounts.length - 1].note
+      );
+      expect(note.website).to.equal(node.node.toString());
+      expect(note.image).to.equal("");
+      expect(note.description).to.equal("Test note");
     }
 
     // Stake on a note of a child node
@@ -208,27 +229,30 @@ describe("TreeDea", () => {
       .accounts(stakeAccounts)
       .rpc({ skipPreflight: true });
 
-    console.log(
-      await user1Program.account.stakeAccount.fetch(stakeAccounts.stakeAccount)
+    let stakeAccount = await user1Program.account.stakeAccount.fetch(
+      stakeAccounts.stakeAccount
     );
+    expect(stakeAccount.stake.toString()).to.equal("0");
 
     await user1Program.methods
       .updateStake(stake)
       .accounts(stakeAccounts)
       .rpc({ skipPreflight: true });
 
-    console.log(
-      await user1Program.account.stakeAccount.fetch(stakeAccounts.stakeAccount)
+    stakeAccount = await user1Program.account.stakeAccount.fetch(
+      stakeAccounts.stakeAccount
     );
+    expect(stakeAccount.stake.toString()).to.equal(stake.toString());
 
     await user1Program.methods
       .updateStake(stake.neg())
       .accounts(stakeAccounts)
       .rpc({ skipPreflight: true });
 
-    console.log(
-      await user1Program.account.stakeAccount.fetch(stakeAccounts.stakeAccount)
+    stakeAccount = await user1Program.account.stakeAccount.fetch(
+      stakeAccounts.stakeAccount
     );
+    expect(stakeAccount.stake.toString()).to.equal("0");
 
     await user1Program.methods
       .closeStake()
