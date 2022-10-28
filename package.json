@@ -2,10 +2,12 @@
     "main": "ts/index.ts",
     "scripts": {
         "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-        "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+        "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+        "export": "anchor-client-gen ./target/idl/treedea.json export/"
     },
     "dependencies": {
-        "@project-serum/anchor": "^0.25.0"
+        "@project-serum/anchor": "^0.25.0",
+        "anchor-client-gen": "^0.25.0"
     },
     "devDependencies": {
         "@metaplex-foundation/mpl-token-metadata": "^2.3.3",
