@@ -11,8 +11,8 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
     let stake_account = &mut ctx.accounts.stake_account;
 
     if stake >= 0 {
-        msg!("Staking {} tokens", stake);
         let stake = stake as u64;
+        msg!("Staking {} tokens", stake);
 
         node.stake += stake;
         note.stake += stake;
@@ -28,8 +28,8 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         );
         token::transfer(transfer_ctx, stake)?;
     } else {
-        msg!("Unstaking {} tokens", stake);
         let stake = -stake as u64;
+        msg!("Unstaking {} tokens", stake);
 
         node.stake -= stake;
         note.stake -= stake;
@@ -101,6 +101,7 @@ pub struct UpdateStake<'info> {
 
     /// The node the note is attached to
     #[account(
+        mut,
         seeds = [
             NODE_SEED.as_bytes(),
             &tree.key().to_bytes(),

@@ -211,5 +211,23 @@ describe("TreeDea", () => {
     console.log(
       await user1Program.account.stakeAccount.fetch(stakeAccounts.stakeAccount)
     );
+
+    await user1Program.methods
+      .updateStake(stake)
+      .accounts(stakeAccounts)
+      .rpc({ skipPreflight: true });
+
+    console.log(
+      await user1Program.account.stakeAccount.fetch(stakeAccounts.stakeAccount)
+    );
+
+    await user1Program.methods
+      .updateStake(stake.neg())
+      .accounts(stakeAccounts)
+      .rpc({ skipPreflight: true });
+
+    console.log(
+      await user1Program.account.stakeAccount.fetch(stakeAccounts.stakeAccount)
+    );
   });
 });
