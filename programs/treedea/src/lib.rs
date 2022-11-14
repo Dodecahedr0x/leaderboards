@@ -6,14 +6,14 @@ mod state;
 use anchor_lang::prelude::*;
 use instructions::*;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("7rxT36fYNGHB1hfXstL79FaFuVgZXzYCiM7yVJ7cdipD");
 
 #[program]
-pub mod treedea {
+pub mod dippies_index_protocol {
     use super::*;
 
-    pub fn create_root(ctx: Context<CreateRoot>, id: Pubkey, admin: Pubkey) -> Result<()> {
-        instructions::create_root(ctx, id, admin)
+    pub fn create_root(ctx: Context<CreateRoot>, id: Pubkey) -> Result<()> {
+        instructions::create_root(ctx, id)
     }
 
     pub fn create_tree(ctx: Context<CreateTree>, tag: String) -> Result<()> {

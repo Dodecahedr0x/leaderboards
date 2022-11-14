@@ -5,13 +5,12 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use crate::seeds::{ROOT_AUTHORITY_SEED, ROOT_SEED};
 use crate::state::Root;
 
-pub fn create_root(ctx: Context<CreateRoot>, id: Pubkey, admin: Pubkey) -> Result<()> {
+pub fn create_root(ctx: Context<CreateRoot>, id: Pubkey) -> Result<()> {
     msg!("Creating the global root");
 
     let root = &mut ctx.accounts.root;
 
     root.id = id;
-    root.admin = admin;
     root.vote_mint = ctx.accounts.vote_mint.key();
 
     Ok(())

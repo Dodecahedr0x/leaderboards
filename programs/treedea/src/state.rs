@@ -23,15 +23,12 @@ pub struct Root {
     /// The ID of the root
     pub id: Pubkey,
 
-    /// The admin of the tree
-    pub admin: Pubkey,
-
     /// The token used to vote for a tag
     pub vote_mint: Pubkey,
 }
 
 impl Root {
-    pub const LEN: usize = 8 + 3 * 32;
+    pub const LEN: usize = 8 + 2 * 32;
 }
 
 #[account]

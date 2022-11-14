@@ -3,7 +3,7 @@ seeds = true
 skip-lint = false
 
 [programs.localnet]
-treedea = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+dippies_index_protocol = "7rxT36fYNGHB1hfXstL79FaFuVgZXzYCiM7yVJ7cdipD"
 
 [registry]
 url = "https://api.apr.dev"

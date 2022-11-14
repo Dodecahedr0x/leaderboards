@@ -22,13 +22,14 @@ import {
 } from "./utils";
 import { createRootAccounts, createTreeAccounts } from "../ts";
 
+import { DippiesIndexProtocol } from "../target/types/dippies_index_protocol";
 import { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { Treedea } from "../target/types/treedea";
 import { expect } from "chai";
 
 describe("TreeDea", () => {
-  const program = anchor.workspace.Treedea as Program<Treedea>;
+  const program = anchor.workspace
+    .DippiesIndexProtocol as Program<DippiesIndexProtocol>;
   let id = anchor.web3.Keypair.generate();
   let admin = anchor.web3.Keypair.generate();
   let user1 = anchor.web3.Keypair.generate();
@@ -44,13 +45,12 @@ describe("TreeDea", () => {
     const rootAccounts = createRootAccounts(program, id.publicKey, voteMint);
 
     await program.methods
-      .createRoot(id.publicKey, admin.publicKey)
+      .createRoot(id.publicKey)
       .accounts(rootAccounts)
       .rpc({ skipPreflight: true });
 
     let root = await program.account.root.fetch(rootAccounts.root);
     expect(root.id.toString()).to.equal(id.publicKey.toString());
-    expect(root.admin.toString()).to.equal(admin.publicKey.toString());
     expect(root.voteMint.toString()).to.equal(voteMint.toString());
 
     const rootTag = "DeFi Protocol?";

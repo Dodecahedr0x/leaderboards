@@ -14,8 +14,6 @@ import { createRoot, createTree } from "./instructions";
 import { PublicKey } from "@solana/web3.js";
 import { PROGRAM_ID as TREEDEA_ID } from "./programId";
 
-export * from "./tree";
-
 export class TreeDeaRoot {
   signer: PublicKey;
   rootId: PublicKey;

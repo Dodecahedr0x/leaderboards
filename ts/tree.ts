@@ -14,13 +14,13 @@ import {
   VOTE_MINT_SEED,
 } from "./constants";
 
+import { DippiesIndexProtocol } from "../target/types/dippies_index_protocol";
 import { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { Treedea } from "../target/types/treedea";
 import { getAssociatedTokenKey } from "./utils";
 
 export const createRootAccounts = (
-  program: Program<Treedea>,
+  program: Program<DippiesIndexProtocol>,
   id: PublicKey,
   voteMint: PublicKey
 ) => {
@@ -47,7 +47,7 @@ export const createRootAccounts = (
 };
 
 export const createTreeAccounts = (
-  program: Program<Treedea>,
+  program: Program<DippiesIndexProtocol>,
   root: PublicKey,
   tag: string
 ) => {
@@ -75,7 +75,7 @@ export const createTreeAccounts = (
 };
 
 export const createNodeAccounts = (
-  program: Program<Treedea>,
+  program: Program<DippiesIndexProtocol>,
   root: PublicKey,
   tree: PublicKey,
   parentNode: PublicKey,
@@ -102,7 +102,7 @@ export const createNodeAccounts = (
 };
 
 export const attachNodeAccounts = (
-  program: Program<Treedea>,
+  program: Program<DippiesIndexProtocol>,
   root: PublicKey,
   tree: PublicKey,
   parentNode: PublicKey,
@@ -119,7 +119,7 @@ export const attachNodeAccounts = (
 };
 
 export const createNoteAccounts = (
-  program: Program<Treedea>,
+  program: Program<DippiesIndexProtocol>,
   root: PublicKey,
   tree: PublicKey,
   node: PublicKey,
@@ -144,7 +144,7 @@ export const createNoteAccounts = (
 };
 
 export const attachNoteAccounts = (
-  program: Program<Treedea>,
+  program: Program<DippiesIndexProtocol>,
   root: PublicKey,
   tree: PublicKey,
   node: PublicKey,
@@ -166,7 +166,7 @@ export const attachNoteAccounts = (
 };
 
 export const createStakeAccounts = (
-  program: Program<Treedea>,
+  program: Program<DippiesIndexProtocol>,
   root: PublicKey,
   voteMint: PublicKey,
   tree: PublicKey,
@@ -210,7 +210,7 @@ export const createStakeAccounts = (
 };
 
 export const moveNoteAccounts = (
-  program: Program<Treedea>,
+  program: Program<DippiesIndexProtocol>,
   root: PublicKey,
   tree: PublicKey,
   sourceNode: PublicKey,
@@ -228,7 +228,7 @@ export const moveNoteAccounts = (
 };
 
 export const replaceNoteAccounts = (
-  program: Program<Treedea>,
+  program: Program<DippiesIndexProtocol>,
   root: PublicKey,
   tree: PublicKey,
   node: PublicKey,
