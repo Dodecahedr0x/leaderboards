@@ -1,3 +1,5 @@
+import * as anchor from "@project-serum/anchor";
+
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -38,7 +40,8 @@ export class TreeDeaRoot {
     this.voteMint = voteMint;
     this.voteAccount = getAssociatedTokenAddressSync(
       voteMint,
-      this.rootAuthority
+      this.rootAuthority,
+      true
     );
   }
 

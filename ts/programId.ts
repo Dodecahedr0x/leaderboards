@@ -2,5 +2,5 @@ import { PublicKey } from "@solana/web3.js";
 
 // This constant will not get overwritten on subsequent code generations and it's safe to modify it's value.
 export const PROGRAM_ID: PublicKey = new PublicKey(
-  "5cav3vfqLqfDiNxdpqvgT3MVtW7t4tYUkLEHdbQ3xKxN"
+  "7rxT36fYNGHB1hfXstL79FaFuVgZXzYCiM7yVJ7cdipD"
 );

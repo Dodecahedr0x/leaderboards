@@ -27,7 +27,7 @@ import { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { expect } from "chai";
 
-describe("TreeDea", () => {
+describe("Dippies Index Protocol", () => {
   const program = anchor.workspace
     .DippiesIndexProtocol as Program<DippiesIndexProtocol>;
   let id = anchor.web3.Keypair.generate();
