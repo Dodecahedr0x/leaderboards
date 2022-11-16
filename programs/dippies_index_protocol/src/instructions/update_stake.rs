@@ -48,8 +48,8 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         let transfer_ctx = CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
             Transfer {
-                from: ctx.accounts.staker_account.to_account_info(),
-                to: ctx.accounts.vote_account.to_account_info(),
+                from: ctx.accounts.vote_account.to_account_info(),
+                to: ctx.accounts.staker_account.to_account_info(),
                 authority: ctx.accounts.signer.to_account_info(),
             },
             signer_seeds,
