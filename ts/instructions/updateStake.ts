@@ -22,7 +22,7 @@ export interface UpdateStakeAccounts {
   /** The attached note */
   note: PublicKey
   /** The account storing vote tokens */
-  stakeAccount: PublicKey
+  stakeState: PublicKey
   /** The account storing vote tokens */
   stakerAccount: PublicKey
   /** The account storing vote tokens */
@@ -48,7 +48,7 @@ export function updateStake(
     { pubkey: accounts.tree, isSigner: false, isWritable: true },
     { pubkey: accounts.node, isSigner: false, isWritable: true },
     { pubkey: accounts.note, isSigner: false, isWritable: true },
-    { pubkey: accounts.stakeAccount, isSigner: false, isWritable: true },
+    { pubkey: accounts.stakeState, isSigner: false, isWritable: true },
     { pubkey: accounts.stakerAccount, isSigner: false, isWritable: true },
     { pubkey: accounts.voteAccount, isSigner: false, isWritable: true },
     { pubkey: accounts.tokenProgram, isSigner: false, isWritable: false },

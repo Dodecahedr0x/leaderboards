@@ -1,5 +1,7 @@
 export { createRoot } from "./createRoot"
 export type { CreateRootArgs, CreateRootAccounts } from "./createRoot"
+export { setRoot } from "./setRoot"
+export type { SetRootArgs, SetRootAccounts } from "./setRoot"
 export { createTree } from "./createTree"
 export type { CreateTreeArgs, CreateTreeAccounts } from "./createTree"
 export { createNode } from "./createNode"

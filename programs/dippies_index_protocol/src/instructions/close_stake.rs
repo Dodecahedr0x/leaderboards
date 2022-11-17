@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::seeds::{NOTE_SEED, ROOT_SEED, STAKE_SEED, TREE_SEED};
-use crate::state::{Note, Root, StakeAccount, Tree};
+use crate::state::{Note, Root, StakeState, Tree};
 
 pub fn close_stake(_ctx: Context<CloseStake>) -> Result<()> {
     Ok(())
@@ -54,9 +54,9 @@ pub struct CloseStake<'info> {
             &signer.key().to_bytes()
         ],
         bump,
-        constraint = stake_account.stake == 0,
+        constraint = stake_state.stake == 0,
     )]
-    pub stake_account: Box<Account<'info, StakeAccount>>,
+    pub stake_state: Box<Account<'info, StakeState>>,
 
     /// Common Solana programs
     pub system_program: Program<'info, System>,

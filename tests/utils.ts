@@ -14,21 +14,24 @@ import { assert } from "chai";
 
 export const provider = anchor.getProvider() as anchor.AnchorProvider;
 
-export const createKeypair = async (provider: anchor.Provider) => {
+export const createKeypair = async (connection: anchor.web3.Connection) => {
   const keypair = new anchor.web3.Keypair();
-  const txn = await provider.connection.requestAirdrop(
+  const txn = await connection.requestAirdrop(
     keypair.publicKey,
     10 * anchor.web3.LAMPORTS_PER_SOL
   );
-  await provider.connection.confirmTransaction(txn);
+  await connection.confirmTransaction(txn);
   return keypair;
 };
 
-export const createKeypairs = async (provider: anchor.Provider, n: number) => {
+export const createKeypairs = async (
+  connection: anchor.web3.Connection,
+  n: number
+) => {
   return await Promise.all(
     Array(n)
       .fill(0)
-      .map((e) => createKeypair(provider))
+      .map((e) => createKeypair(connection))
   );
 };
 

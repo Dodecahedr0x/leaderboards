@@ -1,246 +1,62 @@
-import * as anchor from "@project-serum/anchor";
+import { NODE_SEED, TREE_SEED } from "./constants";
+import { PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram } from "@solana/web3.js";
 
-import {
-  ASSOCIATED_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-} from "@project-serum/anchor/dist/cjs/utils/token";
-import {
-  NODE_SEED,
-  NOTE_SEED,
-  ROOT_AUTHORITY_SEED,
-  ROOT_SEED,
-  STAKE_SEED,
-  TREE_SEED,
-  VOTE_MINT_SEED,
-} from "./constants";
+import { PROGRAM_ID as TREEDEA_ID } from "./programId";
+import { TreeDeaRoot } from "./index";
+import { createNode } from "./instructions";
 
-import { DippiesIndexProtocol } from "../target/types/dippies_index_protocol";
-import { Program } from "@project-serum/anchor";
-import { PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenKey } from "./utils";
+export class TreeDeaTree {
+  root: TreeDeaRoot;
+  treeKey: PublicKey;
+  rootNode: PublicKey;
+  title: string;
 
-export const createRootAccounts = (
-  program: Program<DippiesIndexProtocol>,
-  id: PublicKey,
-  voteMint: PublicKey
-) => {
-  const [key] = PublicKey.findProgramAddressSync(
-    [Buffer.from(ROOT_SEED), id.toBuffer()],
-    program.programId
-  );
-  const [rootAuthority] = PublicKey.findProgramAddressSync(
-    [Buffer.from(ROOT_AUTHORITY_SEED), key.toBuffer()],
-    program.programId
-  );
-  const voteAccount = getAssociatedTokenKey(rootAuthority, voteMint);
+  constructor(root: TreeDeaRoot, title: string) {
+    this.root = root;
+    this.treeKey = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from(TREE_SEED),
+        this.root.rootKey.toBuffer(),
+        Buffer.from(title),
+      ],
+      TREEDEA_ID
+    )[0];
+    this.rootNode = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from(NODE_SEED),
+        this.treeKey.toBuffer(),
+        PublicKey.default.toBuffer(),
+        Buffer.from(title),
+      ],
+      TREEDEA_ID
+    )[0];
+    this.title = title;
+  }
 
-  return {
-    rootAuthority,
-    root: key,
-    voteMint,
-    voteAccount,
-    tokenProgram: TOKEN_PROGRAM_ID,
-    associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
-    systemProgram: anchor.web3.SystemProgram.programId,
-    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+  instruction = {
+    createNode: (tag: string) => {
+      const [node] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from(NODE_SEED),
+          this.treeKey.toBuffer(),
+          this.rootNode.toBuffer(),
+          Buffer.from(tag),
+        ],
+        TREEDEA_ID
+      );
+
+      return createNode(
+        { tag },
+        {
+          signer: this.root.signer,
+          root: this.root.rootKey,
+          tree: this.treeKey,
+          parentNode: this.rootNode,
+          node,
+          systemProgram: SystemProgram.programId,
+          rent: SYSVAR_RENT_PUBKEY,
+        }
+      );
+    },
   };
-};
-
-export const createTreeAccounts = (
-  program: Program<DippiesIndexProtocol>,
-  root: PublicKey,
-  tag: string
-) => {
-  const [tree] = PublicKey.findProgramAddressSync(
-    [Buffer.from(TREE_SEED), root.toBuffer(), Buffer.from(tag)],
-    program.programId
-  );
-  const [rootNode] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from(NODE_SEED),
-      tree.toBuffer(),
-      PublicKey.default.toBuffer(),
-      Buffer.from(tag),
-    ],
-    program.programId
-  );
-
-  return {
-    root,
-    tree,
-    rootNode,
-    systemProgram: anchor.web3.SystemProgram.programId,
-    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-  };
-};
-
-export const createNodeAccounts = (
-  program: Program<DippiesIndexProtocol>,
-  root: PublicKey,
-  tree: PublicKey,
-  parentNode: PublicKey,
-  tag: String
-) => {
-  const [node] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from(NODE_SEED),
-      tree.toBuffer(),
-      parentNode.toBuffer(),
-      Buffer.from(tag),
-    ],
-    program.programId
-  );
-
-  return {
-    root,
-    tree,
-    parentNode,
-    node,
-    systemProgram: anchor.web3.SystemProgram.programId,
-    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-  };
-};
-
-export const attachNodeAccounts = (
-  program: Program<DippiesIndexProtocol>,
-  root: PublicKey,
-  tree: PublicKey,
-  parentNode: PublicKey,
-  node: PublicKey
-) => {
-  return {
-    root,
-    tree,
-    parentNode,
-    node,
-    systemProgram: anchor.web3.SystemProgram.programId,
-    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-  };
-};
-
-export const createNoteAccounts = (
-  program: Program<DippiesIndexProtocol>,
-  root: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
-  id: PublicKey,
-  website: string,
-  image: string,
-  description: string
-) => {
-  const [note] = PublicKey.findProgramAddressSync(
-    [Buffer.from(NOTE_SEED), tree.toBuffer(), id.toBuffer()],
-    program.programId
-  );
-
-  return {
-    root,
-    tree,
-    node,
-    note,
-    systemProgram: anchor.web3.SystemProgram.programId,
-    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-  };
-};
-
-export const attachNoteAccounts = (
-  program: Program<DippiesIndexProtocol>,
-  root: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
-  id: PublicKey
-) => {
-  const [note] = PublicKey.findProgramAddressSync(
-    [Buffer.from(NOTE_SEED), tree.toBuffer(), id.toBuffer()],
-    program.programId
-  );
-
-  return {
-    root,
-    tree,
-    node,
-    note,
-    systemProgram: anchor.web3.SystemProgram.programId,
-    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-  };
-};
-
-export const createStakeAccounts = (
-  program: Program<DippiesIndexProtocol>,
-  root: PublicKey,
-  voteMint: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
-  note: PublicKey
-) => {
-  const [rootAuthority] = PublicKey.findProgramAddressSync(
-    [Buffer.from(ROOT_AUTHORITY_SEED), root.toBuffer()],
-    program.programId
-  );
-  const stakerAccount = getAssociatedTokenKey(
-    program.provider.publicKey,
-    voteMint
-  );
-  const [stakeAccount] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from(STAKE_SEED),
-      note.toBuffer(),
-      program.provider.publicKey.toBuffer(),
-    ],
-    program.programId
-  );
-  const voteAccount = getAssociatedTokenKey(rootAuthority, voteMint);
-
-  return {
-    signer: program.provider.publicKey,
-    rootAuthority,
-    root,
-    tree,
-    node,
-    note,
-    stakeAccount,
-    voteMint,
-    stakerAccount,
-    voteAccount,
-    tokenProgram: TOKEN_PROGRAM_ID,
-    associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
-    systemProgram: anchor.web3.SystemProgram.programId,
-    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-  };
-};
-
-export const moveNoteAccounts = (
-  program: Program<DippiesIndexProtocol>,
-  root: PublicKey,
-  tree: PublicKey,
-  sourceNode: PublicKey,
-  destinationNode: PublicKey,
-  note: PublicKey
-) => {
-  return {
-    root,
-    tree,
-    sourceNode,
-    destinationNode,
-    note,
-    systemProgram: anchor.web3.SystemProgram.programId,
-  };
-};
-
-export const replaceNoteAccounts = (
-  program: Program<DippiesIndexProtocol>,
-  root: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
-  note: PublicKey,
-  weakNote: PublicKey
-) => {
-  return {
-    root,
-    tree,
-    node,
-    note,
-    weakNote,
-    systemProgram: anchor.web3.SystemProgram.programId,
-  };
-};
+}

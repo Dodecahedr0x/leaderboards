@@ -8,6 +8,10 @@ export interface RootFields {
   id: PublicKey
   /** The token used to vote for a tag */
   voteMint: PublicKey
+  /** Admin of the root */
+  admin: PublicKey
+  /** Cost to create a tree from this root */
+  treeCreationFee: BN
 }
 
 export interface RootJSON {
@@ -15,6 +19,10 @@ export interface RootJSON {
   id: string
   /** The token used to vote for a tag */
   voteMint: string
+  /** Admin of the root */
+  admin: string
+  /** Cost to create a tree from this root */
+  treeCreationFee: string
 }
 
 export class Root {
@@ -22,17 +30,25 @@ export class Root {
   readonly id: PublicKey
   /** The token used to vote for a tag */
   readonly voteMint: PublicKey
+  /** Admin of the root */
+  readonly admin: PublicKey
+  /** Cost to create a tree from this root */
+  readonly treeCreationFee: BN
 
   static readonly discriminator = Buffer.from([46, 159, 131, 37, 245, 84, 5, 9])
 
   static readonly layout = borsh.struct([
     borsh.publicKey("id"),
     borsh.publicKey("voteMint"),
+    borsh.publicKey("admin"),
+    borsh.u64("treeCreationFee"),
   ])
 
   constructor(fields: RootFields) {
     this.id = fields.id
     this.voteMint = fields.voteMint
+    this.admin = fields.admin
+    this.treeCreationFee = fields.treeCreationFee
   }
 
   static async fetch(c: Connection, address: PublicKey): Promise<Root | null> {
@@ -76,6 +92,8 @@ export class Root {
     return new Root({
       id: dec.id,
       voteMint: dec.voteMint,
+      admin: dec.admin,
+      treeCreationFee: dec.treeCreationFee,
     })
   }
 
@@ -83,6 +101,8 @@ export class Root {
     return {
       id: this.id.toString(),
       voteMint: this.voteMint.toString(),
+      admin: this.admin.toString(),
+      treeCreationFee: this.treeCreationFee.toString(),
     }
   }
 
@@ -90,6 +110,8 @@ export class Root {
     return new Root({
       id: new PublicKey(obj.id),
       voteMint: new PublicKey(obj.voteMint),
+      admin: new PublicKey(obj.admin),
+      treeCreationFee: new BN(obj.treeCreationFee),
     })
   }
 }

@@ -59,9 +59,9 @@ pub struct ReplaceNote<'info> {
             &node.tags.last().unwrap().as_ref(),
         ],
         bump,
-        constraint = node.notes.len() >= MAX_NOTES_PER_NODE @ TreeDeaErrors::NodeNotFull,
         constraint = node.notes.contains(&weak_note.key()) @ TreeDeaErrors::NotOnNode,
         constraint = !node.notes.contains(&note.key()) @ TreeDeaErrors::AlreadyOnNode,
+        constraint = node.notes.len() >= MAX_NOTES_PER_NODE @ TreeDeaErrors::NodeNotFull,
     )]
     pub node: Account<'info, Node>,
 

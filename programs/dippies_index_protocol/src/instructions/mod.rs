@@ -9,6 +9,7 @@ mod create_tree;
 mod move_note;
 mod replace_node;
 mod replace_note;
+mod set_root;
 mod update_stake;
 
 pub use attach_node::*;
@@ -22,4 +23,5 @@ pub use create_tree::*;
 pub use move_note::*;
 pub use replace_node::*;
 pub use replace_note::*;
+pub use set_root::*;
 pub use update_stake::*;

@@ -3,13 +3,13 @@ use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
 use crate::seeds::{NODE_SEED, NOTE_SEED, ROOT_AUTHORITY_SEED, ROOT_SEED, STAKE_SEED, TREE_SEED};
-use crate::state::{Node, Note, Root, StakeAccount, Tree};
+use crate::state::{Node, Note, Root, StakeState, Tree};
 
 pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
     let tree = &mut ctx.accounts.tree;
     let node = &mut ctx.accounts.node;
     let note = &mut ctx.accounts.note;
-    let stake_account = &mut ctx.accounts.stake_account;
+    let stake_account = &mut ctx.accounts.stake_state;
 
     if stake >= 0 {
         let stake = stake as u64;
@@ -50,7 +50,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
             Transfer {
                 from: ctx.accounts.vote_account.to_account_info(),
                 to: ctx.accounts.staker_account.to_account_info(),
-                authority: ctx.accounts.signer.to_account_info(),
+                authority: ctx.accounts.root_authority.to_account_info(),
             },
             signer_seeds,
         );
@@ -138,7 +138,7 @@ pub struct UpdateStake<'info> {
         ],
         bump
     )]
-    pub stake_account: Box<Account<'info, StakeAccount>>,
+    pub stake_state: Box<Account<'info, StakeState>>,
 
     /// The account storing vote tokens
     #[account(

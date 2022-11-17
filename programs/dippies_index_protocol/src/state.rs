@@ -25,10 +25,16 @@ pub struct Root {
 
     /// The token used to vote for a tag
     pub vote_mint: Pubkey,
+
+    /// Admin of the root
+    pub admin: Pubkey,
+
+    /// Cost to create a tree from this root
+    pub tree_creation_fee: u64,
 }
 
 impl Root {
-    pub const LEN: usize = 8 + 2 * 32;
+    pub const LEN: usize = 8 + 3 * 32 + 8;
 }
 
 #[account]
@@ -103,13 +109,13 @@ impl Note {
 }
 
 #[account]
-pub struct StakeAccount {
+pub struct StakeState {
     pub staker: Pubkey,
     pub stake: u64,
     pub note: Pubkey,
 }
 
-impl StakeAccount {
+impl StakeState {
     pub const LEN: usize = 8 // Discriminator
         + 32 // Staker
         + 32 // Note

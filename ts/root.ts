@@ -1,5 +1,3 @@
-import * as anchor from "@project-serum/anchor";
-
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -11,8 +9,10 @@ import {
   ROOT_SEED,
   TREE_SEED,
 } from "./constants";
+import { SYSVAR_RENT_PUBKEY, SystemProgram } from "@solana/web3.js";
 import { createRoot, createTree } from "./instructions";
 
+import { BN } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { PROGRAM_ID as TREEDEA_ID } from "./programId";
 
@@ -44,9 +44,9 @@ export class TreeDeaRoot {
   }
 
   instruction = {
-    createRoot: () => {
+    createRoot: (admin: PublicKey, treeCreationFee: BN) => {
       return createRoot(
-        { id: this.rootId },
+        { id: this.rootId, admin, treeCreationFee },
         {
           signer: this.signer,
           rootAuthority: this.rootAuthority,
@@ -55,8 +55,8 @@ export class TreeDeaRoot {
           voteAccount: this.voteAccount,
           tokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          systemProgram: SystemProgram.programId,
+          rent: SYSVAR_RENT_PUBKEY,
         }
       );
     },
@@ -82,8 +82,8 @@ export class TreeDeaRoot {
           root: this.rootKey,
           tree,
           rootNode,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          systemProgram: SystemProgram.programId,
+          rent: SYSVAR_RENT_PUBKEY,
         }
       );
     },

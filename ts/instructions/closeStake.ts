@@ -12,7 +12,7 @@ export interface CloseStakeAccounts {
   /** The attached note */
   note: PublicKey
   /** The account storing vote tokens */
-  stakeAccount: PublicKey
+  stakeState: PublicKey
   /** Common Solana programs */
   systemProgram: PublicKey
   rent: PublicKey
@@ -24,7 +24,7 @@ export function closeStake(accounts: CloseStakeAccounts) {
     { pubkey: accounts.root, isSigner: false, isWritable: false },
     { pubkey: accounts.tree, isSigner: false, isWritable: false },
     { pubkey: accounts.note, isSigner: false, isWritable: false },
-    { pubkey: accounts.stakeAccount, isSigner: false, isWritable: true },
+    { pubkey: accounts.stakeState, isSigner: false, isWritable: true },
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
     { pubkey: accounts.rent, isSigner: false, isWritable: false },
   ]

@@ -3,7 +3,7 @@
     "scripts": {
         "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
         "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
-        "export": "anchor-client-gen ./target/idl/treedea.json ts/"
+        "export": "anchor-client-gen ./target/idl/*.json ts/"
     },
     "dependencies": {
         "@project-serum/anchor": "^0.25.0",

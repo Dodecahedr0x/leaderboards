@@ -3,12 +3,12 @@ use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 
 use crate::seeds::{NODE_SEED, NOTE_SEED, ROOT_AUTHORITY_SEED, ROOT_SEED, STAKE_SEED, TREE_SEED};
-use crate::state::{Node, Note, Root, StakeAccount, Tree};
+use crate::state::{Node, Note, Root, StakeState, Tree};
 
 pub fn create_stake(ctx: Context<CreateStake>) -> Result<()> {
     msg!("Create staking account");
 
-    let stake_account = &mut ctx.accounts.stake_account;
+    let stake_account = &mut ctx.accounts.stake_state;
     stake_account.staker = ctx.accounts.signer.key();
     stake_account.note = ctx.accounts.note.key();
 
@@ -85,7 +85,7 @@ pub struct CreateStake<'info> {
     #[account(
         init,
         payer = signer,
-        space = StakeAccount::LEN,
+        space = StakeState::LEN,
         seeds = [
             STAKE_SEED.as_bytes(),
             &note.key().to_bytes(),
@@ -93,7 +93,7 @@ pub struct CreateStake<'info> {
         ],
         bump
     )]
-    pub stake_account: Box<Account<'info, StakeAccount>>,
+    pub stake_state: Box<Account<'info, StakeState>>,
 
     /// The account storing vote tokens
     #[account(
