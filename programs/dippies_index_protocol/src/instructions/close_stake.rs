@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
-use crate::seeds::{NOTE_SEED, ROOT_SEED, STAKE_SEED, TREE_SEED};
-use crate::state::{Note, Root, StakeState, Tree};
+use crate::seeds::{FOREST_SEED, NOTE_SEED, STAKE_SEED, TREE_SEED};
+use crate::state::{Forest, Note, StakeState, Tree};
 
 pub fn close_stake(_ctx: Context<CloseStake>) -> Result<()> {
     Ok(())
@@ -12,21 +12,21 @@ pub struct CloseStake<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
-    /// The global root
+    /// The forest
     #[account(
         seeds = [
-            ROOT_SEED.as_bytes(),
-            &root.id.to_bytes(),
+            FOREST_SEED.as_bytes(),
+            &forest.id.to_bytes(),
         ],
         bump,
     )]
-    pub root: Account<'info, Root>,
+    pub forest: Account<'info, Forest>,
 
     /// The tree
     #[account(
         seeds = [
             TREE_SEED.as_bytes(),
-            &root.key().to_bytes(),
+            &forest.key().to_bytes(),
             &tree.title.as_ref(),
         ],
         bump,

@@ -5,8 +5,8 @@ import { PROGRAM_ID } from "../programId"
 
 export interface CloseStakeAccounts {
   signer: PublicKey
-  /** The global root */
-  root: PublicKey
+  /** The forest */
+  forest: PublicKey
   /** The tree */
   tree: PublicKey
   /** The attached note */
@@ -21,7 +21,7 @@ export interface CloseStakeAccounts {
 export function closeStake(accounts: CloseStakeAccounts) {
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.signer, isSigner: true, isWritable: true },
-    { pubkey: accounts.root, isSigner: false, isWritable: false },
+    { pubkey: accounts.forest, isSigner: false, isWritable: false },
     { pubkey: accounts.tree, isSigner: false, isWritable: false },
     { pubkey: accounts.note, isSigner: false, isWritable: false },
     { pubkey: accounts.stakeState, isSigner: false, isWritable: true },

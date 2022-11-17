@@ -1,6 +1,6 @@
-# TreeDea
+# Dippies Index Protocol
 
-Anchor implementation of the TreeDea, a token-curated binary tree registry where participants stake on notes to increase their exposure.
+Anchor implementation of the Dippies Index Protocol, a token-curated binary tree registry where participants stake on notes to increase their exposure.
 
 ## Concepts
 

@@ -2,8 +2,10 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
-use crate::seeds::{NODE_SEED, NOTE_SEED, ROOT_AUTHORITY_SEED, ROOT_SEED, STAKE_SEED, TREE_SEED};
-use crate::state::{Node, Note, Root, StakeState, Tree};
+use crate::seeds::{
+    FOREST_AUTHORITY_SEED, FOREST_SEED, NODE_SEED, NOTE_SEED, STAKE_SEED, TREE_SEED,
+};
+use crate::state::{Forest, Node, Note, StakeState, Tree};
 
 pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
     let tree = &mut ctx.accounts.tree;
@@ -38,10 +40,10 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         note.stake -= stake;
         stake_account.stake -= stake;
 
-        let authority_bump = *ctx.bumps.get("root_authority").unwrap();
+        let authority_bump = *ctx.bumps.get("forest_authority").unwrap();
         let authority_seeds = &[
-            ROOT_AUTHORITY_SEED.as_bytes(),
-            &ctx.accounts.root.key().to_bytes(),
+            FOREST_AUTHORITY_SEED.as_bytes(),
+            &ctx.accounts.forest.key().to_bytes(),
             &[authority_bump],
         ];
         let signer_seeds = &[&authority_seeds[..]];
@@ -50,7 +52,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
             Transfer {
                 from: ctx.accounts.vote_account.to_account_info(),
                 to: ctx.accounts.staker_account.to_account_info(),
-                authority: ctx.accounts.root_authority.to_account_info(),
+                authority: ctx.accounts.forest_authority.to_account_info(),
             },
             signer_seeds,
         );
@@ -69,23 +71,23 @@ pub struct UpdateStake<'info> {
     /// CHECK: Safe because this read-only account only gets used as a constraint
     #[account(
         seeds = [
-            ROOT_AUTHORITY_SEED.as_bytes(),
-            &root.key().to_bytes()
+            FOREST_AUTHORITY_SEED.as_bytes(),
+            &forest.key().to_bytes()
         ],
         bump,
     )]
-    pub root_authority: UncheckedAccount<'info>,
+    pub forest_authority: UncheckedAccount<'info>,
 
-    /// The global root
+    /// The forest
     #[account(
         seeds = [
-            ROOT_SEED.as_bytes(),
-            &root.id.to_bytes(),
+            FOREST_SEED.as_bytes(),
+            &forest.id.to_bytes(),
         ],
         bump,
         has_one = vote_mint,
     )]
-    pub root: Account<'info, Root>,
+    pub forest: Account<'info, Forest>,
 
     /// The token used to vote for nodes and tags
     #[account(owner = token::ID)]
@@ -96,7 +98,7 @@ pub struct UpdateStake<'info> {
         mut,
         seeds = [
             TREE_SEED.as_bytes(),
-            &root.key().to_bytes(),
+            &forest.key().to_bytes(),
             &tree.title.as_ref(),
         ],
         bump,
@@ -154,7 +156,7 @@ pub struct UpdateStake<'info> {
         init_if_needed,
         payer = signer,
         associated_token::mint = vote_mint,
-        associated_token::authority = root_authority,
+        associated_token::authority = forest_authority,
     )]
     pub vote_account: Box<Account<'info, TokenAccount>>,
 

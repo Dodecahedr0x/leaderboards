@@ -3,13 +3,13 @@ import BN from "bn.js" // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as borsh from "@project-serum/borsh" // eslint-disable-line @typescript-eslint/no-unused-vars
 import { PROGRAM_ID } from "../programId"
 
-export interface CreateRootArgs {
+export interface CreateForestArgs {
   id: PublicKey
   admin: PublicKey
   treeCreationFee: BN
 }
 
-export interface CreateRootAccounts {
+export interface CreateForestAccounts {
   signer: PublicKey
   /** The account that manages tokens */
   forestAuthority: PublicKey
@@ -32,7 +32,10 @@ export const layout = borsh.struct([
   borsh.u64("treeCreationFee"),
 ])
 
-export function createRoot(args: CreateRootArgs, accounts: CreateRootAccounts) {
+export function createForest(
+  args: CreateForestArgs,
+  accounts: CreateForestAccounts
+) {
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.signer, isSigner: true, isWritable: true },
     { pubkey: accounts.forestAuthority, isSigner: false, isWritable: false },
@@ -48,7 +51,7 @@ export function createRoot(args: CreateRootArgs, accounts: CreateRootAccounts) {
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
     { pubkey: accounts.rent, isSigner: false, isWritable: false },
   ]
-  const identifier = Buffer.from([115, 195, 96, 208, 249, 205, 56, 27])
+  const identifier = Buffer.from([114, 120, 10, 96, 7, 35, 152, 115])
   const buffer = Buffer.alloc(1000)
   const len = layout.encode(
     {

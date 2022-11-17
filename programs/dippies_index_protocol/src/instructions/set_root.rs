@@ -2,36 +2,36 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::Token;
 
-use crate::seeds::ROOT_SEED;
-use crate::state::Root;
+use crate::seeds::FOREST_SEED;
+use crate::state::Forest;
 
-pub fn set_root(ctx: Context<SetRoot>, admin: Pubkey, tree_creation_fee: u64) -> Result<()> {
-    msg!("Setting the global root");
+pub fn set_forest(ctx: Context<SetForest>, admin: Pubkey, tree_creation_fee: u64) -> Result<()> {
+    msg!("Setting the forest");
 
-    let root = &mut ctx.accounts.root;
+    let forest = &mut ctx.accounts.forest;
 
-    root.admin = admin;
-    root.tree_creation_fee = tree_creation_fee;
+    forest.admin = admin;
+    forest.tree_creation_fee = tree_creation_fee;
 
     Ok(())
 }
 
 #[derive(Accounts)]
 #[instruction(admin: Pubkey)]
-pub struct SetRoot<'info> {
+pub struct SetForest<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
-    /// The global root
+    /// The forest
     #[account(
         seeds = [
-            ROOT_SEED.as_bytes(),
-            &root.id.to_bytes(),
+            FOREST_SEED.as_bytes(),
+            &forest.id.to_bytes(),
         ],
         bump,
         has_one = admin,
     )]
-    pub root: Account<'info, Root>,
+    pub forest: Account<'info, Forest>,
 
     /// Common Solana programs
     pub token_program: Program<'info, Token>,

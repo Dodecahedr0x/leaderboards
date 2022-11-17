@@ -6,9 +6,9 @@ import { PROGRAM_ID } from "../programId"
 export interface CreateStakeAccounts {
   signer: PublicKey
   /** The account that manages tokens */
-  rootAuthority: PublicKey
-  /** The global root */
-  root: PublicKey
+  forestAuthority: PublicKey
+  /** The forest */
+  forest: PublicKey
   /** The token used to vote for nodes and tags */
   voteMint: PublicKey
   /** The tree */
@@ -33,8 +33,8 @@ export interface CreateStakeAccounts {
 export function createStake(accounts: CreateStakeAccounts) {
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.signer, isSigner: true, isWritable: true },
-    { pubkey: accounts.rootAuthority, isSigner: false, isWritable: false },
-    { pubkey: accounts.root, isSigner: false, isWritable: false },
+    { pubkey: accounts.forestAuthority, isSigner: false, isWritable: false },
+    { pubkey: accounts.forest, isSigner: false, isWritable: false },
     { pubkey: accounts.voteMint, isSigner: false, isWritable: false },
     { pubkey: accounts.tree, isSigner: false, isWritable: false },
     { pubkey: accounts.node, isSigner: false, isWritable: false },

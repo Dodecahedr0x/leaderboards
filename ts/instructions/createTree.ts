@@ -9,8 +9,8 @@ export interface CreateTreeArgs {
 
 export interface CreateTreeAccounts {
   signer: PublicKey
-  /** The global root */
-  root: PublicKey
+  /** The forest */
+  forest: PublicKey
   /** The tree */
   tree: PublicKey
   /** The root node of the new tree */
@@ -25,7 +25,7 @@ export const layout = borsh.struct([borsh.str("tag")])
 export function createTree(args: CreateTreeArgs, accounts: CreateTreeAccounts) {
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.signer, isSigner: true, isWritable: true },
-    { pubkey: accounts.root, isSigner: false, isWritable: false },
+    { pubkey: accounts.forest, isSigner: false, isWritable: false },
     { pubkey: accounts.tree, isSigner: false, isWritable: true },
     { pubkey: accounts.rootNode, isSigner: false, isWritable: true },
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },

@@ -4,4 +4,4 @@ export * from "./accounts";
 export * from "./tree";
 export * from "./stakeState";
 export * from "./node";
-export * from "./root";
+export * from "./forest";

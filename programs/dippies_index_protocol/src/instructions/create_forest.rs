@@ -2,30 +2,30 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 
-use crate::seeds::{ROOT_AUTHORITY_SEED, ROOT_SEED};
-use crate::state::Root;
+use crate::seeds::{FOREST_AUTHORITY_SEED, FOREST_SEED};
+use crate::state::Forest;
 
-pub fn create_root(
-    ctx: Context<CreateRoot>,
+pub fn create_forest(
+    ctx: Context<CreateForest>,
     id: Pubkey,
     admin: Pubkey,
     tree_creation_fee: u64,
 ) -> Result<()> {
-    msg!("Creating the global root");
+    msg!("Creating the global forest");
 
-    let root = &mut ctx.accounts.root;
+    let forest = &mut ctx.accounts.forest;
 
-    root.id = id;
-    root.vote_mint = ctx.accounts.vote_mint.key();
-    root.admin = admin;
-    root.tree_creation_fee = tree_creation_fee;
+    forest.id = id;
+    forest.vote_mint = ctx.accounts.vote_mint.key();
+    forest.admin = admin;
+    forest.tree_creation_fee = tree_creation_fee;
 
     Ok(())
 }
 
 #[derive(Accounts)]
 #[instruction(id: Pubkey)]
-pub struct CreateRoot<'info> {
+pub struct CreateForest<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
@@ -33,25 +33,25 @@ pub struct CreateRoot<'info> {
     /// CHECK: Safe because this read-only account only gets used as a constraint
     #[account(
         seeds = [
-            ROOT_AUTHORITY_SEED.as_bytes(),
-            &root.key().to_bytes()
+            FOREST_AUTHORITY_SEED.as_bytes(),
+            &forest.key().to_bytes()
         ],
         bump,
     )]
-    pub root_authority: UncheckedAccount<'info>,
+    pub forest_authority: UncheckedAccount<'info>,
 
-    /// The global root
+    /// The forest
     #[account(
         init,
         payer = signer,
-        space = Root::LEN,
+        space = Forest::LEN,
         seeds = [
-            ROOT_SEED.as_bytes(),
+            FOREST_SEED.as_bytes(),
             &id.to_bytes(),
         ],
         bump,
     )]
-    pub root: Account<'info, Root>,
+    pub forest: Account<'info, Forest>,
 
     /// The token used to vote for nodes and tags
     #[account(owner = token::ID)]
@@ -62,7 +62,7 @@ pub struct CreateRoot<'info> {
         init_if_needed,
         payer = signer,
         associated_token::mint = vote_mint,
-        associated_token::authority = root_authority,
+        associated_token::authority = forest_authority,
     )]
     pub vote_account: Account<'info, TokenAccount>,
 

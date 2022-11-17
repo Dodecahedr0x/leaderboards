@@ -8,14 +8,14 @@ import {
   printAccounts,
 } from "./utils";
 
+import { DipForest } from "./../ts/index";
+import { DipNode } from "./../ts/node";
+import { DipNote } from "./../ts/note";
+import { DipStakeState } from "../ts/stakeState";
+import { DipTree } from "./../ts/tree";
 import { DippiesIndexProtocol } from "../target/types/dippies_index_protocol";
 import { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { TreeDeaNode } from "./../ts/node";
-import { TreeDeaNote } from "./../ts/note";
-import { TreeDeaRoot } from "./../ts/index";
-import { TreeDeaStakeState } from "../ts/stakeState";
-import { TreeDeaTree } from "./../ts/tree";
 import { expect } from "chai";
 
 describe("Dippies Index Protocol", () => {
@@ -26,7 +26,7 @@ describe("Dippies Index Protocol", () => {
   let admin = anchor.web3.Keypair.generate();
   let user1 = anchor.web3.Keypair.generate();
   let user2 = anchor.web3.Keypair.generate();
-  let voteMint;
+  let voteMint: PublicKey;
 
   before(async () => {
     [id, admin, user1, user2] = await createKeypairs(
@@ -44,44 +44,48 @@ describe("Dippies Index Protocol", () => {
   it("Create a tree and win a node auction", async () => {
     const treeCreationFee = new anchor.BN(10000);
 
-    const root = new TreeDeaRoot(provider.publicKey, id.publicKey, voteMint);
+    const forest = new DipForest(provider.publicKey, id.publicKey, voteMint);
 
     await provider.sendAndConfirm(
       new anchor.web3.Transaction().add(
-        root.instruction.createRoot(admin.publicKey, treeCreationFee)
+        forest.instruction.createForest(admin.publicKey, treeCreationFee)
       )
     );
 
-    let rootAccount = await program.account.root.fetch(root.rootKey);
-    expect(rootAccount.id.toString()).to.equal(id.publicKey.toString());
-    expect(root.voteMint.toString()).to.equal(voteMint.toString());
+    let forestAccount = await program.account.forest.fetch(forest.forestKey);
+    expect(forestAccount.id.toString()).to.equal(id.publicKey.toString());
+    expect(forest.voteMint.toString()).to.equal(voteMint.toString());
 
-    const rootTag = "DeFi Protocol?";
+    const forestTag = "DeFi Protocol?";
     await provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(root.instruction.createTree(rootTag))
+      new anchor.web3.Transaction().add(
+        forest.instruction.createTree(forestTag)
+      )
     );
 
-    const tree = new TreeDeaTree(root, rootTag);
+    const tree = new DipTree(forest, forestTag);
     let treeAccount = await program.account.tree.fetch(tree.treeKey);
-    expect(treeAccount.root.toString()).to.equal(tree.root.rootKey.toString());
+    expect(treeAccount.forest.toString()).to.equal(
+      tree.forest.forestKey.toString()
+    );
     expect(treeAccount.rootNode.toString()).to.equal(tree.rootNode.toString());
-    expect(treeAccount.title).to.equal(rootTag);
+    expect(treeAccount.title).to.equal(forestTag);
 
     let rootNode = await program.account.node.fetch(tree.rootNode);
     expect(rootNode.tree.toString()).to.equal(tree.treeKey.toString());
     expect(rootNode.parent.toString()).to.equal(PublicKey.default.toString());
     expect(rootNode.stake.toString()).to.equal("0");
     expect(rootNode.children.toString()).to.equal([].toString());
-    expect(rootNode.tags.toString()).to.equal([rootTag].toString());
+    expect(rootNode.tags.toString()).to.equal([forestTag].toString());
     expect(rootNode.notes.toString()).to.equal([].toString());
 
     // Create notes on the root
-    let rootNoteAccounts: TreeDeaNote[] = [];
+    let rootNoteAccounts: DipNote[] = [];
     for (let i = 0; i < MAX_NOTES_PER_NODE; i++) {
       const id = anchor.web3.Keypair.generate().publicKey;
 
       rootNoteAccounts.push(
-        new TreeDeaNote(new TreeDeaNode(tree, PublicKey.default, rootTag), id)
+        new DipNote(new DipNode(tree, PublicKey.default, forestTag), id)
       );
 
       await provider.sendAndConfirm(
@@ -107,9 +111,9 @@ describe("Dippies Index Protocol", () => {
 
     // Create children nodes
     const tags = ["Solana", "Ethereum", "Polygon", "Arbitrum", "Optimism"];
-    let nodeAccounts: TreeDeaNode[] = [];
+    let nodeAccounts: DipNode[] = [];
     for (const tag of tags) {
-      nodeAccounts.push(new TreeDeaNode(tree, tree.rootNode, tag));
+      nodeAccounts.push(new DipNode(tree, tree.rootNode, tag));
       await provider.sendAndConfirm(
         new anchor.web3.Transaction().add(tree.instruction.createNode(tag))
       );
@@ -120,7 +124,7 @@ describe("Dippies Index Protocol", () => {
       expect(node.tree.toString()).to.equal(tree.treeKey.toString());
       expect(node.parent.toString()).to.equal(tree.rootNode.toString());
       expect(node.stake.toString()).to.equal("0");
-      expect(node.tags.toString()).to.equal([rootTag, tag].toString());
+      expect(node.tags.toString()).to.equal([forestTag, tag].toString());
       expect(node.children.toString()).to.equal([].toString());
       expect(node.notes.toString()).to.equal([].toString());
     }
@@ -152,10 +156,10 @@ describe("Dippies Index Protocol", () => {
     }
 
     // Create notes on first child
-    let noteAccounts: TreeDeaNote[] = [];
+    let noteAccounts: DipNote[] = [];
     for (const node of nodeAccounts) {
       const id = anchor.web3.Keypair.generate().publicKey;
-      noteAccounts.push(new TreeDeaNote(node, id));
+      noteAccounts.push(new DipNote(node, id));
       await provider.sendAndConfirm(
         new anchor.web3.Transaction().add(
           noteAccounts[noteAccounts.length - 1].instruction.createNote(
@@ -193,7 +197,7 @@ describe("Dippies Index Protocol", () => {
         }
       )
     );
-    const stakeState = new TreeDeaStakeState(noteAccounts[0], user1.publicKey);
+    const stakeState = new DipStakeState(noteAccounts[0], user1.publicKey);
 
     await user1Program.provider.sendAndConfirm(
       new anchor.web3.Transaction().add(stakeState.instruction.createStake())
@@ -256,8 +260,8 @@ describe("Dippies Index Protocol", () => {
     // Replace a note on the root
     await user1Program.provider.sendAndConfirm(
       new anchor.web3.Transaction().add(
-        new TreeDeaNote(
-          await TreeDeaNode.fromNode(user1Program.provider, rootNode as any),
+        new DipNote(
+          await DipNode.fromNode(user1Program.provider, rootNode as any),
           noteAccounts[0].id
         ).instruction.replaceNote(rootNoteAccounts[0].noteKey)
       )

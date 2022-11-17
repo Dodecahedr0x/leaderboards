@@ -1,5 +1,5 @@
-export { Root } from "./Root"
-export type { RootFields, RootJSON } from "./Root"
+export { Forest } from "./Forest"
+export type { ForestFields, ForestJSON } from "./Forest"
 export { Tree } from "./Tree"
 export type { TreeFields, TreeJSON } from "./Tree"
 export { Node } from "./Node"

@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
-use crate::errors::TreeDeaErrors;
-use crate::seeds::{NODE_SEED, NOTE_SEED, ROOT_SEED, TREE_SEED};
-use crate::state::{Node, Note, Root, Tree, MAX_NOTES_PER_NODE};
+use crate::errors::DipErrors;
+use crate::seeds::{FOREST_SEED, NODE_SEED, NOTE_SEED, TREE_SEED};
+use crate::state::{Forest, Node, Note, Tree, MAX_NOTES_PER_NODE};
 
 pub fn replace_note(ctx: Context<ReplaceNote>) -> Result<()> {
     msg!("Replacing a note");
@@ -28,21 +28,21 @@ pub struct ReplaceNote<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
-    /// The global root
+    /// The forest
     #[account(
         seeds = [
-            ROOT_SEED.as_bytes(),
-            &root.id.to_bytes(),
+            FOREST_SEED.as_bytes(),
+            &forest.id.to_bytes(),
         ],
         bump,
     )]
-    pub root: Account<'info, Root>,
+    pub forest: Account<'info, Forest>,
 
     /// The tree
     #[account(
         seeds = [
             TREE_SEED.as_bytes(),
-            &root.key().to_bytes(),
+            &forest.key().to_bytes(),
             &tree.title.as_ref(),
         ],
         bump,
@@ -59,9 +59,9 @@ pub struct ReplaceNote<'info> {
             &node.tags.last().unwrap().as_ref(),
         ],
         bump,
-        constraint = node.notes.contains(&weak_note.key()) @ TreeDeaErrors::NotOnNode,
-        constraint = !node.notes.contains(&note.key()) @ TreeDeaErrors::AlreadyOnNode,
-        constraint = node.notes.len() >= MAX_NOTES_PER_NODE @ TreeDeaErrors::NodeNotFull,
+        constraint = node.notes.contains(&weak_note.key()) @ DipErrors::NotOnNode,
+        constraint = !node.notes.contains(&note.key()) @ DipErrors::AlreadyOnNode,
+        constraint = node.notes.len() >= MAX_NOTES_PER_NODE @ DipErrors::NodeNotFull,
     )]
     pub node: Account<'info, Node>,
 
@@ -74,8 +74,8 @@ pub struct ReplaceNote<'info> {
             &note.id.to_bytes()
         ],
         bump,
-        constraint = note.parent == node.key() @ TreeDeaErrors::NotChildNote,
-        constraint = note.stake > weak_note.stake @ TreeDeaErrors::NotEnoughStake,
+        constraint = note.parent == node.key() @ DipErrors::NotChildNote,
+        constraint = note.stake > weak_note.stake @ DipErrors::NotEnoughStake,
     )]
     pub note: Account<'info, Note>,
 
@@ -87,7 +87,7 @@ pub struct ReplaceNote<'info> {
             &weak_note.id.to_bytes()
         ],
         bump,
-        constraint = weak_note.parent == node.key() @ TreeDeaErrors::NotChildNote,
+        constraint = weak_note.parent == node.key() @ DipErrors::NotChildNote,
     )]
     pub weak_note: Account<'info, Note>,
 

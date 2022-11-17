@@ -1,26 +1,26 @@
 import { AnchorProvider, Provider } from "@project-serum/anchor";
+import { Forest, Node, Tree } from "./accounts";
 import {
   Keypair,
   PublicKey,
   SYSVAR_RENT_PUBKEY,
   SystemProgram,
 } from "@solana/web3.js";
-import { Node, Root, Tree } from "./accounts";
 import { attachNode, createNode } from "./instructions";
 
 import { PROGRAM_ID as DIP_PROGRAM_ID } from "./programId";
+import { DipForest } from "./forest";
+import { DipNote } from "./note";
+import { DipTree } from "./tree";
 import { NODE_SEED } from "./constants";
-import { TreeDeaNote } from "./note";
-import { TreeDeaRoot } from "./root";
-import { TreeDeaTree } from "./tree";
 
-export class TreeDeaNode {
-  tree: TreeDeaTree;
+export class DipNode {
+  tree: DipTree;
   parent: PublicKey;
   nodeKey: PublicKey;
   tag: string;
 
-  constructor(tree: TreeDeaTree, parent: PublicKey, tag: string) {
+  constructor(tree: DipTree, parent: PublicKey, tag: string) {
     this.tree = tree;
     this.parent = parent;
     this.nodeKey = PublicKey.findProgramAddressSync(
@@ -39,12 +39,12 @@ export class TreeDeaNode {
     const tree = await Tree.fetch(provider.connection, node.tree);
     if (!tree) return;
 
-    const root = await Root.fetch(provider.connection, tree.root);
-    if (!root) return;
+    const forest = await Forest.fetch(provider.connection, tree.forest);
+    if (!forest) return;
 
-    return new TreeDeaNode(
-      new TreeDeaTree(
-        new TreeDeaRoot(provider.publicKey, root.id, root.voteMint),
+    return new DipNode(
+      new DipTree(
+        new DipForest(provider.publicKey, forest.id, forest.voteMint),
         tree.title
       ),
       node.parent,
@@ -57,8 +57,8 @@ export class TreeDeaNode {
       return createNode(
         { tag },
         {
-          signer: this.tree.root.signer,
-          root: this.tree.root.rootKey,
+          signer: this.tree.forest.signer,
+          forest: this.tree.forest.forestKey,
           tree: this.tree.treeKey,
           parentNode: this.nodeKey,
           node: this.nodeKey,
@@ -69,8 +69,8 @@ export class TreeDeaNode {
     },
     attachNode: () => {
       return attachNode({
-        signer: this.tree.root.signer,
-        root: this.tree.root.rootKey,
+        signer: this.tree.forest.signer,
+        forest: this.tree.forest.forestKey,
         tree: this.tree.treeKey,
         parentNode: this.parent,
         node: this.nodeKey,
@@ -83,11 +83,11 @@ export class TreeDeaNode {
   createNode(tag: string) {
     return {
       ix: this.instruction.createChild(tag),
-      child: new TreeDeaNode(this.tree, this.nodeKey, tag),
+      child: new DipNode(this.tree, this.nodeKey, tag),
     };
   }
   createNote(website: string, image: string, description: string) {
-    const note = new TreeDeaNote(this, Keypair.generate().publicKey);
+    const note = new DipNote(this, Keypair.generate().publicKey);
     return {
       ix: note.instruction.createNote(website, image, description),
       note,

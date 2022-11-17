@@ -1,31 +1,16 @@
-import {
-  NODE_SEED,
-  NOTE_SEED,
-  ROOT_AUTHORITY_SEED,
-  ROOT_SEED,
-} from "./constants";
-import { Node, Root, Tree } from "./accounts";
 import { PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram } from "@solana/web3.js";
-import {
-  attachNode,
-  attachNote,
-  createNode,
-  createNote,
-  moveNote,
-  replaceNote,
-} from "./instructions";
+import { attachNote, createNote, moveNote, replaceNote } from "./instructions";
 
-import { AnchorProvider } from "@project-serum/anchor";
 import { PROGRAM_ID as DIP_PROGRAM_ID } from "./programId";
-import { TreeDeaNode } from "./node";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { DipNode } from "./node";
+import { NOTE_SEED } from "./constants";
 
-export class TreeDeaNote {
-  node: TreeDeaNode;
+export class DipNote {
+  node: DipNode;
   id: PublicKey;
   noteKey: PublicKey;
 
-  constructor(node: TreeDeaNode, noteId: PublicKey) {
+  constructor(node: DipNode, noteId: PublicKey) {
     this.node = node;
     this.id = noteId;
     this.noteKey = PublicKey.findProgramAddressSync(
@@ -43,8 +28,8 @@ export class TreeDeaNote {
       return createNote(
         { website, image, id: this.id, description },
         {
-          signer: this.node.tree.root.signer,
-          root: this.node.tree.root.rootKey,
+          signer: this.node.tree.forest.signer,
+          forest: this.node.tree.forest.forestKey,
           tree: this.node.tree.treeKey,
           note: this.noteKey,
           node: this.node.nodeKey,
@@ -55,8 +40,8 @@ export class TreeDeaNote {
     },
     attachNote: () => {
       return attachNote({
-        signer: this.node.tree.root.signer,
-        root: this.node.tree.root.rootKey,
+        signer: this.node.tree.forest.signer,
+        forest: this.node.tree.forest.forestKey,
         tree: this.node.tree.treeKey,
         note: this.noteKey,
         node: this.node.nodeKey,
@@ -66,8 +51,8 @@ export class TreeDeaNote {
     },
     moveNote: (destinationNode: PublicKey) => {
       return moveNote({
-        signer: this.node.tree.root.signer,
-        root: this.node.tree.root.rootKey,
+        signer: this.node.tree.forest.signer,
+        forest: this.node.tree.forest.forestKey,
         tree: this.node.tree.treeKey,
         note: this.noteKey,
         sourceNode: this.node.nodeKey,
@@ -77,8 +62,8 @@ export class TreeDeaNote {
     },
     replaceNote: (targetNote: PublicKey) => {
       return replaceNote({
-        signer: this.node.tree.root.signer,
-        root: this.node.tree.root.rootKey,
+        signer: this.node.tree.forest.signer,
+        forest: this.node.tree.forest.forestKey,
         tree: this.node.tree.treeKey,
         node: this.node.nodeKey,
         weakNote: targetNote,

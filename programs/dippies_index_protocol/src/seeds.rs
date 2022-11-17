@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
 
 #[constant]
-pub const ROOT_AUTHORITY_SEED: &str = "root-authority";
+pub const FOREST_AUTHORITY_SEED: &str = "forest-authority";
 
 #[constant]
-pub const ROOT_SEED: &str = "root";
+pub const FOREST_SEED: &str = "forest";
 
 #[constant]
 pub const TREE_SEED: &str = "tree";

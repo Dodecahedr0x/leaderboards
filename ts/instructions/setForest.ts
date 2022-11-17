@@ -3,22 +3,15 @@ import BN from "bn.js" // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as borsh from "@project-serum/borsh" // eslint-disable-line @typescript-eslint/no-unused-vars
 import { PROGRAM_ID } from "../programId"
 
-export interface CreateRootArgs {
-  id: PublicKey
+export interface SetForestArgs {
   admin: PublicKey
   treeCreationFee: BN
 }
 
-export interface CreateRootAccounts {
+export interface SetForestAccounts {
   signer: PublicKey
-  /** The account that manages tokens */
-  forestAuthority: PublicKey
   /** The forest */
   forest: PublicKey
-  /** The token used to vote for nodes and tags */
-  voteMint: PublicKey
-  /** The account storing vote tokens */
-  voteAccount: PublicKey
   /** Common Solana programs */
   tokenProgram: PublicKey
   associatedTokenProgram: PublicKey
@@ -27,18 +20,14 @@ export interface CreateRootAccounts {
 }
 
 export const layout = borsh.struct([
-  borsh.publicKey("id"),
   borsh.publicKey("admin"),
   borsh.u64("treeCreationFee"),
 ])
 
-export function createRoot(args: CreateRootArgs, accounts: CreateRootAccounts) {
+export function setForest(args: SetForestArgs, accounts: SetForestAccounts) {
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.signer, isSigner: true, isWritable: true },
-    { pubkey: accounts.forestAuthority, isSigner: false, isWritable: false },
-    { pubkey: accounts.forest, isSigner: false, isWritable: true },
-    { pubkey: accounts.voteMint, isSigner: false, isWritable: false },
-    { pubkey: accounts.voteAccount, isSigner: false, isWritable: true },
+    { pubkey: accounts.forest, isSigner: false, isWritable: false },
     { pubkey: accounts.tokenProgram, isSigner: false, isWritable: false },
     {
       pubkey: accounts.associatedTokenProgram,
@@ -48,11 +37,10 @@ export function createRoot(args: CreateRootArgs, accounts: CreateRootAccounts) {
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
     { pubkey: accounts.rent, isSigner: false, isWritable: false },
   ]
-  const identifier = Buffer.from([115, 195, 96, 208, 249, 205, 56, 27])
+  const identifier = Buffer.from([205, 72, 135, 24, 125, 146, 35, 2])
   const buffer = Buffer.alloc(1000)
   const len = layout.encode(
     {
-      id: args.id,
       admin: args.admin,
       treeCreationFee: args.treeCreationFee,
     },

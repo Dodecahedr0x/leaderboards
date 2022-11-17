@@ -12,17 +12,21 @@ declare_id!("7rxT36fYNGHB1hfXstL79FaFuVgZXzYCiM7yVJ7cdipD");
 pub mod dippies_index_protocol {
     use super::*;
 
-    pub fn create_root(
-        ctx: Context<CreateRoot>,
+    pub fn create_forest(
+        ctx: Context<CreateForest>,
         id: Pubkey,
         admin: Pubkey,
         tree_creation_fee: u64,
     ) -> Result<()> {
-        instructions::create_root(ctx, id, admin, tree_creation_fee)
+        instructions::create_forest(ctx, id, admin, tree_creation_fee)
     }
 
-    pub fn set_root(ctx: Context<SetRoot>, admin: Pubkey, tree_creation_fee: u64) -> Result<()> {
-        instructions::set_root(ctx, admin, tree_creation_fee)
+    pub fn set_forest(
+        ctx: Context<SetForest>,
+        admin: Pubkey,
+        tree_creation_fee: u64,
+    ) -> Result<()> {
+        instructions::set_forest(ctx, admin, tree_creation_fee)
     }
 
     pub fn create_tree(ctx: Context<CreateTree>, tag: String) -> Result<()> {

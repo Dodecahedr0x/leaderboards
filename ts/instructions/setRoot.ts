@@ -10,8 +10,8 @@ export interface SetRootArgs {
 
 export interface SetRootAccounts {
   signer: PublicKey
-  /** The global root */
-  root: PublicKey
+  /** The forest */
+  forest: PublicKey
   /** Common Solana programs */
   tokenProgram: PublicKey
   associatedTokenProgram: PublicKey
@@ -27,7 +27,7 @@ export const layout = borsh.struct([
 export function setRoot(args: SetRootArgs, accounts: SetRootAccounts) {
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.signer, isSigner: true, isWritable: true },
-    { pubkey: accounts.root, isSigner: false, isWritable: false },
+    { pubkey: accounts.forest, isSigner: false, isWritable: false },
     { pubkey: accounts.tokenProgram, isSigner: false, isWritable: false },
     {
       pubkey: accounts.associatedTokenProgram,

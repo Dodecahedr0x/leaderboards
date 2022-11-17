@@ -5,32 +5,32 @@ import {
 } from "@solana/spl-token";
 import { AnchorProvider, BN } from "@project-serum/anchor";
 import {
+  FOREST_AUTHORITY_SEED,
+  FOREST_SEED,
   NOTE_SEED,
-  ROOT_AUTHORITY_SEED,
-  ROOT_SEED,
   STAKE_SEED,
 } from "./constants";
-import { Node, Note, Root, Tree } from "./accounts";
+import { Forest, Node, Note, Tree } from "./accounts";
 import { PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram } from "@solana/web3.js";
 import { closeStake, createStake, updateStake } from "./instructions";
 
 import { PROGRAM_ID as DIP_PROGRAM_ID } from "./programId";
+import { DipNode } from "./node";
+import { DipNote } from "./note";
 import { StakeState } from "./accounts/StakeState";
-import { TreeDeaNode } from "./node";
-import { TreeDeaNote } from "./note";
 
-export class TreeDeaStakeState {
-  note: TreeDeaNote;
+export class DipStakeState {
+  note: DipNote;
   stakeKey: PublicKey;
 
-  constructor(note: TreeDeaNote, signer?: PublicKey) {
+  constructor(note: DipNote, signer?: PublicKey) {
     this.note = note;
-    if (signer) this.note.node.tree.root.signer = signer;
+    if (signer) this.note.node.tree.forest.signer = signer;
     this.stakeKey = PublicKey.findProgramAddressSync(
       [
         Buffer.from(STAKE_SEED),
         this.note.noteKey.toBuffer(),
-        this.note.node.tree.root.signer.toBuffer(),
+        this.note.node.tree.forest.signer.toBuffer(),
       ],
       DIP_PROGRAM_ID
     )[0];
@@ -40,8 +40,8 @@ export class TreeDeaStakeState {
     const node = await Node.fetch(provider.connection, note.parent);
     if (!node) return;
 
-    return new TreeDeaStakeState(
-      new TreeDeaNote(await TreeDeaNode.fromNode(provider, node), note.id)
+    return new DipStakeState(
+      new DipNote(await DipNode.fromNode(provider, node), note.id)
     );
   }
 
@@ -55,22 +55,22 @@ export class TreeDeaStakeState {
   instruction = {
     createStake: () => {
       return createStake({
-        signer: this.note.node.tree.root.signer,
-        rootAuthority: this.note.node.tree.root.rootAuthority,
-        root: this.note.node.tree.root.rootKey,
-        voteMint: this.note.node.tree.root.voteMint,
+        signer: this.note.node.tree.forest.signer,
+        forestAuthority: this.note.node.tree.forest.forestAuthority,
+        forest: this.note.node.tree.forest.forestKey,
+        voteMint: this.note.node.tree.forest.voteMint,
         tree: this.note.node.tree.treeKey,
         node: this.note.node.nodeKey,
         note: this.note.noteKey,
         stakeState: this.stakeKey,
         stakerAccount: getAssociatedTokenAddressSync(
-          this.note.node.tree.root.voteMint,
-          this.note.node.tree.root.signer,
+          this.note.node.tree.forest.voteMint,
+          this.note.node.tree.forest.signer,
           true
         ),
         voteAccount: getAssociatedTokenAddressSync(
-          this.note.node.tree.root.voteMint,
-          this.note.node.tree.root.rootAuthority,
+          this.note.node.tree.forest.voteMint,
+          this.note.node.tree.forest.forestAuthority,
           true
         ),
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -83,21 +83,21 @@ export class TreeDeaStakeState {
       return updateStake(
         { stake },
         {
-          signer: this.note.node.tree.root.signer,
-          rootAuthority: this.note.node.tree.root.rootAuthority,
-          root: this.note.node.tree.root.rootKey,
-          voteMint: this.note.node.tree.root.voteMint,
+          signer: this.note.node.tree.forest.signer,
+          forestAuthority: this.note.node.tree.forest.forestAuthority,
+          forest: this.note.node.tree.forest.forestKey,
+          voteMint: this.note.node.tree.forest.voteMint,
           tree: this.note.node.tree.treeKey,
           node: this.note.node.nodeKey,
           note: this.note.noteKey,
           stakeState: this.stakeKey,
           stakerAccount: getAssociatedTokenAddressSync(
-            this.note.node.tree.root.voteMint,
-            this.note.node.tree.root.signer
+            this.note.node.tree.forest.voteMint,
+            this.note.node.tree.forest.signer
           ),
           voteAccount: getAssociatedTokenAddressSync(
-            this.note.node.tree.root.voteMint,
-            this.note.node.tree.root.rootAuthority,
+            this.note.node.tree.forest.voteMint,
+            this.note.node.tree.forest.forestAuthority,
             true
           ),
           tokenProgram: TOKEN_PROGRAM_ID,
@@ -109,8 +109,8 @@ export class TreeDeaStakeState {
     },
     closeStake: () => {
       return closeStake({
-        signer: this.note.node.tree.root.signer,
-        root: this.note.node.tree.root.rootKey,
+        signer: this.note.node.tree.forest.signer,
+        forest: this.note.node.tree.forest.forestKey,
         tree: this.note.node.tree.treeKey,
         note: this.note.noteKey,
         stakeState: this.stakeKey,

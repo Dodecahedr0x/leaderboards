@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
-use crate::seeds::{NODE_SEED, ROOT_SEED, TREE_SEED};
-use crate::state::{Node, Root, Tree, MAX_CHILD_PER_NODE};
+use crate::seeds::{FOREST_SEED, NODE_SEED, TREE_SEED};
+use crate::state::{Forest, Node, Tree, MAX_CHILD_PER_NODE};
 
 pub fn attach_node(ctx: Context<AttachNode>) -> Result<()> {
     msg!("Attaching child node");
@@ -17,21 +17,21 @@ pub struct AttachNode<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
-    /// The global root
+    /// The forest
     #[account(
         seeds = [
-            ROOT_SEED.as_bytes(),
-            &root.id.to_bytes(),
+            FOREST_SEED.as_bytes(),
+            &forest.id.to_bytes(),
         ],
         bump,
     )]
-    pub root: Account<'info, Root>,
+    pub forest: Account<'info, Forest>,
 
     /// The tree
     #[account(
         seeds = [
             TREE_SEED.as_bytes(),
-            &root.key().to_bytes(),
+            &forest.key().to_bytes(),
             &tree.title.as_ref(),
         ],
         bump,

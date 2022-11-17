@@ -12,8 +12,8 @@ export interface CreateNoteArgs {
 
 export interface CreateNoteAccounts {
   signer: PublicKey
-  /** The global root */
-  root: PublicKey
+  /** The global forest */
+  forest: PublicKey
   /** The tree */
   tree: PublicKey
   /** The node to attach to */
@@ -35,7 +35,7 @@ export const layout = borsh.struct([
 export function createNote(args: CreateNoteArgs, accounts: CreateNoteAccounts) {
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.signer, isSigner: true, isWritable: true },
-    { pubkey: accounts.root, isSigner: false, isWritable: false },
+    { pubkey: accounts.forest, isSigner: false, isWritable: false },
     { pubkey: accounts.tree, isSigner: false, isWritable: false },
     { pubkey: accounts.node, isSigner: false, isWritable: false },
     { pubkey: accounts.note, isSigner: false, isWritable: true },

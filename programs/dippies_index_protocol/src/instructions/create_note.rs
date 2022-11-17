@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
-use crate::errors::TreeDeaErrors;
-use crate::seeds::{NODE_SEED, NOTE_SEED, ROOT_SEED, TREE_SEED};
-use crate::state::{Node, Note, Root, Tree, MAX_DESCRIPTION_LENGTH, MAX_URI_LENGTH};
+use crate::errors::DipErrors;
+use crate::seeds::{FOREST_SEED, NODE_SEED, NOTE_SEED, TREE_SEED};
+use crate::state::{Forest, Node, Note, Tree, MAX_DESCRIPTION_LENGTH, MAX_URI_LENGTH};
 
 pub fn create_note(
     ctx: Context<CreateNote>,
@@ -31,21 +31,21 @@ pub struct CreateNote<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
-    /// The global root
+    /// The global forest
     #[account(
         seeds = [
-            ROOT_SEED.as_bytes(),
-            &root.id.to_bytes(),
+            FOREST_SEED.as_bytes(),
+            &forest.id.to_bytes(),
         ],
         bump,
     )]
-    pub root: Account<'info, Root>,
+    pub forest: Account<'info, Forest>,
 
     /// The tree
     #[account(
         seeds = [
             TREE_SEED.as_bytes(),
-            &root.key().to_bytes(),
+            &forest.key().to_bytes(),
             &tree.title.as_ref(),
         ],
         bump,
@@ -61,7 +61,7 @@ pub struct CreateNote<'info> {
             &node.tags.last().unwrap().as_ref(),
         ],
         bump,
-        constraint = node.children.len() == 0 @ TreeDeaErrors::InvalidNode
+        constraint = node.children.len() == 0 @ DipErrors::InvalidNode
     )]
     pub node: Account<'info, Node>,
 
@@ -76,9 +76,9 @@ pub struct CreateNote<'info> {
             &id.to_bytes()
         ],
         bump,
-        constraint = website.len() <= MAX_URI_LENGTH @ TreeDeaErrors::StringTooLong,
-        constraint = image.len() <= MAX_URI_LENGTH @ TreeDeaErrors::StringTooLong,
-        constraint = description.len() <= MAX_DESCRIPTION_LENGTH @ TreeDeaErrors::StringTooLong,
+        constraint = website.len() <= MAX_URI_LENGTH @ DipErrors::StringTooLong,
+        constraint = image.len() <= MAX_URI_LENGTH @ DipErrors::StringTooLong,
+        constraint = description.len() <= MAX_DESCRIPTION_LENGTH @ DipErrors::StringTooLong,
     )]
     pub note: Account<'info, Note>,
 

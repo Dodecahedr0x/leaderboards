@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
-use crate::errors::TreeDeaErrors;
-use crate::seeds::{NODE_SEED, NOTE_SEED, ROOT_SEED, TREE_SEED};
-use crate::state::{Node, Note, Root, Tree};
+use crate::errors::DipErrors;
+use crate::seeds::{FOREST_SEED, NODE_SEED, NOTE_SEED, TREE_SEED};
+use crate::state::{Forest, Node, Note, Tree};
 
 pub fn move_note(ctx: Context<MoveNote>) -> Result<()> {
     msg!("Moving a note");
@@ -26,21 +26,21 @@ pub struct MoveNote<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
-    /// The global root
+    /// The forest
     #[account(
         seeds = [
-            ROOT_SEED.as_bytes(),
-            &root.id.to_bytes(),
+            FOREST_SEED.as_bytes(),
+            &forest.id.to_bytes(),
         ],
         bump,
     )]
-    pub root: Account<'info, Root>,
+    pub forest: Account<'info, Forest>,
 
     /// The tree
     #[account(
         seeds = [
             TREE_SEED.as_bytes(),
-            &root.key().to_bytes(),
+            &forest.key().to_bytes(),
             &tree.title.as_ref(),
         ],
         bump,
@@ -69,7 +69,7 @@ pub struct MoveNote<'info> {
             &destination_node.tags.last().unwrap().as_ref(),
         ],
         bump,
-        constraint = destination_node.tags.iter().all(|x| note.tags.contains(x)) @ TreeDeaErrors::TagsMismatch,
+        constraint = destination_node.tags.iter().all(|x| note.tags.contains(x)) @ DipErrors::TagsMismatch,
     )]
     pub destination_node: Account<'info, Node>,
 
@@ -82,7 +82,7 @@ pub struct MoveNote<'info> {
             &note.id.to_bytes()
         ],
         bump,
-        constraint = note.parent == source_node.key() @ TreeDeaErrors::InvalidNode,
+        constraint = note.parent == source_node.key() @ DipErrors::InvalidNode,
     )]
     pub note: Account<'info, Note>,
 

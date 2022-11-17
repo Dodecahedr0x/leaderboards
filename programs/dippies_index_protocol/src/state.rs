@@ -19,28 +19,28 @@ pub const MAX_URI_LENGTH: usize = 200;
 pub const MAX_DESCRIPTION_LENGTH: usize = 200;
 
 #[account]
-pub struct Root {
-    /// The ID of the root
+pub struct Forest {
+    /// The ID of the forest
     pub id: Pubkey,
 
     /// The token used to vote for a tag
     pub vote_mint: Pubkey,
 
-    /// Admin of the root
+    /// Admin of the forest
     pub admin: Pubkey,
 
-    /// Cost to create a tree from this root
+    /// Cost to create a tree from this forest
     pub tree_creation_fee: u64,
 }
 
-impl Root {
+impl Forest {
     pub const LEN: usize = 8 + 3 * 32 + 8;
 }
 
 #[account]
 pub struct Tree {
-    /// The root of the tree
-    pub root: Pubkey,
+    /// The forest this tree grows in
+    pub forest: Pubkey,
 
     /// The root node of the tree
     pub root_node: Pubkey,
