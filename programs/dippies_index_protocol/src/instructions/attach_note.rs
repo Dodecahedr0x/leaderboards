@@ -8,6 +8,7 @@ pub fn attach_note(ctx: Context<AttachNote>) -> Result<()> {
 
     let node = &mut ctx.accounts.node;
     node.notes.push(ctx.accounts.note.key());
+    node.stake += ctx.accounts.note.stake;
 
     Ok(())
 }

@@ -258,6 +258,8 @@ describe("Dippies Index Protocol", () => {
       )
     );
 
+    await new Promise((resolve) => setTimeout(resolve, 900));
+
     stakeAccount = await user1Program.account.stakeState.fetch(
       stakeState.stakeKey
     );
@@ -272,7 +274,9 @@ describe("Dippies Index Protocol", () => {
     stakeAccount = await user1Program.account.stakeState.fetch(
       stakeState.stakeKey
     );
+    console.log(stakeAccount.accumulatedStake.toString());
     expect(stakeAccount.stake.toString()).to.equal("0");
+    expect(stakeAccount.accumulatedStake.toString()).to.equal(stake.toString());
 
     await user1Program.provider.sendAndConfirm(
       new anchor.web3.Transaction().add(stakeState.instruction.closeStake())

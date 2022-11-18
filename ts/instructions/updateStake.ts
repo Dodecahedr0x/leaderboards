@@ -30,6 +30,7 @@ export interface UpdateStakeAccounts {
   /** Common Solana programs */
   tokenProgram: PublicKey
   associatedTokenProgram: PublicKey
+  clock: PublicKey
   systemProgram: PublicKey
   rent: PublicKey
 }
@@ -57,6 +58,7 @@ export function updateStake(
       isSigner: false,
       isWritable: false,
     },
+    { pubkey: accounts.clock, isSigner: false, isWritable: false },
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
     { pubkey: accounts.rent, isSigner: false, isWritable: false },
   ]

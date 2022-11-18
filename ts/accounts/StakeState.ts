@@ -4,21 +4,42 @@ import * as borsh from "@project-serum/borsh" // eslint-disable-line @typescript
 import { PROGRAM_ID } from "../programId"
 
 export interface StakeStateFields {
+  /** The staker owning this account */
   staker: PublicKey
-  stake: BN
+  /** The note staked on */
   note: PublicKey
+  /** The amount currently staked */
+  stake: BN
+  /** The amount currently staked */
+  accumulatedStake: BN
+  /** The last time this account was updated */
+  lastUpdate: BN
 }
 
 export interface StakeStateJSON {
+  /** The staker owning this account */
   staker: string
-  stake: string
+  /** The note staked on */
   note: string
+  /** The amount currently staked */
+  stake: string
+  /** The amount currently staked */
+  accumulatedStake: string
+  /** The last time this account was updated */
+  lastUpdate: string
 }
 
 export class StakeState {
+  /** The staker owning this account */
   readonly staker: PublicKey
-  readonly stake: BN
+  /** The note staked on */
   readonly note: PublicKey
+  /** The amount currently staked */
+  readonly stake: BN
+  /** The amount currently staked */
+  readonly accumulatedStake: BN
+  /** The last time this account was updated */
+  readonly lastUpdate: BN
 
   static readonly discriminator = Buffer.from([
     108, 10, 236, 72, 1, 88, 133, 92,
@@ -26,14 +47,18 @@ export class StakeState {
 
   static readonly layout = borsh.struct([
     borsh.publicKey("staker"),
-    borsh.u64("stake"),
     borsh.publicKey("note"),
+    borsh.u64("stake"),
+    borsh.u64("accumulatedStake"),
+    borsh.i64("lastUpdate"),
   ])
 
   constructor(fields: StakeStateFields) {
     this.staker = fields.staker
-    this.stake = fields.stake
     this.note = fields.note
+    this.stake = fields.stake
+    this.accumulatedStake = fields.accumulatedStake
+    this.lastUpdate = fields.lastUpdate
   }
 
   static async fetch(
@@ -79,24 +104,30 @@ export class StakeState {
 
     return new StakeState({
       staker: dec.staker,
-      stake: dec.stake,
       note: dec.note,
+      stake: dec.stake,
+      accumulatedStake: dec.accumulatedStake,
+      lastUpdate: dec.lastUpdate,
     })
   }
 
   toJSON(): StakeStateJSON {
     return {
       staker: this.staker.toString(),
-      stake: this.stake.toString(),
       note: this.note.toString(),
+      stake: this.stake.toString(),
+      accumulatedStake: this.accumulatedStake.toString(),
+      lastUpdate: this.lastUpdate.toString(),
     }
   }
 
   static fromJSON(obj: StakeStateJSON): StakeState {
     return new StakeState({
       staker: new PublicKey(obj.staker),
-      stake: new BN(obj.stake),
       note: new PublicKey(obj.note),
+      stake: new BN(obj.stake),
+      accumulatedStake: new BN(obj.accumulatedStake),
+      lastUpdate: new BN(obj.lastUpdate),
     })
   }
 }

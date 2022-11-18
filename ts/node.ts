@@ -1,4 +1,3 @@
-import { AnchorProvider, Provider } from "@project-serum/anchor";
 import { Forest, Node, Tree } from "./accounts";
 import {
   Keypair,
@@ -13,6 +12,7 @@ import { DipForest } from "./forest";
 import { DipNote } from "./note";
 import { DipTree } from "./tree";
 import { NODE_SEED } from "./constants";
+import { Provider } from "@project-serum/anchor";
 
 export class DipNode {
   tree: DipTree;

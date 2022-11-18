@@ -11,7 +11,17 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
     let tree = &mut ctx.accounts.tree;
     let node = &mut ctx.accounts.node;
     let note = &mut ctx.accounts.note;
-    let stake_account = &mut ctx.accounts.stake_state;
+    let stake_state = &mut ctx.accounts.stake_state;
+
+    // Updating accumulated stake
+    // TODO: Handle wrapping
+    let current_time = Clock::get()?.unix_timestamp;
+    let note_elapsed_time = (current_time - note.last_update) as u64;
+    note.last_update = current_time;
+    note.accumulated_stake += note.stake * note_elapsed_time;
+    let stake_elapsed_time = (current_time - stake_state.last_update) as u64;
+    stake_state.last_update = current_time;
+    stake_state.accumulated_stake += stake_state.stake * stake_elapsed_time;
 
     if stake >= 0 {
         let stake = stake as u64;
@@ -20,7 +30,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         tree.stake += stake;
         node.stake += stake;
         note.stake += stake;
-        stake_account.stake += stake;
+        stake_state.stake += stake;
 
         let transfer_ctx = CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
@@ -38,7 +48,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         tree.stake -= stake;
         node.stake -= stake;
         note.stake -= stake;
-        stake_account.stake -= stake;
+        stake_state.stake -= stake;
 
         let authority_bump = *ctx.bumps.get("forest_authority").unwrap();
         let authority_seeds = &[
@@ -163,6 +173,7 @@ pub struct UpdateStake<'info> {
     /// Common Solana programs
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
+    pub clock: Sysvar<'info, Clock>,
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
 }

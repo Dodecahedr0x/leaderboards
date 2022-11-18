@@ -89,13 +89,32 @@ impl Node {
 
 #[account]
 pub struct Note {
+    /// Unique noteidetifier
     pub id: Pubkey,
+
+    /// The website the note points to
     pub website: String,
+
+    /// Thecoverimage ofthe note
     pub image: String,
+
+    /// A short description of the website the note points to
     pub description: String,
+
+    /// The set of tags on this node
     pub tags: Vec<String>,
+
+    /// The node this note is attached to
     pub parent: Pubkey,
+
+    /// The stake currently on this note
     pub stake: u64,
+
+    /// The total stake accumulated per unit of time
+    pub accumulated_stake: u64,
+
+    /// The last time this note was updated
+    pub last_update: i64,
 }
 
 impl Note {
@@ -105,19 +124,34 @@ impl Note {
         + (4 + MAX_DESCRIPTION_LENGTH) // Description
         + (4 + MAX_TAGS * MAX_TAG_LENGTH) // Tags
         + 32 // Parent
-        + 8; // Stake
+        + 8  // Stake
+        + 8  // Accumulated Stake
+        + 8; // Last Update
 }
 
 #[account]
 pub struct StakeState {
+    /// The staker owning this account
     pub staker: Pubkey,
-    pub stake: u64,
+
+    /// The note staked on
     pub note: Pubkey,
+
+    /// The amount currently staked
+    pub stake: u64,
+
+    /// The amount currently staked
+    pub accumulated_stake: u64,
+
+    /// The last time this account was updated
+    pub last_update: i64,
 }
 
 impl StakeState {
     pub const LEN: usize = 8 // Discriminator
         + 32 // Staker
         + 32 // Note
-        + 8; // Stake
+        + 8  // Stake
+        + 8  // Accumulated stake
+        + 8; // Update
 }

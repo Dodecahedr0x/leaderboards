@@ -4,20 +4,19 @@ import {
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import { AnchorProvider, BN } from "@project-serum/anchor";
+import { Node, Note } from "./accounts";
 import {
-  FOREST_AUTHORITY_SEED,
-  FOREST_SEED,
-  NOTE_SEED,
-  STAKE_SEED,
-} from "./constants";
-import { Forest, Node, Note, Tree } from "./accounts";
-import { PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram } from "@solana/web3.js";
+  PublicKey,
+  SYSVAR_CLOCK_PUBKEY,
+  SYSVAR_RENT_PUBKEY,
+  SystemProgram,
+} from "@solana/web3.js";
 import { closeStake, createStake, updateStake } from "./instructions";
 
 import { PROGRAM_ID as DIP_PROGRAM_ID } from "./programId";
 import { DipNode } from "./node";
 import { DipNote } from "./note";
-import { StakeState } from "./accounts/StakeState";
+import { STAKE_SEED } from "./constants";
 
 export class DipStakeState {
   note: DipNote;
@@ -102,6 +101,7 @@ export class DipStakeState {
           ),
           tokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          clock: SYSVAR_CLOCK_PUBKEY,
           systemProgram: SystemProgram.programId,
           rent: SYSVAR_RENT_PUBKEY,
         }
