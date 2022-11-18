@@ -4,9 +4,9 @@ Anchor implementation of the Dippies Index Protocol, a token-curated binary tree
 
 ## Concepts
 
-- **Root**
-  - The root is the base upon which trees grow.
-  - A root defines the token used to stake.
+- **Forest**
+  - The forest is the base upon which trees grow.
+  - A forest defines the token used to stake.
 - **Trees**
   - Trees are the basis are the base for the binary tree.
   - They are linked to their respective root node.
