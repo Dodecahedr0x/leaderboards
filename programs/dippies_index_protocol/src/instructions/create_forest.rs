@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 
-use crate::seeds::{FOREST_AUTHORITY_SEED, ROOT_SEED};
+use crate::seeds::{FOREST_AUTHORITY_SEED, FOREST_SEED};
 use crate::state::Forest;
 
 pub fn create_forest(
@@ -46,7 +46,7 @@ pub struct CreateForest<'info> {
         payer = signer,
         space = Forest::LEN,
         seeds = [
-            ROOT_SEED.as_bytes(),
+            FOREST_SEED.as_bytes(),
             &id.to_bytes(),
         ],
         bump,
