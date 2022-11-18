@@ -9,13 +9,22 @@ export interface CreateTreeArgs {
 
 export interface CreateTreeAccounts {
   signer: PublicKey
+  admin: PublicKey
+  /** The account that manages tokens */
+  forestAuthority: PublicKey
   /** The forest */
   forest: PublicKey
+  /** Mint of the token used to pay the tree creation fee */
+  voteMint: PublicKey
+  creatorAccount: PublicKey
+  adminAccount: PublicKey
   /** The tree */
   tree: PublicKey
   /** The root node of the new tree */
   rootNode: PublicKey
   /** Common Solana programs */
+  tokenProgram: PublicKey
+  associatedTokenProgram: PublicKey
   systemProgram: PublicKey
   rent: PublicKey
 }
@@ -25,9 +34,20 @@ export const layout = borsh.struct([borsh.str("tag")])
 export function createTree(args: CreateTreeArgs, accounts: CreateTreeAccounts) {
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.signer, isSigner: true, isWritable: true },
+    { pubkey: accounts.admin, isSigner: false, isWritable: false },
+    { pubkey: accounts.forestAuthority, isSigner: false, isWritable: false },
     { pubkey: accounts.forest, isSigner: false, isWritable: false },
+    { pubkey: accounts.voteMint, isSigner: false, isWritable: false },
+    { pubkey: accounts.creatorAccount, isSigner: false, isWritable: true },
+    { pubkey: accounts.adminAccount, isSigner: false, isWritable: true },
     { pubkey: accounts.tree, isSigner: false, isWritable: true },
     { pubkey: accounts.rootNode, isSigner: false, isWritable: true },
+    { pubkey: accounts.tokenProgram, isSigner: false, isWritable: false },
+    {
+      pubkey: accounts.associatedTokenProgram,
+      isSigner: false,
+      isWritable: false,
+    },
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
     { pubkey: accounts.rent, isSigner: false, isWritable: false },
   ]

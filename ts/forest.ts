@@ -23,8 +23,16 @@ export class DipForest {
   forestAuthority: PublicKey;
   voteMint: PublicKey;
   voteAccount: PublicKey;
+  admin: PublicKey;
+  treeCreationFee: BN;
 
-  constructor(signer: PublicKey, forestId: PublicKey, voteMint: PublicKey) {
+  constructor(
+    signer: PublicKey,
+    forestId: PublicKey,
+    voteMint: PublicKey,
+    admin: PublicKey,
+    treeCreationFee: BN
+  ) {
     this.signer = signer;
     this.forestId = forestId;
     this.forestKey = PublicKey.findProgramAddressSync(
@@ -41,12 +49,18 @@ export class DipForest {
       this.forestAuthority,
       true
     );
+    this.admin = admin;
+    this.treeCreationFee = treeCreationFee;
   }
 
   instruction = {
-    createForest: (admin: PublicKey, treeCreationFee: BN) => {
+    createForest: () => {
       return createForest(
-        { id: this.forestId, admin, treeCreationFee },
+        {
+          id: this.forestId,
+          admin: this.admin,
+          treeCreationFee: this.treeCreationFee,
+        },
         {
           signer: this.signer,
           forestAuthority: this.forestAuthority,
@@ -80,8 +94,21 @@ export class DipForest {
         {
           signer: this.signer,
           forest: this.forestKey,
+          admin: this.admin,
+          forestAuthority: this.forestAuthority,
+          voteMint: this.voteMint,
+          creatorAccount: getAssociatedTokenAddressSync(
+            this.voteMint,
+            this.signer
+          ),
+          adminAccount: getAssociatedTokenAddressSync(
+            this.voteMint,
+            this.admin
+          ),
           tree,
           rootNode,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: SystemProgram.programId,
           rent: SYSVAR_RENT_PUBKEY,
         }

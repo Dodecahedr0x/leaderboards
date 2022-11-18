@@ -7,6 +7,12 @@ import {
   mintToken,
   printAccounts,
 } from "./utils";
+import {
+  getAccount,
+  getAssociatedTokenAddressSync,
+  getOrCreateAssociatedTokenAccount,
+  transfer,
+} from "@solana/spl-token";
 
 import { DipForest } from "./../ts/index";
 import { DipNode } from "./../ts/node";
@@ -39,17 +45,44 @@ describe("Dippies Index Protocol", () => {
       {}
     );
     voteMint = (await mintToken(provider, admin, user1.publicKey)).mint;
+
+    await transfer(
+      provider.connection,
+      user1,
+      (
+        await getOrCreateAssociatedTokenAccount(
+          provider.connection,
+          user1,
+          voteMint,
+          user1.publicKey
+        )
+      ).address,
+      (
+        await getOrCreateAssociatedTokenAccount(
+          provider.connection,
+          user1,
+          voteMint,
+          admin.publicKey
+        )
+      ).address,
+      user1.publicKey,
+      10 ** 5
+    );
   });
 
   it("Create a tree and win a node auction", async () => {
     const treeCreationFee = new anchor.BN(10000);
 
-    const forest = new DipForest(provider.publicKey, id.publicKey, voteMint);
+    const forest = new DipForest(
+      provider.publicKey,
+      id.publicKey,
+      voteMint,
+      user2.publicKey,
+      treeCreationFee
+    );
 
     await provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(
-        forest.instruction.createForest(admin.publicKey, treeCreationFee)
-      )
+      new anchor.web3.Transaction().add(forest.instruction.createForest())
     );
 
     let forestAccount = await program.account.forest.fetch(forest.forestKey);
@@ -60,8 +93,19 @@ describe("Dippies Index Protocol", () => {
     await provider.sendAndConfirm(
       new anchor.web3.Transaction().add(
         forest.instruction.createTree(forestTag)
-      )
+      ),
+      [],
+      { skipPreflight: true }
     );
+
+    expect(
+      (
+        await getAccount(
+          provider.connection,
+          getAssociatedTokenAddressSync(voteMint, user2.publicKey)
+        )
+      ).amount.toString()
+    ).to.equal(treeCreationFee.toString());
 
     const tree = new DipTree(forest, forestTag);
     let treeAccount = await program.account.tree.fetch(tree.treeKey);

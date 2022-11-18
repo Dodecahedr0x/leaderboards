@@ -16,4 +16,4 @@ wallet = "./tests/keypairs/test.json"
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
 test-token = "yarn run ts-node scripts/testToken.ts"
-root = "yarn run ts-node scripts/createRoot.ts"
+forest = "yarn run ts-node scripts/createForest.ts"

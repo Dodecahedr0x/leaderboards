@@ -17,13 +17,13 @@ export default async function main() {
   const forest = new DipForest(
     provider.publicKey,
     provider.publicKey,
-    DIPPIES_TOKEN
+    DIPPIES_TOKEN,
+    admin,
+    new anchor.BN(10 ** 10)
   );
 
   await provider.sendAndConfirm(
-    new anchor.web3.Transaction().add(
-      forest.instruction.createForest(admin, new anchor.BN(10 ** 10))
-    )
+    new anchor.web3.Transaction().add(forest.instruction.createForest())
   );
 
   console.log("Forest:", forest.forestKey.toString());

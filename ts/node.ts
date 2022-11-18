@@ -44,7 +44,13 @@ export class DipNode {
 
     return new DipNode(
       new DipTree(
-        new DipForest(provider.publicKey, forest.id, forest.voteMint),
+        new DipForest(
+          provider.publicKey,
+          forest.id,
+          forest.voteMint,
+          forest.admin,
+          forest.treeCreationFee
+        ),
         tree.title
       ),
       node.parent,
