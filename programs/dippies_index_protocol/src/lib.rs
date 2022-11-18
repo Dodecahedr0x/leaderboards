@@ -78,4 +78,12 @@ pub mod dippies_index_protocol {
     pub fn replace_note(ctx: Context<ReplaceNote>) -> Result<()> {
         instructions::replace_note(ctx)
     }
+
+    pub fn set_bribe(ctx: Context<SetBribe>, amount: u64) -> Result<()> {
+        instructions::set_bribe(ctx, amount)
+    }
+
+    pub fn claim_bribe(ctx: Context<ClaimBribe>) -> Result<()> {
+        instructions::claim_bribe(ctx)
+    }
 }

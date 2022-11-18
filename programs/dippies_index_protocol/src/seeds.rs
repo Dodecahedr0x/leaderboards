@@ -17,3 +17,9 @@ pub const NOTE_SEED: &str = "note";
 
 #[constant]
 pub const STAKE_SEED: &str = "stake";
+
+#[constant]
+pub const BRIBE_SEED: &str = "bribe";
+
+#[constant]
+pub const BRIBE_CLAIM_SEED: &str = "bribe-claim";

@@ -257,6 +257,9 @@ describe("Dippies Index Protocol", () => {
         stakeState.instruction.updateStake(stake)
       )
     );
+    const timeBefore = await provider.connection.getBlockTime(
+      await provider.connection.getSlot()
+    );
 
     await new Promise((resolve) => setTimeout(resolve, 900));
 
@@ -274,9 +277,18 @@ describe("Dippies Index Protocol", () => {
     stakeAccount = await user1Program.account.stakeState.fetch(
       stakeState.stakeKey
     );
-    console.log(stakeAccount.accumulatedStake.toString());
     expect(stakeAccount.stake.toString()).to.equal("0");
-    expect(stakeAccount.accumulatedStake.toString()).to.equal(stake.toString());
+    expect(stakeAccount.accumulatedStake.toString()).to.equal(
+      stake
+        .mul(
+          new anchor.BN(
+            (await provider.connection.getBlockTime(
+              await provider.connection.getSlot()
+            )) - timeBefore
+          )
+        )
+        .toString()
+    );
 
     await user1Program.provider.sendAndConfirm(
       new anchor.web3.Transaction().add(stakeState.instruction.closeStake())
@@ -302,17 +314,58 @@ describe("Dippies Index Protocol", () => {
       )
     );
 
-    let note = await program.account.note.fetch(noteAccounts[0].noteKey);
-    expect(note.parent.toString()).to.equal(tree.rootNode.toString());
+    let noteAccount = await program.account.note.fetch(noteAccounts[0].noteKey);
+    expect(noteAccount.parent.toString()).to.equal(tree.rootNode.toString());
 
     // Replace a note on the root
+    let note = new DipNote(
+      await DipNode.fromNode(user1Program.provider, rootNode as any),
+      noteAccounts[0].id
+    );
     await user1Program.provider.sendAndConfirm(
       new anchor.web3.Transaction().add(
-        new DipNote(
-          await DipNode.fromNode(user1Program.provider, rootNode as any),
-          noteAccounts[0].id
-        ).instruction.replaceNote(rootNoteAccounts[0].noteKey)
+        note.instruction.replaceNote(rootNoteAccounts[0].noteKey)
       )
     );
+
+    // Bribe and claim it
+    const bribeAmount = new anchor.BN(10000);
+    let balanceBefore = (
+      await getAccount(
+        provider.connection,
+        getAssociatedTokenAddressSync(voteMint, user1.publicKey)
+      )
+    ).amount;
+    await user1Program.provider.sendAndConfirm(
+      new anchor.web3.Transaction().add(
+        note.instruction.setBribe(voteMint, bribeAmount)
+      )
+    );
+
+    expect(
+      (
+        await getAccount(
+          provider.connection,
+          getAssociatedTokenAddressSync(voteMint, user1.publicKey)
+        )
+      ).amount.toString()
+    ).to.equal(
+      new anchor.BN(balanceBefore.toString())
+        .sub(new anchor.BN(bribeAmount))
+        .toString()
+    );
+
+    await user1Program.provider.sendAndConfirm(
+      new anchor.web3.Transaction().add(note.instruction.claimBribe(voteMint))
+    );
+
+    expect(
+      (
+        await getAccount(
+          provider.connection,
+          getAssociatedTokenAddressSync(voteMint, user1.publicKey)
+        )
+      ).amount.toString()
+    ).to.equal(balanceBefore.toString());
   });
 });

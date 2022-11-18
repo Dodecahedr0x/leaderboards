@@ -13,6 +13,7 @@ pub fn create_stake(ctx: Context<CreateStake>) -> Result<()> {
     let stake_account = &mut ctx.accounts.stake_state;
     stake_account.staker = ctx.accounts.signer.key();
     stake_account.note = ctx.accounts.note.key();
+    stake_account.accumulated_stake = ctx.accounts.note.accumulated_stake;
 
     Ok(())
 }
