@@ -49,11 +49,12 @@ pub mod dippies_index_protocol {
     pub fn create_note(
         ctx: Context<CreateNote>,
         id: Pubkey,
+        title: String,
         website: String,
         image: String,
         description: String,
     ) -> Result<()> {
-        instructions::create_note(ctx, id, website, image, description)
+        instructions::create_note(ctx, id, title, website, image, description)
     }
 
     pub fn attach_note(ctx: Context<AttachNote>) -> Result<()> {

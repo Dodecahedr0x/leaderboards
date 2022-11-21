@@ -7,6 +7,7 @@ use crate::state::{Forest, Node, Note, Tree, MAX_DESCRIPTION_LENGTH, MAX_URI_LEN
 pub fn create_note(
     ctx: Context<CreateNote>,
     id: Pubkey,
+    title: String,
     website: String,
     image: String,
     description: String,
@@ -15,6 +16,7 @@ pub fn create_note(
 
     let note = &mut ctx.accounts.note;
     note.id = id;
+    note.title = title;
     note.website = website;
     note.image = image;
     note.description = description;
@@ -76,6 +78,7 @@ pub struct CreateNote<'info> {
             &id.to_bytes()
         ],
         bump,
+        constraint = website.len() <= MAX_URI_LENGTH @ DipErrors::StringTooLong,
         constraint = website.len() <= MAX_URI_LENGTH @ DipErrors::StringTooLong,
         constraint = image.len() <= MAX_URI_LENGTH @ DipErrors::StringTooLong,
         constraint = description.len() <= MAX_DESCRIPTION_LENGTH @ DipErrors::StringTooLong,

@@ -996,6 +996,10 @@
           "type": "publicKey"
         },
         {
+          "name": "title",
+          "type": "string"
+        },
+        {
           "name": "website",
           "type": "string"
         },
@@ -2733,15 +2737,6 @@
             "type": "publicKey"
           },
           {
-            "name": "children",
-            "docs": [
-              "Children nodes"
-            ],
-            "type": {
-              "vec": "publicKey"
-            }
-          },
-          {
             "name": "stake",
             "docs": [
               "The total staked on notes of this node"
@@ -2755,6 +2750,15 @@
             ],
             "type": {
               "vec": "string"
+            }
+          },
+          {
+            "name": "children",
+            "docs": [
+              "Children nodes"
+            ],
+            "type": {
+              "vec": "publicKey"
             }
           },
           {
@@ -2782,6 +2786,13 @@
             "type": "publicKey"
           },
           {
+            "name": "title",
+            "docs": [
+              "The title of the note"
+            ],
+            "type": "string"
+          },
+          {
             "name": "website",
             "docs": [
               "The website the note points to"
@@ -2801,15 +2812,6 @@
               "A short description of the website the note points to"
             ],
             "type": "string"
-          },
-          {
-            "name": "tags",
-            "docs": [
-              "The set of tags on this node"
-            ],
-            "type": {
-              "vec": "string"
-            }
           },
           {
             "name": "parent",
@@ -2838,6 +2840,15 @@
               "The last time this note was updated"
             ],
             "type": "i64"
+          },
+          {
+            "name": "tags",
+            "docs": [
+              "The set of tags on this node"
+            ],
+            "type": {
+              "vec": "string"
+            }
           }
         ]
       }
@@ -3113,8 +3124,5 @@
       "name": "AlreadyOnNode",
       "msg": "Target note is already on the node"
     }
-  ],
-  "metadata": {
-    "address": "7rxT36fYNGHB1hfXstL79FaFuVgZXzYCiM7yVJ7cdipD"
-  }
+  ]
 }

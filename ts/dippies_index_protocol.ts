@@ -996,6 +996,10 @@ export type DippiesIndexProtocol = {
           "type": "publicKey"
         },
         {
+          "name": "title",
+          "type": "string"
+        },
+        {
           "name": "website",
           "type": "string"
         },
@@ -2733,15 +2737,6 @@ export type DippiesIndexProtocol = {
             "type": "publicKey"
           },
           {
-            "name": "children",
-            "docs": [
-              "Children nodes"
-            ],
-            "type": {
-              "vec": "publicKey"
-            }
-          },
-          {
             "name": "stake",
             "docs": [
               "The total staked on notes of this node"
@@ -2755,6 +2750,15 @@ export type DippiesIndexProtocol = {
             ],
             "type": {
               "vec": "string"
+            }
+          },
+          {
+            "name": "children",
+            "docs": [
+              "Children nodes"
+            ],
+            "type": {
+              "vec": "publicKey"
             }
           },
           {
@@ -2782,6 +2786,13 @@ export type DippiesIndexProtocol = {
             "type": "publicKey"
           },
           {
+            "name": "title",
+            "docs": [
+              "The title of the note"
+            ],
+            "type": "string"
+          },
+          {
             "name": "website",
             "docs": [
               "The website the note points to"
@@ -2801,15 +2812,6 @@ export type DippiesIndexProtocol = {
               "A short description of the website the note points to"
             ],
             "type": "string"
-          },
-          {
-            "name": "tags",
-            "docs": [
-              "The set of tags on this node"
-            ],
-            "type": {
-              "vec": "string"
-            }
           },
           {
             "name": "parent",
@@ -2838,6 +2840,15 @@ export type DippiesIndexProtocol = {
               "The last time this note was updated"
             ],
             "type": "i64"
+          },
+          {
+            "name": "tags",
+            "docs": [
+              "The set of tags on this node"
+            ],
+            "type": {
+              "vec": "string"
+            }
           }
         ]
       }
@@ -4114,6 +4125,10 @@ export const IDL: DippiesIndexProtocol = {
           "type": "publicKey"
         },
         {
+          "name": "title",
+          "type": "string"
+        },
+        {
           "name": "website",
           "type": "string"
         },
@@ -5851,15 +5866,6 @@ export const IDL: DippiesIndexProtocol = {
             "type": "publicKey"
           },
           {
-            "name": "children",
-            "docs": [
-              "Children nodes"
-            ],
-            "type": {
-              "vec": "publicKey"
-            }
-          },
-          {
             "name": "stake",
             "docs": [
               "The total staked on notes of this node"
@@ -5873,6 +5879,15 @@ export const IDL: DippiesIndexProtocol = {
             ],
             "type": {
               "vec": "string"
+            }
+          },
+          {
+            "name": "children",
+            "docs": [
+              "Children nodes"
+            ],
+            "type": {
+              "vec": "publicKey"
             }
           },
           {
@@ -5900,6 +5915,13 @@ export const IDL: DippiesIndexProtocol = {
             "type": "publicKey"
           },
           {
+            "name": "title",
+            "docs": [
+              "The title of the note"
+            ],
+            "type": "string"
+          },
+          {
             "name": "website",
             "docs": [
               "The website the note points to"
@@ -5919,15 +5941,6 @@ export const IDL: DippiesIndexProtocol = {
               "A short description of the website the note points to"
             ],
             "type": "string"
-          },
-          {
-            "name": "tags",
-            "docs": [
-              "The set of tags on this node"
-            ],
-            "type": {
-              "vec": "string"
-            }
           },
           {
             "name": "parent",
@@ -5956,6 +5969,15 @@ export const IDL: DippiesIndexProtocol = {
               "The last time this note was updated"
             ],
             "type": "i64"
+          },
+          {
+            "name": "tags",
+            "docs": [
+              "The set of tags on this node"
+            ],
+            "type": {
+              "vec": "string"
+            }
           }
         ]
       }

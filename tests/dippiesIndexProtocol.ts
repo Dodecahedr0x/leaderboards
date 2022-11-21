@@ -166,7 +166,7 @@ describe("Dippies Index Protocol", () => {
 
       await provider.connection.confirmTransaction(
         await program.methods
-          .createNote(id, treeAccount.rootNode.toString(), "", "test")
+          .createNote(id, "title", treeAccount.rootNode.toString(), "", "test")
           .accounts(
             getCreateNoteAccounts(
               forestKey,
@@ -280,7 +280,7 @@ describe("Dippies Index Protocol", () => {
       noteKeys.push(noteKey);
       await provider.connection.confirmTransaction(
         await program.methods
-          .createNote(id, nodeKeys[0].toString(), "", "Test note")
+          .createNote(id, "title", nodeKeys[0].toString(), "", "Test note")
           .accounts(
             getCreateNoteAccounts(
               forestKey,

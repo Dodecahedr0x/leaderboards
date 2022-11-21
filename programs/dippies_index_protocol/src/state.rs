@@ -12,6 +12,9 @@ pub const MAX_NOTES_PER_NODE: usize = 3;
 /// The maximum
 pub const MAX_CHILD_PER_NODE: usize = 3;
 
+/// Character length of a note title
+pub const MAX_TITLE_LENGTH: usize = 32;
+
 /// Character length of a URI
 pub const MAX_URI_LENGTH: usize = 200;
 
@@ -64,14 +67,14 @@ pub struct Node {
     /// The parent of this node
     pub parent: Pubkey,
 
-    /// Children nodes
-    pub children: Vec<Pubkey>,
-
     /// The total staked on notes of this node
     pub stake: u64,
 
     /// The set of tags of this node
     pub tags: Vec<String>,
+
+    /// Children nodes
+    pub children: Vec<Pubkey>,
 
     /// The set of notes currently attached to this node
     pub notes: Vec<Pubkey>,
@@ -92,6 +95,9 @@ pub struct Note {
     /// Unique noteidetifier
     pub id: Pubkey,
 
+    /// The title of the note
+    pub title: String,
+
     /// The website the note points to
     pub website: String,
 
@@ -100,9 +106,6 @@ pub struct Note {
 
     /// A short description of the website the note points to
     pub description: String,
-
-    /// The set of tags on this node
-    pub tags: Vec<String>,
 
     /// The node this note is attached to
     pub parent: Pubkey,
@@ -115,11 +118,15 @@ pub struct Note {
 
     /// The last time this note was updated
     pub last_update: i64,
+
+    /// The set of tags on this node
+    pub tags: Vec<String>,
 }
 
 impl Note {
     pub const LEN: usize = 8 // Discriminator
         + 32 // ID
+        + (4 + MAX_TITLE_LENGTH) // Title
         + (4 + MAX_URI_LENGTH) * 2 // Website and image
         + (4 + MAX_DESCRIPTION_LENGTH) // Description
         + (4 + MAX_TAGS * MAX_TAG_LENGTH) // Tags
