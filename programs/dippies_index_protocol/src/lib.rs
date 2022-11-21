@@ -1,4 +1,5 @@
 mod errors;
+mod events;
 mod instructions;
 mod seeds;
 mod state;
@@ -29,8 +30,8 @@ pub mod dippies_index_protocol {
         instructions::set_forest(ctx, admin, tree_creation_fee)
     }
 
-    pub fn create_tree(ctx: Context<CreateTree>, tag: String) -> Result<()> {
-        instructions::create_tree(ctx, tag)
+    pub fn create_tree(ctx: Context<CreateTree>, title: String) -> Result<()> {
+        instructions::create_tree(ctx, title)
     }
 
     pub fn create_node(ctx: Context<CreateNode>, tag: String) -> Result<()> {

@@ -16,7 +16,7 @@ export default async function main() {
 
   const forest = new DipForest(
     provider.publicKey,
-    provider.publicKey,
+    DIPPIES_TOKEN,
     DIPPIES_TOKEN,
     admin,
     new anchor.BN(10 ** 10)

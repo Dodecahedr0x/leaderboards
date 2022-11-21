@@ -13,20 +13,38 @@ import {
   getOrCreateAssociatedTokenAccount,
   transfer,
 } from "@solana/spl-token";
+import {
+  getAttachNodeAccounts,
+  getAttachNoteAccounts,
+  getClaimBribeAccounts,
+  getCloseStakeAccounts,
+  getCreateForestAccounts,
+  getCreateNodeAccounts,
+  getCreateNoteAccounts,
+  getCreateStakeAccounts,
+  getCreateTreeAccounts,
+  getMoveNoteAccounts,
+  getReplaceNoteAccounts,
+  getSetBribeAccounts,
+  getUpdateStakeAccounts,
+} from "../ts/account";
+import {
+  getForestAddress,
+  getNodeAddress,
+  getNoteAddress,
+  getStakeAddress,
+  getTreeAddress,
+} from "../ts/pda";
 
-import { DipForest } from "./../ts/index";
-import { DipNode } from "./../ts/node";
-import { DipNote } from "./../ts/note";
-import { DipStakeState } from "../ts/stakeState";
-import { DipTree } from "./../ts/tree";
-import { DippiesIndexProtocol } from "../target/types/dippies_index_protocol";
+import { DippiesIndexProtocol } from "../ts/dippies_index_protocol";
+import DippiesIndexProtocolIdl from "../ts/dippies_index_protocol.json";
 import { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { expect } from "chai";
 
 describe("Dippies Index Protocol", () => {
   let provider: anchor.AnchorProvider;
-  const program = anchor.workspace
+  let program = anchor.workspace
     .DippiesIndexProtocol as Program<DippiesIndexProtocol>;
   let id = anchor.web3.Keypair.generate();
   let admin = anchor.web3.Keypair.generate();
@@ -43,6 +61,11 @@ describe("Dippies Index Protocol", () => {
       program.provider.connection,
       new anchor.Wallet(admin),
       {}
+    );
+    program = new Program<DippiesIndexProtocol>(
+      DippiesIndexProtocolIdl as any,
+      program.programId,
+      provider
     );
     voteMint = (await mintToken(provider, admin, user1.publicKey)).mint;
 
@@ -66,36 +89,46 @@ describe("Dippies Index Protocol", () => {
         )
       ).address,
       user1.publicKey,
-      10 ** 5
+      10 ** 6
     );
   });
 
   it("Create a tree and win a node auction", async () => {
-    const treeCreationFee = new anchor.BN(10000);
+    const treeCreationFee = new anchor.BN(1000);
 
-    const forest = new DipForest(
-      provider.publicKey,
-      id.publicKey,
-      voteMint,
-      user2.publicKey,
-      treeCreationFee
+    const forestKey = getForestAddress(id.publicKey);
+
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .createForest(id.publicKey, user2.publicKey, treeCreationFee)
+        .accounts(
+          getCreateForestAccounts(
+            id.publicKey,
+            voteMint,
+            program.provider.publicKey
+          )
+        )
+        .rpc({ skipPreflight: true })
     );
 
-    await provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(forest.instruction.createForest())
-    );
-
-    let forestAccount = await program.account.forest.fetch(forest.forestKey);
+    let forestAccount = await program.account.forest.fetch(forestKey);
     expect(forestAccount.id.toString()).to.equal(id.publicKey.toString());
-    expect(forest.voteMint.toString()).to.equal(voteMint.toString());
+    expect(voteMint.toString()).to.equal(voteMint.toString());
 
     const forestTag = "DeFi Protocol?";
-    await provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(
-        forest.instruction.createTree(forestTag)
-      ),
-      [],
-      { skipPreflight: true }
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .createTree(forestTag)
+        .accounts(
+          getCreateTreeAccounts(
+            forestKey,
+            user2.publicKey,
+            voteMint,
+            forestTag,
+            program.provider.publicKey
+          )
+        )
+        .rpc({ skipPreflight: true })
     );
 
     expect(
@@ -107,16 +140,16 @@ describe("Dippies Index Protocol", () => {
       ).amount.toString()
     ).to.equal(treeCreationFee.toString());
 
-    const tree = new DipTree(forest, forestTag);
-    let treeAccount = await program.account.tree.fetch(tree.treeKey);
-    expect(treeAccount.forest.toString()).to.equal(
-      tree.forest.forestKey.toString()
-    );
-    expect(treeAccount.rootNode.toString()).to.equal(tree.rootNode.toString());
+    const treeKey = getTreeAddress(forestKey, forestTag);
+    const rootNodeKey = getNodeAddress(treeKey, PublicKey.default, forestTag);
+
+    let treeAccount = await program.account.tree.fetch(treeKey);
+    expect(treeAccount.forest.toString()).to.equal(forestKey.toString());
+    expect(treeAccount.rootNode.toString()).to.equal(rootNodeKey.toString());
     expect(treeAccount.title).to.equal(forestTag);
 
-    let rootNode = await program.account.node.fetch(tree.rootNode);
-    expect(rootNode.tree.toString()).to.equal(tree.treeKey.toString());
+    let rootNode = await program.account.node.fetch(treeAccount.rootNode);
+    expect(rootNode.tree.toString()).to.equal(treeKey.toString());
     expect(rootNode.parent.toString()).to.equal(PublicKey.default.toString());
     expect(rootNode.stake.toString()).to.equal("0");
     expect(rootNode.children.toString()).to.equal([].toString());
@@ -124,49 +157,72 @@ describe("Dippies Index Protocol", () => {
     expect(rootNode.notes.toString()).to.equal([].toString());
 
     // Create notes on the root
-    let rootNoteAccounts: DipNote[] = [];
+    let rootNoteKeys: PublicKey[] = [];
     for (let i = 0; i < MAX_NOTES_PER_NODE; i++) {
       const id = anchor.web3.Keypair.generate().publicKey;
+      const key = getNoteAddress(treeKey, id);
+      rootNoteKeys.push(key);
 
-      rootNoteAccounts.push(
-        new DipNote(new DipNode(tree, PublicKey.default, forestTag), id)
-      );
-
-      await provider.sendAndConfirm(
-        new anchor.web3.Transaction().add(
-          rootNoteAccounts[rootNoteAccounts.length - 1].instruction.createNote(
-            tree.rootNode.toString(),
-            "",
-            "test"
+      await provider.connection.confirmTransaction(
+        await program.methods
+          .createNote(id, treeAccount.rootNode.toString(), "", "test")
+          .accounts(
+            getCreateNoteAccounts(
+              forestKey,
+              treeKey,
+              rootNodeKey,
+              id,
+              program.provider.publicKey
+            )
           )
-        )
+          .rpc()
       );
-      await provider.sendAndConfirm(
-        new anchor.web3.Transaction().add(
-          rootNoteAccounts[rootNoteAccounts.length - 1].instruction.attachNote()
-        )
+      await provider.connection.confirmTransaction(
+        await program.methods
+          .attachNote()
+          .accounts(
+            getAttachNoteAccounts(
+              forestKey,
+              treeKey,
+              rootNodeKey,
+              getNoteAddress(treeKey, id),
+              program.provider.publicKey
+            )
+          )
+          .rpc()
       );
     }
 
-    rootNode = await program.account.node.fetch(tree.rootNode);
+    rootNode = await program.account.node.fetch(rootNodeKey);
     expect(rootNode.notes.map((e) => e.toString()).toString()).to.equal(
-      rootNoteAccounts.map((e) => e.noteKey.toString()).toString()
+      rootNoteKeys.map((e) => e.toString()).toString()
     );
 
     // Create children nodes
     const tags = ["Solana", "Ethereum", "Polygon", "Arbitrum", "Optimism"];
-    let nodeAccounts: DipNode[] = [];
+    let nodeKeys: PublicKey[] = [];
     for (const tag of tags) {
-      nodeAccounts.push(new DipNode(tree, tree.rootNode, tag));
-      await provider.sendAndConfirm(
-        new anchor.web3.Transaction().add(tree.instruction.createNode(tag))
+      nodeKeys.push(getNodeAddress(treeKey, rootNodeKey, tag));
+      await provider.connection.confirmTransaction(
+        await program.methods
+          .createNode(tag)
+          .accounts(
+            getCreateNodeAccounts(
+              forestKey,
+              treeKey,
+              rootNodeKey,
+              tag,
+              program.provider.publicKey
+            )
+          )
+          .rpc()
       );
 
       let node = await program.account.node.fetch(
-        nodeAccounts[nodeAccounts.length - 1].nodeKey
+        nodeKeys[nodeKeys.length - 1]
       );
-      expect(node.tree.toString()).to.equal(tree.treeKey.toString());
-      expect(node.parent.toString()).to.equal(tree.rootNode.toString());
+      expect(node.tree.toString()).to.equal(treeKey.toString());
+      expect(node.parent.toString()).to.equal(rootNodeKey.toString());
       expect(node.stake.toString()).to.equal("0");
       expect(node.tags.toString()).to.equal([forestTag, tag].toString());
       expect(node.children.toString()).to.equal([].toString());
@@ -176,54 +232,85 @@ describe("Dippies Index Protocol", () => {
     // Attach nodes
     for (let i = 0; i <= MAX_CHILD_PER_NODE; i++) {
       if (i < MAX_CHILD_PER_NODE) {
-        await provider.sendAndConfirm(
-          new anchor.web3.Transaction().add(
-            nodeAccounts[i].instruction.attachNode()
-          )
+        await provider.connection.confirmTransaction(
+          await program.methods
+            .attachNode()
+            .accounts(
+              getAttachNodeAccounts(
+                forestKey,
+                treeKey,
+                rootNodeKey,
+                nodeKeys[i],
+                program.provider.publicKey
+              )
+            )
+            .rpc({ skipPreflight: true })
         );
 
-        let node = await program.account.node.fetch(tree.rootNode);
+        let node = await program.account.node.fetch(rootNodeKey);
         expect(
           node.children
             .map((e) => e.toString())
-            .includes(nodeAccounts[i].nodeKey.toString())
+            .includes(nodeKeys[i].toString())
         );
       } else {
         await expectRevert(
-          provider.sendAndConfirm(
-            new anchor.web3.Transaction().add(
-              nodeAccounts[i].instruction.attachNode()
+          program.methods
+            .attachNode()
+            .accounts(
+              getAttachNodeAccounts(
+                forestKey,
+                treeKey,
+                rootNodeKey,
+                nodeKeys[i],
+                program.provider.publicKey
+              )
             )
-          )
+            .rpc({ skipPreflight: true })
         );
       }
     }
 
     // Create notes on first child
-    let noteAccounts: DipNote[] = [];
-    for (const node of nodeAccounts) {
+    let noteKeys: PublicKey[] = [];
+    for (let i = 0; i < MAX_NOTES_PER_NODE; i++) {
       const id = anchor.web3.Keypair.generate().publicKey;
-      noteAccounts.push(new DipNote(node, id));
-      await provider.sendAndConfirm(
-        new anchor.web3.Transaction().add(
-          noteAccounts[noteAccounts.length - 1].instruction.createNote(
-            node.nodeKey.toString(),
-            "",
-            "Test note"
+      const noteKey = getNoteAddress(treeKey, id);
+      noteKeys.push(noteKey);
+      await provider.connection.confirmTransaction(
+        await program.methods
+          .createNote(id, nodeKeys[0].toString(), "", "Test note")
+          .accounts(
+            getCreateNoteAccounts(
+              forestKey,
+              treeKey,
+              nodeKeys[0],
+              id,
+              program.provider.publicKey
+            )
           )
-        )
+          .rpc({ skipPreflight: true })
       );
-      await provider.sendAndConfirm(
-        new anchor.web3.Transaction().add(
-          noteAccounts[noteAccounts.length - 1].instruction.attachNote()
-        )
+      await provider.connection.confirmTransaction(
+        await program.methods
+          .attachNote()
+          .accounts(
+            getAttachNoteAccounts(
+              forestKey,
+              treeKey,
+              nodeKeys[0],
+              noteKey,
+              program.provider.publicKey
+            )
+          )
+          .rpc({ skipPreflight: true })
       );
 
       let note = await program.account.note.fetch(
-        noteAccounts[noteAccounts.length - 1].noteKey
+        noteKeys[noteKeys.length - 1]
       );
-      expect(note.parent.toString()).to.equal(node.nodeKey.toString());
-      expect(note.website).to.equal(node.nodeKey.toString());
+      expect(note.parent.toString()).to.equal(nodeKeys[0].toString());
+      expect(note.website).to.equal(nodeKeys[0].toString());
       expect(note.image).to.equal("");
       expect(note.description).to.equal("Test note");
     }
@@ -241,42 +328,71 @@ describe("Dippies Index Protocol", () => {
         }
       )
     );
-    const stakeState = new DipStakeState(noteAccounts[0], user1.publicKey);
+    const stakeStateKey = getStakeAddress(noteKeys[0], user1.publicKey);
 
-    await user1Program.provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(stakeState.instruction.createStake())
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .createStake()
+        .accounts(
+          getCreateStakeAccounts(
+            forestKey,
+            voteMint,
+            treeKey,
+            nodeKeys[0],
+            noteKeys[0],
+            user1.publicKey
+          )
+        )
+        .signers([user1])
+        .rpc({ skipPreflight: true })
     );
 
     let stakeAccount = await user1Program.account.stakeState.fetch(
-      stakeState.stakeKey
+      stakeStateKey
     );
     expect(stakeAccount.stake.toString()).to.equal("0");
 
-    await user1Program.provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(
-        stakeState.instruction.updateStake(stake)
-      )
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .updateStake(stake)
+        .accounts(
+          getUpdateStakeAccounts(
+            forestKey,
+            voteMint,
+            treeKey,
+            nodeKeys[0],
+            noteKeys[0],
+            user1.publicKey
+          )
+        )
+        .signers([user1])
+        .rpc({ skipPreflight: true })
     );
     const timeBefore = await provider.connection.getBlockTime(
       await provider.connection.getSlot()
     );
 
-    await new Promise((resolve) => setTimeout(resolve, 900));
-
-    stakeAccount = await user1Program.account.stakeState.fetch(
-      stakeState.stakeKey
-    );
+    stakeAccount = await user1Program.account.stakeState.fetch(stakeStateKey);
     expect(stakeAccount.stake.toString()).to.equal(stake.toString());
 
-    await user1Program.provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(
-        stakeState.instruction.updateStake(stake.neg())
-      )
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .updateStake(stake.neg())
+        .accounts(
+          getUpdateStakeAccounts(
+            forestKey,
+            voteMint,
+            treeKey,
+            nodeKeys[0],
+            noteKeys[0],
+            user1.publicKey
+          )
+        )
+        .signers([user1])
+        .rpc({ skipPreflight: true })
     );
 
-    stakeAccount = await user1Program.account.stakeState.fetch(
-      stakeState.stakeKey
-    );
+    stakeAccount = await user1Program.account.stakeState.fetch(stakeStateKey);
     expect(stakeAccount.stake.toString()).to.equal("0");
     expect(stakeAccount.accumulatedStake.toString()).to.equal(
       stake
@@ -290,42 +406,91 @@ describe("Dippies Index Protocol", () => {
         .toString()
     );
 
-    await user1Program.provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(stakeState.instruction.closeStake())
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .closeStake()
+        .accounts(
+          getCloseStakeAccounts(
+            forestKey,
+            treeKey,
+            noteKeys[0],
+            user1.publicKey
+          )
+        )
+        .signers([user1])
+        .rpc({ skipPreflight: true })
     );
 
-    await expectRevert(
-      user1Program.account.stakeState.fetch(stakeState.stakeKey)
-    );
+    await expectRevert(user1Program.account.stakeState.fetch(stakeStateKey));
 
     // Stake on a note and then upgrade the note
-    await user1Program.provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(stakeState.instruction.createStake())
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .createStake()
+        .accounts(
+          getCreateStakeAccounts(
+            forestKey,
+            voteMint,
+            treeKey,
+            nodeKeys[0],
+            noteKeys[0],
+            user1.publicKey
+          )
+        )
+        .signers([user1])
+        .rpc({ skipPreflight: true })
     );
-    await user1Program.provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(
-        stakeState.instruction.updateStake(stake)
-      )
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .updateStake(stake)
+        .accounts(
+          getUpdateStakeAccounts(
+            forestKey,
+            voteMint,
+            treeKey,
+            nodeKeys[0],
+            noteKeys[0],
+            user1.publicKey
+          )
+        )
+        .signers([user1])
+        .rpc({ skipPreflight: true })
     );
 
-    await user1Program.provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(
-        noteAccounts[0].instruction.moveNote(tree.rootNode)
-      )
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .moveNote()
+        .accounts(
+          getMoveNoteAccounts(
+            forestKey,
+            treeKey,
+            noteKeys[0],
+            nodeKeys[0],
+            rootNodeKey,
+            program.provider.publicKey
+          )
+        )
+        .rpc({ skipPreflight: true })
     );
 
-    let noteAccount = await program.account.note.fetch(noteAccounts[0].noteKey);
-    expect(noteAccount.parent.toString()).to.equal(tree.rootNode.toString());
+    let noteAccount = await program.account.note.fetch(noteKeys[0]);
+    expect(noteAccount.parent.toString()).to.equal(rootNodeKey.toString());
 
     // Replace a note on the root
-    let note = new DipNote(
-      await DipNode.fromNode(user1Program.provider, rootNode as any),
-      noteAccounts[0].id
-    );
-    await user1Program.provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(
-        note.instruction.replaceNote(rootNoteAccounts[0].noteKey)
-      )
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .replaceNote()
+        .accounts(
+          getReplaceNoteAccounts(
+            forestKey,
+            treeKey,
+            rootNodeKey,
+            noteKeys[0],
+            rootNoteKeys[0],
+            program.provider.publicKey
+          )
+        )
+        .rpc({ skipPreflight: true })
     );
 
     // Bribe and claim it
@@ -336,10 +501,21 @@ describe("Dippies Index Protocol", () => {
         getAssociatedTokenAddressSync(voteMint, user1.publicKey)
       )
     ).amount;
-    await user1Program.provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(
-        note.instruction.setBribe(voteMint, bribeAmount)
-      )
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .setBribe(bribeAmount)
+        .accounts(
+          getSetBribeAccounts(
+            forestKey,
+            treeKey,
+            nodeKeys[0],
+            noteKeys[0],
+            voteMint,
+            user1.publicKey
+          )
+        )
+        .signers([user1])
+        .rpc({ skipPreflight: true })
     );
 
     expect(
@@ -355,8 +531,21 @@ describe("Dippies Index Protocol", () => {
         .toString()
     );
 
-    await user1Program.provider.sendAndConfirm(
-      new anchor.web3.Transaction().add(note.instruction.claimBribe(voteMint))
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .claimBribe()
+        .accounts(
+          getClaimBribeAccounts(
+            forestKey,
+            treeKey,
+            nodeKeys[0],
+            noteKeys[0],
+            voteMint,
+            user1.publicKey
+          )
+        )
+        .signers([user1])
+        .rpc({ skipPreflight: true })
     );
 
     expect(

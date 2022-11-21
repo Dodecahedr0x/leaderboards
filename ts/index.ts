@@ -1,7 +1,7 @@
-export * from "./tree";
+export { default as DipIdl } from "./dippies_index_protocol.json";
+export * from "./dippies_index_protocol";
+
 export * from "./constants";
-export * from "./accounts";
-export * from "./tree";
-export * from "./stakeState";
-export * from "./node";
-export * from "./forest";
+export * from "./account";
+export * from "./pda";
+export * from "./types";

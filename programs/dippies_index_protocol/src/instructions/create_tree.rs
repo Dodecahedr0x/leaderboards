@@ -3,10 +3,11 @@ use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{transfer, Mint, Token, TokenAccount, Transfer};
 
 use crate::errors::DipErrors;
+use crate::events;
 use crate::seeds::{FOREST_AUTHORITY_SEED, FOREST_SEED, NODE_SEED, TREE_SEED};
 use crate::state::{Forest, Node, Tree, MAX_TAG_LENGTH};
 
-pub fn create_tree(ctx: Context<CreateTree>, tag: String) -> Result<()> {
+pub fn create_tree(ctx: Context<CreateTree>, title: String) -> Result<()> {
     msg!("Creating the tree");
 
     transfer(
@@ -24,12 +25,18 @@ pub fn create_tree(ctx: Context<CreateTree>, tag: String) -> Result<()> {
     let tree = &mut ctx.accounts.tree;
     tree.forest = ctx.accounts.forest.key();
     tree.root_node = ctx.accounts.root_node.key();
-    tree.title = tag.clone();
+    tree.title = title.clone();
 
     let root_node = &mut ctx.accounts.root_node;
-    root_node.tree = ctx.accounts.tree.key();
+    root_node.tree = tree.key();
     root_node.parent = Pubkey::default();
-    root_node.tags.push(tag);
+    root_node.tags.push(title.clone());
+
+    emit!(events::NewTree {
+        forest: ctx.accounts.forest.key(),
+        tree: ctx.accounts.tree.key(),
+        title: title,
+    });
 
     Ok(())
 }

@@ -1,3 +1,9 @@
+import { PublicKey } from "@solana/web3.js";
+
+export const DIP_PROGRAM_ID: PublicKey = new PublicKey(
+  "7rxT36fYNGHB1hfXstL79FaFuVgZXzYCiM7yVJ7cdipD"
+);
+
 export const FOREST_AUTHORITY_SEED = "forest-authority";
 export const FOREST_SEED = "forest";
 export const TREE_SEED = "tree";
