@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::errors::DipErrors;
+use crate::events::NewAttachedNote;
 use crate::seeds::{FOREST_SEED, NODE_SEED, NOTE_SEED, TREE_SEED};
 use crate::state::{Forest, Node, Note, Tree, MAX_NOTES_PER_NODE};
 
@@ -19,6 +20,13 @@ pub fn replace_note(ctx: Context<ReplaceNote>) -> Result<()> {
         .position(|n| n == &ctx.accounts.weak_note.key())
         .unwrap();
     node.notes[position] = note.key();
+
+    emit!(NewAttachedNote {
+        forest: ctx.accounts.forest.key(),
+        tree: ctx.accounts.tree.key(),
+        node: ctx.accounts.node.key(),
+        note: ctx.accounts.note.key(),
+    });
 
     Ok(())
 }

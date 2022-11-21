@@ -2985,6 +2985,76 @@ export type DippiesIndexProtocol = {
           "index": false
         }
       ]
+    },
+    {
+      "name": "NewNode",
+      "fields": [
+        {
+          "name": "forest",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "tree",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "node",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "NewAttachedNote",
+      "fields": [
+        {
+          "name": "forest",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "tree",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "node",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "note",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "UpdatedBribe",
+      "fields": [
+        {
+          "name": "forest",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "tree",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "node",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "note",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
     }
   ],
   "errors": [
@@ -6030,6 +6100,76 @@ export const IDL: DippiesIndexProtocol = {
         {
           "name": "title",
           "type": "string",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "NewNode",
+      "fields": [
+        {
+          "name": "forest",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "tree",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "node",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "NewAttachedNote",
+      "fields": [
+        {
+          "name": "forest",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "tree",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "node",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "note",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "UpdatedBribe",
+      "fields": [
+        {
+          "name": "forest",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "tree",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "node",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "note",
+          "type": "publicKey",
           "index": false
         }
       ]

@@ -40,6 +40,7 @@ import { DippiesIndexProtocol } from "../ts/dippies_index_protocol";
 import DippiesIndexProtocolIdl from "../ts/dippies_index_protocol.json";
 import { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
+import { UpdatedBribeEvent } from "./../ts";
 import { expect } from "chai";
 
 describe("Dippies Index Protocol", () => {
@@ -494,6 +495,13 @@ describe("Dippies Index Protocol", () => {
     );
 
     // Bribe and claim it
+    let updateCount = 0;
+    const listener = program.addEventListener(
+      "UpdatedBribe",
+      (event: UpdatedBribeEvent, slot, sig) => {
+        updateCount += 1;
+      }
+    );
     const bribeAmount = new anchor.BN(10000);
     let balanceBefore = (
       await getAccount(
@@ -530,6 +538,9 @@ describe("Dippies Index Protocol", () => {
         .sub(new anchor.BN(bribeAmount))
         .toString()
     );
+    expect(updateCount).to.equal(1);
+
+    program.removeEventListener(listener);
 
     await provider.connection.confirmTransaction(
       await program.methods

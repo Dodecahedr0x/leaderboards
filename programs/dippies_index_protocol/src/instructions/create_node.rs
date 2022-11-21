@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 
+use crate::events::NewNode;
 use crate::seeds::{FOREST_SEED, NODE_SEED, TREE_SEED};
 use crate::state::{Forest, Node, Tree, MAX_TAG_LENGTH};
 
@@ -11,6 +12,12 @@ pub fn create_node(ctx: Context<CreateNode>, tag: String) -> Result<()> {
     node.parent = ctx.accounts.parent_node.key();
     node.tags = ctx.accounts.parent_node.tags.clone();
     node.tags.push(tag);
+
+    emit!(NewNode {
+        forest: ctx.accounts.forest.key(),
+        tree: ctx.accounts.tree.key(),
+        node: ctx.accounts.node.key(),
+    });
 
     Ok(())
 }

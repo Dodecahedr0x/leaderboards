@@ -1,4 +1,4 @@
-import { Accounts, IdlAccounts } from "@project-serum/anchor";
+import { Accounts, Event, IdlAccounts } from "@project-serum/anchor";
 
 import { DippiesIndexProtocol } from "./";
 
@@ -53,3 +53,12 @@ export type SetBribeAccounts = Partial<
 export type ClaimBribeAccounts = Partial<
   Accounts<DippiesIndexProtocol["instructions"]["14"]>
 >["claimBribe"];
+
+export type NewTreeEvent = Partial<Event<DippiesIndexProtocol["events"]["0"]>>;
+export type NewNodeEvent = Partial<Event<DippiesIndexProtocol["events"]["1"]>>;
+export type NewAttachedNoteEvent = Partial<
+  Event<DippiesIndexProtocol["events"]["2"]>
+>;
+export type UpdatedBribeEvent = Partial<
+  Event<DippiesIndexProtocol["events"]["3"]>
+>;

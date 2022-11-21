@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 
+use crate::events::NewAttachedNote;
 use crate::seeds::{FOREST_SEED, NODE_SEED, NOTE_SEED, TREE_SEED};
 use crate::state::{Forest, Node, Note, Tree, MAX_CHILD_PER_NODE};
 
@@ -9,6 +10,13 @@ pub fn attach_note(ctx: Context<AttachNote>) -> Result<()> {
     let node = &mut ctx.accounts.node;
     node.notes.push(ctx.accounts.note.key());
     node.stake += ctx.accounts.note.stake;
+
+    emit!(NewAttachedNote {
+        forest: ctx.accounts.forest.key(),
+        tree: ctx.accounts.tree.key(),
+        node: ctx.accounts.node.key(),
+        note: ctx.accounts.note.key(),
+    });
 
     Ok(())
 }
