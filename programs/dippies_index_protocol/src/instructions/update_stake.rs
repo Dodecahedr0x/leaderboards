@@ -97,7 +97,7 @@ pub struct UpdateStake<'info> {
         bump,
         has_one = vote_mint,
     )]
-    pub forest: Account<'info, Forest>,
+    pub forest: Box<Account<'info, Forest>>,
 
     /// The token used to vote for nodes and tags
     #[account(owner = token::ID)]
@@ -113,7 +113,7 @@ pub struct UpdateStake<'info> {
         ],
         bump,
     )]
-    pub tree: Account<'info, Tree>,
+    pub tree: Box<Account<'info, Tree>>,
 
     /// The node the note is attached to
     #[account(
@@ -126,7 +126,7 @@ pub struct UpdateStake<'info> {
         ],
         bump,
     )]
-    pub node: Account<'info, Node>,
+    pub node: Box<Account<'info, Node>>,
 
     /// The attached note
     #[account(
@@ -138,7 +138,7 @@ pub struct UpdateStake<'info> {
         ],
         bump,
     )]
-    pub note: Account<'info, Note>,
+    pub note: Box<Account<'info, Note>>,
 
     /// The account storing vote tokens
     #[account(

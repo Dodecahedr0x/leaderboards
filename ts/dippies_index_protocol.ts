@@ -2786,32 +2786,11 @@ export type DippiesIndexProtocol = {
             "type": "publicKey"
           },
           {
-            "name": "title",
+            "name": "tree",
             "docs": [
-              "The title of the note"
+              "The tree this onte belongs to"
             ],
-            "type": "string"
-          },
-          {
-            "name": "website",
-            "docs": [
-              "The website the note points to"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "image",
-            "docs": [
-              "Thecoverimage ofthe note"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "description",
-            "docs": [
-              "A short description of the website the note points to"
-            ],
-            "type": "string"
+            "type": "publicKey"
           },
           {
             "name": "parent",
@@ -2840,6 +2819,34 @@ export type DippiesIndexProtocol = {
               "The last time this note was updated"
             ],
             "type": "i64"
+          },
+          {
+            "name": "title",
+            "docs": [
+              "The title of the note"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "website",
+            "docs": [
+              "The website the note points to"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "image",
+            "docs": [
+              "Thecoverimage ofthe note"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "docs": [
+              "A short description of the website the note points to"
+            ],
+            "type": "string"
           },
           {
             "name": "tags",
@@ -5915,32 +5922,11 @@ export const IDL: DippiesIndexProtocol = {
             "type": "publicKey"
           },
           {
-            "name": "title",
+            "name": "tree",
             "docs": [
-              "The title of the note"
+              "The tree this onte belongs to"
             ],
-            "type": "string"
-          },
-          {
-            "name": "website",
-            "docs": [
-              "The website the note points to"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "image",
-            "docs": [
-              "Thecoverimage ofthe note"
-            ],
-            "type": "string"
-          },
-          {
-            "name": "description",
-            "docs": [
-              "A short description of the website the note points to"
-            ],
-            "type": "string"
+            "type": "publicKey"
           },
           {
             "name": "parent",
@@ -5969,6 +5955,34 @@ export const IDL: DippiesIndexProtocol = {
               "The last time this note was updated"
             ],
             "type": "i64"
+          },
+          {
+            "name": "title",
+            "docs": [
+              "The title of the note"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "website",
+            "docs": [
+              "The website the note points to"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "image",
+            "docs": [
+              "Thecoverimage ofthe note"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "docs": [
+              "A short description of the website the note points to"
+            ],
+            "type": "string"
           },
           {
             "name": "tags",

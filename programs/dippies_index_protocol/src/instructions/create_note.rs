@@ -16,13 +16,14 @@ pub fn create_note(
 
     let note = &mut ctx.accounts.note;
     note.id = id;
+    note.tree = ctx.accounts.tree.key();
+    note.parent = ctx.accounts.node.key();
+    note.stake = 0;
     note.title = title;
     note.website = website;
     note.image = image;
     note.description = description;
     note.tags = ctx.accounts.node.tags.clone();
-    note.parent = ctx.accounts.node.key();
-    note.stake = 0;
 
     Ok(())
 }
