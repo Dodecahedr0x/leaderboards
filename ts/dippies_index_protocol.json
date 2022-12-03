@@ -41,6 +41,48 @@
       "name": "BRIBE_CLAIM_SEED",
       "type": "string",
       "value": "\"bribe-claim\""
+    },
+    {
+      "name": "MAX_TAGS",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "10"
+    },
+    {
+      "name": "MAX_TAG_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "48"
+    },
+    {
+      "name": "MAX_NOTES_PER_NODE",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "3"
+    },
+    {
+      "name": "MAX_CHILD_PER_NODE",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "3"
+    },
+    {
+      "name": "MAX_URI_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "200"
+    },
+    {
+      "name": "MAX_DESCRIPTION_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "200"
     }
   ],
   "instructions": [
@@ -318,7 +360,7 @@
               {
                 "kind": "arg",
                 "type": "string",
-                "path": "tag"
+                "path": "title"
               }
             ]
           }

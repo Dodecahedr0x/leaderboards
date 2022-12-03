@@ -2,10 +2,10 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{transfer, Mint, Token, TokenAccount, Transfer};
 
+use crate::constants::{FOREST_AUTHORITY_SEED, FOREST_SEED, MAX_TAG_LENGTH, NODE_SEED, TREE_SEED};
 use crate::errors::DipErrors;
 use crate::events;
-use crate::seeds::{FOREST_AUTHORITY_SEED, FOREST_SEED, NODE_SEED, TREE_SEED};
-use crate::state::{Forest, Node, Tree, MAX_TAG_LENGTH};
+use crate::state::{Forest, Node, Tree};
 
 pub fn create_tree(ctx: Context<CreateTree>, title: String) -> Result<()> {
     msg!("Creating the tree");
@@ -42,7 +42,7 @@ pub fn create_tree(ctx: Context<CreateTree>, title: String) -> Result<()> {
 }
 
 #[derive(Accounts)]
-#[instruction(tag: String)]
+#[instruction(title: String)]
 pub struct CreateTree<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
@@ -100,10 +100,10 @@ pub struct CreateTree<'info> {
         seeds = [
             TREE_SEED.as_bytes(),
             &forest.key().to_bytes(),
-            &tag.as_ref(),
+            &title.as_ref(),
         ],
         bump,
-        constraint = tag.len() <= MAX_TAG_LENGTH @ DipErrors::StringTooLong,
+        constraint = title.len() <= MAX_TAG_LENGTH @ DipErrors::StringTooLong,
     )]
     pub tree: Box<Account<'info, Tree>>,
 
@@ -116,7 +116,7 @@ pub struct CreateTree<'info> {
             NODE_SEED.as_bytes(),
             &tree.key().to_bytes(),
             Pubkey::default().to_bytes().as_ref(),
-            &tag.as_ref(),
+            &title.as_ref(),
         ],
         bump,
     )]

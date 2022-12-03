@@ -1,13 +1,13 @@
+mod constants;
 mod errors;
 mod events;
 mod instructions;
-mod seeds;
 mod state;
 
 use anchor_lang::prelude::*;
 use instructions::*;
 
-declare_id!("7rxT36fYNGHB1hfXstL79FaFuVgZXzYCiM7yVJ7cdipD");
+declare_id!("GrwRJ5fgKwethiy3Zf5rAYuYJVv938FT3N4hiwV71H8K");
 
 #[program]
 pub mod dippies_index_protocol {

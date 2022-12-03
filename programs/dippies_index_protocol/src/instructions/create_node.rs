@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
+use crate::constants::{FOREST_SEED, MAX_TAG_LENGTH, NODE_SEED, TREE_SEED};
 use crate::events::NewNode;
-use crate::seeds::{FOREST_SEED, NODE_SEED, TREE_SEED};
-use crate::state::{Forest, Node, Tree, MAX_TAG_LENGTH};
+use crate::state::{Forest, Node, Tree};
 
 pub fn create_node(ctx: Context<CreateNode>, tag: String) -> Result<()> {
     msg!("Creating child node");

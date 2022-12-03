@@ -1,8 +1,10 @@
 use anchor_lang::prelude::*;
 
+use crate::constants::{
+    FOREST_SEED, MAX_DESCRIPTION_LENGTH, MAX_URI_LENGTH, NODE_SEED, NOTE_SEED, TREE_SEED,
+};
 use crate::errors::DipErrors;
-use crate::seeds::{FOREST_SEED, NODE_SEED, NOTE_SEED, TREE_SEED};
-use crate::state::{Forest, Node, Note, Tree, MAX_DESCRIPTION_LENGTH, MAX_URI_LENGTH};
+use crate::state::{Forest, Node, Note, Tree};
 
 pub fn create_note(
     ctx: Context<CreateNote>,

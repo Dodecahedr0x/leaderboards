@@ -1,9 +1,9 @@
 use anchor_lang::prelude::*;
 
+use crate::constants::{FOREST_SEED, MAX_NOTES_PER_NODE, NODE_SEED, NOTE_SEED, TREE_SEED};
 use crate::errors::DipErrors;
 use crate::events::NewAttachedNote;
-use crate::seeds::{FOREST_SEED, NODE_SEED, NOTE_SEED, TREE_SEED};
-use crate::state::{Forest, Node, Note, Tree, MAX_NOTES_PER_NODE};
+use crate::state::{Forest, Node, Note, Tree};
 
 pub fn replace_note(ctx: Context<ReplaceNote>) -> Result<()> {
     msg!("Replacing a note");

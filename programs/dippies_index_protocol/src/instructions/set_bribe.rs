@@ -2,10 +2,10 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, transfer, Mint, Token, TokenAccount, Transfer};
 
-use crate::events::UpdatedBribe;
-use crate::seeds::{
+use crate::constants::{
     BRIBE_SEED, FOREST_AUTHORITY_SEED, FOREST_SEED, NODE_SEED, NOTE_SEED, STAKE_SEED, TREE_SEED,
 };
+use crate::events::UpdatedBribe;
 use crate::state::{Bribe, Forest, Node, Note, StakeState, Tree};
 
 pub fn set_bribe(ctx: Context<SetBribe>, amount: u64) -> Result<()> {

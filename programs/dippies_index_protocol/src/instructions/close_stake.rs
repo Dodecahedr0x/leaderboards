@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::seeds::{FOREST_SEED, NOTE_SEED, STAKE_SEED, TREE_SEED};
+use crate::constants::{FOREST_SEED, NOTE_SEED, STAKE_SEED, TREE_SEED};
 use crate::state::{Forest, Note, StakeState, Tree};
 
 pub fn close_stake(_ctx: Context<CloseStake>) -> Result<()> {

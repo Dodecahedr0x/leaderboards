@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
+use crate::constants::{FOREST_SEED, MAX_CHILD_PER_NODE, NODE_SEED, TREE_SEED};
 use crate::errors::DipErrors;
-use crate::seeds::{FOREST_SEED, NODE_SEED, TREE_SEED};
-use crate::state::{Forest, Node, Tree, MAX_CHILD_PER_NODE};
+use crate::state::{Forest, Node, Tree};
 
 pub fn replace_node(ctx: Context<ReplaceNode>) -> Result<()> {
     msg!("Replacing a node");

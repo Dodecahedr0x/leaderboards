@@ -1,25 +1,5 @@
+use crate::constants::*;
 use anchor_lang::prelude::*;
-
-/// Indicates the maximum depth of the tree
-pub const MAX_TAGS: usize = 10;
-
-/// Character length of a tag
-pub const MAX_TAG_LENGTH: usize = 64;
-
-/// Maximum number of notes that can be attached to a tree
-pub const MAX_NOTES_PER_NODE: usize = 3;
-
-/// The maximum
-pub const MAX_CHILD_PER_NODE: usize = 3;
-
-/// Character length of a note title
-pub const MAX_TITLE_LENGTH: usize = 32;
-
-/// Character length of a URI
-pub const MAX_URI_LENGTH: usize = 200;
-
-/// Character length of a description
-pub const MAX_DESCRIPTION_LENGTH: usize = 200;
 
 #[account]
 pub struct Forest {
@@ -134,7 +114,7 @@ impl Note {
         + 8  // Stake
         + 8  // Accumulated Stake
         + 8  // Last Update
-        + (4 + MAX_TITLE_LENGTH) // Title
+        + (4 + MAX_TAG_LENGTH) // Title
         + (4 + MAX_URI_LENGTH) * 2 // Website and image
         + (4 + MAX_DESCRIPTION_LENGTH) // Description
         + (4 + MAX_TAGS * MAX_TAG_LENGTH); // Tags

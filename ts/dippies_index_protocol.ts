@@ -41,6 +41,55 @@ export type DippiesIndexProtocol = {
       "name": "BRIBE_CLAIM_SEED",
       "type": "string",
       "value": "\"bribe-claim\""
+    },
+    {
+      "name": "MAX_TAGS",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "10"
+    },
+    {
+      "name": "MAX_TAG_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "64"
+    },
+    {
+      "name": "MAX_NOTES_PER_NODE",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "3"
+    },
+    {
+      "name": "MAX_CHILD_PER_NODE",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "3"
+    },
+    {
+      "name": "MAX_TITLE_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "32"
+    },
+    {
+      "name": "MAX_URI_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "200"
+    },
+    {
+      "name": "MAX_DESCRIPTION_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "200"
     }
   ],
   "instructions": [
@@ -3177,6 +3226,55 @@ export const IDL: DippiesIndexProtocol = {
       "name": "BRIBE_CLAIM_SEED",
       "type": "string",
       "value": "\"bribe-claim\""
+    },
+    {
+      "name": "MAX_TAGS",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "10"
+    },
+    {
+      "name": "MAX_TAG_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "64"
+    },
+    {
+      "name": "MAX_NOTES_PER_NODE",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "3"
+    },
+    {
+      "name": "MAX_CHILD_PER_NODE",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "3"
+    },
+    {
+      "name": "MAX_TITLE_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "32"
+    },
+    {
+      "name": "MAX_URI_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "200"
+    },
+    {
+      "name": "MAX_DESCRIPTION_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "200"
     }
   ],
   "instructions": [

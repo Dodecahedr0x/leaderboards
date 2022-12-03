@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::Token;
 
-use crate::seeds::FOREST_SEED;
+use crate::constants::FOREST_SEED;
 use crate::state::Forest;
 
 pub fn set_forest(ctx: Context<SetForest>, admin: Pubkey, tree_creation_fee: u64) -> Result<()> {

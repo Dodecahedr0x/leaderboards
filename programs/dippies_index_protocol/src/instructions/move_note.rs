@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
+use crate::constants::{FOREST_SEED, NODE_SEED, NOTE_SEED, TREE_SEED};
 use crate::errors::DipErrors;
-use crate::seeds::{FOREST_SEED, NODE_SEED, NOTE_SEED, TREE_SEED};
 use crate::state::{Forest, Node, Note, Tree};
 
 pub fn move_note(ctx: Context<MoveNote>) -> Result<()> {

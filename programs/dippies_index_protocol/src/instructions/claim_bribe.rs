@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, transfer, Mint, Token, TokenAccount, Transfer};
 
-use crate::seeds::{
+use crate::constants::{
     BRIBE_CLAIM_SEED, BRIBE_SEED, FOREST_AUTHORITY_SEED, FOREST_SEED, NODE_SEED, NOTE_SEED,
     STAKE_SEED, TREE_SEED,
 };
