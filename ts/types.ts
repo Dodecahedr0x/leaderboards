@@ -54,11 +54,15 @@ export type ClaimBribeAccounts = Partial<
   Accounts<DippiesIndexProtocol["instructions"]["14"]>
 >["claimBribe"];
 
-export type NewTreeEvent = Partial<Event<DippiesIndexProtocol["events"]["0"]>>;
-export type NewNodeEvent = Partial<Event<DippiesIndexProtocol["events"]["1"]>>;
+export type NewTreeEvent = Partial<
+  Event<DippiesIndexProtocol["events"]["0"]>["data"]
+>;
+export type NewNodeEvent = Partial<
+  Event<DippiesIndexProtocol["events"]["1"]>["data"]
+>;
 export type NewAttachedNoteEvent = Partial<
-  Event<DippiesIndexProtocol["events"]["2"]>
+  Event<DippiesIndexProtocol["events"]["2"]>["data"]
 >;
 export type UpdatedBribeEvent = Partial<
-  Event<DippiesIndexProtocol["events"]["3"]>
+  Event<DippiesIndexProtocol["events"]["3"]>["data"]
 >;
