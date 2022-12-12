@@ -5,6 +5,7 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 use crate::constants::{
     FOREST_AUTHORITY_SEED, FOREST_SEED, NODE_SEED, NOTE_SEED, STAKE_SEED, TREE_SEED,
 };
+use crate::events::UpdatedStake;
 use crate::state::{Forest, Node, Note, StakeState, Tree};
 
 pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
@@ -68,6 +69,15 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         );
         token::transfer(transfer_ctx, stake)?;
     }
+
+    emit!(UpdatedStake {
+        forest: ctx.accounts.forest.key(),
+        tree: tree.key(),
+        node: node.key(),
+        note: note.key(),
+        stake: stake_state.key(),
+        amount: note.stake
+    });
 
     Ok(())
 }

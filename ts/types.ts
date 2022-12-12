@@ -63,6 +63,9 @@ export type NewNodeEvent = Partial<
 export type NewAttachedNoteEvent = Partial<
   Event<DippiesIndexProtocol["events"]["2"]>["data"]
 >;
-export type UpdatedBribeEvent = Partial<
+export type UpdatedStakeEvent = Partial<
   Event<DippiesIndexProtocol["events"]["3"]>["data"]
+>;
+export type UpdatedBribeEvent = Partial<
+  Event<DippiesIndexProtocol["events"]["4"]>["data"]
 >;

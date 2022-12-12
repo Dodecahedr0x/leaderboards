@@ -54,7 +54,7 @@ export type DippiesIndexProtocol = {
       "type": {
         "defined": "usize"
       },
-      "value": "64"
+      "value": "48"
     },
     {
       "name": "MAX_NOTES_PER_NODE",
@@ -69,13 +69,6 @@ export type DippiesIndexProtocol = {
         "defined": "usize"
       },
       "value": "3"
-    },
-    {
-      "name": "MAX_TITLE_LENGTH",
-      "type": {
-        "defined": "usize"
-      },
-      "value": "32"
     },
     {
       "name": "MAX_URI_LENGTH",
@@ -367,7 +360,7 @@ export type DippiesIndexProtocol = {
               {
                 "kind": "arg",
                 "type": "string",
-                "path": "tag"
+                "path": "title"
               }
             ]
           }
@@ -3094,6 +3087,41 @@ export type DippiesIndexProtocol = {
         {
           "name": "note",
           "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "UpdatedStake",
+      "fields": [
+        {
+          "name": "forest",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "tree",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "node",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "note",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "stake",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
           "index": false
         }
       ]
@@ -3239,7 +3267,7 @@ export const IDL: DippiesIndexProtocol = {
       "type": {
         "defined": "usize"
       },
-      "value": "64"
+      "value": "48"
     },
     {
       "name": "MAX_NOTES_PER_NODE",
@@ -3254,13 +3282,6 @@ export const IDL: DippiesIndexProtocol = {
         "defined": "usize"
       },
       "value": "3"
-    },
-    {
-      "name": "MAX_TITLE_LENGTH",
-      "type": {
-        "defined": "usize"
-      },
-      "value": "32"
     },
     {
       "name": "MAX_URI_LENGTH",
@@ -3552,7 +3573,7 @@ export const IDL: DippiesIndexProtocol = {
               {
                 "kind": "arg",
                 "type": "string",
-                "path": "tag"
+                "path": "title"
               }
             ]
           }
@@ -6279,6 +6300,41 @@ export const IDL: DippiesIndexProtocol = {
         {
           "name": "note",
           "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "UpdatedStake",
+      "fields": [
+        {
+          "name": "forest",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "tree",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "node",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "note",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "stake",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
           "index": false
         }
       ]
