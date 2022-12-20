@@ -2,39 +2,41 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 
-use crate::constants::{FOREST_AUTHORITY_SEED, FOREST_SEED};
-use crate::state::Forest;
+use crate::constants::{LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED};
+use crate::state::Leaderboard;
 
 pub fn create_forest(
-    ctx: Context<CreateForest>,
+    ctx: Context<CreateLeaderboard>,
     id: Pubkey,
     admin: Pubkey,
     tree_creation_fee: u64,
 ) -> Result<()> {
-    msg!("Creating the global forest");
+    msg!("Creating a leaderboard");
 
-    let forest = &mut ctx.accounts.forest;
+    let forest = &mut ctx.accounts.leaderboard;
 
     forest.id = id;
     forest.vote_mint = ctx.accounts.vote_mint.key();
-    forest.admin = admin;
-    forest.tree_creation_fee = tree_creation_fee;
+    forest.admin_mint = ctx.accounts.admin_mint.key();
+    forest.entry_creation_fee = tree_creation_fee;
 
     Ok(())
 }
 
 #[derive(Accounts)]
 #[instruction(id: Pubkey)]
-pub struct CreateForest<'info> {
+pub struct CreateLeaderboard<'info> {
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub payer: Signer<'info>,
+
+    pub admin: UncheckedAccount<'info>,
 
     /// The account that manages tokens
     /// CHECK: Safe because this read-only account only gets used as a constraint
     #[account(
         seeds = [
-            FOREST_AUTHORITY_SEED.as_bytes(),
-            &forest.key().to_bytes()
+            LEADERBOARD_AUTHORITY_SEED.as_bytes(),
+            &leaderboard.key().to_bytes()
         ],
         bump,
     )]
@@ -43,15 +45,24 @@ pub struct CreateForest<'info> {
     /// The forest
     #[account(
         init,
-        payer = signer,
-        space = Forest::LEN,
+        payer = payer,
+        space = Leaderboard::LEN,
         seeds = [
-            FOREST_SEED.as_bytes(),
+            LEADERBOARD_SEED.as_bytes(),
             &id.to_bytes(),
         ],
         bump,
     )]
-    pub forest: Account<'info, Forest>,
+    pub leaderboard: Account<'info, Leaderboard>,
+
+    /// The token used to vote for nodes and tags
+    #[account(
+        init_if_needed,
+        payer = payer,
+        mint::authority = admin,
+        mint::decimals = 9
+    )]
+    pub admin_mint: Account<'info, Mint>,
 
     /// The token used to vote for nodes and tags
     #[account(owner = token::ID)]
@@ -60,7 +71,7 @@ pub struct CreateForest<'info> {
     /// The account storing vote tokens
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = payer,
         associated_token::mint = vote_mint,
         associated_token::authority = forest_authority,
     )]

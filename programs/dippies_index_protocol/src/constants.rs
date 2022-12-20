@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
 
 #[constant]
-pub const FOREST_AUTHORITY_SEED: &str = "forest-authority";
+pub const LEADERBOARD_AUTHORITY_SEED: &str = "leaderboard-authority";
 
 #[constant]
-pub const FOREST_SEED: &str = "forest";
+pub const LEADERBOARD_SEED: &str = "leaderboard";
 
 #[constant]
 pub const TREE_SEED: &str = "tree";
@@ -23,6 +23,10 @@ pub const BRIBE_SEED: &str = "bribe";
 
 #[constant]
 pub const BRIBE_CLAIM_SEED: &str = "bribe-claim";
+
+/// Indicates the maximum nuber of index per group
+#[constant]
+pub const MAX_ENTRIES_PER_LEADERBOARD: usize = 100;
 
 /// Indicates the maximum depth of the tree
 #[constant]
