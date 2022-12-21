@@ -1,5 +1,4 @@
 mod claim_bribe;
-mod close_stake;
 mod create_entry;
 mod create_leaderboard;
 mod create_stake_deposit;
@@ -10,7 +9,6 @@ mod set_leaderboard_fee;
 mod update_stake;
 
 pub use claim_bribe::*;
-pub use close_stake::*;
 pub use create_entry::*;
 pub use create_leaderboard::*;
 pub use create_stake_deposit::*;

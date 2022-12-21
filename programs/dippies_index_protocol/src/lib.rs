@@ -45,10 +45,6 @@ pub mod dippies_index_protocol {
         instructions::update_stake(ctx, stake)
     }
 
-    pub fn close_stake(ctx: Context<CloseStake>) -> Result<()> {
-        instructions::close_stake(ctx)
-    }
-
     pub fn set_bribe(ctx: Context<SetBribe>, amount: u64) -> Result<()> {
         instructions::set_bribe(ctx, amount)
     }
