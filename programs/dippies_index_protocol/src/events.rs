@@ -57,16 +57,16 @@ pub struct UpdatedStake {
 
 #[event]
 pub struct UpdatedBribe {
-    /// Forest where the tree is growing
-    pub forest: Pubkey,
+    /// The leaderboard
+    pub leaderboard: Pubkey,
 
-    /// The tree
-    pub tree: Pubkey,
-
-    /// The node on which the note is attached
-    pub node: Pubkey,
-
-    /// The note receiving the bribe
+    /// The entry bribed
     #[index]
-    pub note: Pubkey,
+    pub entry: Pubkey,
+
+    /// The token used to bribe
+    pub bribe_mint: Pubkey,
+
+    /// The bribe amount available
+    pub amount: u64,
 }
