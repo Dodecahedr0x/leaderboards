@@ -2,8 +2,8 @@ use anchor_lang::prelude::*;
 
 #[account]
 pub struct Bribe {
-    /// The note receiving the bribe
-    pub note: Pubkey,
+    /// The entry receiving the bribe
+    pub entry: Pubkey,
 
     /// The mint of the bribe
     pub bribe_mint: Pubkey,

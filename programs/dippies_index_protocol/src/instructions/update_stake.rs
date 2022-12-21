@@ -43,7 +43,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         entry.stake -= stake;
         stake_deposit.stake -= stake;
 
-        let authority_bump = *ctx.bumps.get("forest_authority").unwrap();
+        let authority_bump = *ctx.bumps.get("leaderboard_authority").unwrap();
         let authority_seeds = &[
             LEADERBOARD_AUTHORITY_SEED.as_bytes(),
             &ctx.accounts.leaderboard.id.to_bytes(),

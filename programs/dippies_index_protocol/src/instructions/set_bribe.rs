@@ -18,7 +18,7 @@ pub fn set_bribe(ctx: Context<SetBribe>, amount: u64) -> Result<()> {
     entry.accumulated_stake += entry.stake * elapsed_time;
 
     let bribe = &mut ctx.accounts.bribe;
-    bribe.note = entry.key();
+    bribe.entry = entry.key();
     bribe.bribe_mint = ctx.accounts.bribe_mint.key();
     bribe.amount += amount;
     bribe.accumulated_stake = entry.accumulated_stake;

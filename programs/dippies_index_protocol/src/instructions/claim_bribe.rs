@@ -3,15 +3,15 @@ use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, transfer, Mint, Token, TokenAccount, Transfer};
 
 use crate::constants::{
-    BRIBE_CLAIM_SEED, BRIBE_SEED, FOREST_AUTHORITY_SEED, FOREST_SEED, NODE_SEED, NOTE_SEED,
-    STAKE_SEED, TREE_SEED,
+    BRIBE_CLAIM_SEED, BRIBE_SEED, ENTRY_SEED, LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED,
+    STAKE_SEED,
 };
-use crate::state::{Bribe, BribeClaim, Forest, Node, Note, StakeState, Tree};
+use crate::state::{Bribe, BribeClaim, Entry, Leaderboard, StakeDeposit};
 
 pub fn claim_bribe(ctx: Context<ClaimBribe>) -> Result<()> {
     msg!("Claim a bribe");
 
-    let note = &mut ctx.accounts.note;
+    let entry = &mut ctx.accounts.entry;
     let stake_state = &mut ctx.accounts.stake_state;
     let bribe = &mut ctx.accounts.bribe;
     let bribe_claim = &mut ctx.accounts.bribe_claim;
@@ -19,35 +19,35 @@ pub fn claim_bribe(ctx: Context<ClaimBribe>) -> Result<()> {
     // Updating accumulated stake
     // TODO: Handle wrapping
     let current_time = Clock::get()?.unix_timestamp;
-    let note_elapsed_time = (current_time - note.last_update) as u64;
+    let entry_elapsed_time = (current_time - entry.last_update) as u64;
     let stake_elapsed_time = (current_time - stake_state.last_update) as u64;
-    note.last_update = current_time;
-    note.accumulated_stake += note.stake * note_elapsed_time;
+    entry.last_update = current_time;
+    entry.accumulated_stake += entry.stake * entry_elapsed_time;
     stake_state.last_update = current_time;
     stake_state.accumulated_stake += stake_state.stake * stake_elapsed_time;
 
-    let mut amount = bribe.amount * stake_state.accumulated_stake / note.accumulated_stake
-        * ((note.accumulated_stake - bribe_claim.accumulated_stake) / note.accumulated_stake);
+    let mut amount = bribe.amount * stake_state.accumulated_stake / entry.accumulated_stake
+        * ((entry.accumulated_stake - bribe_claim.accumulated_stake) / entry.accumulated_stake);
     amount = if amount > bribe.amount {
         bribe.amount
     } else {
         amount
     };
 
-    bribe.note = note.key();
+    bribe.entry = entry.key();
     bribe.bribe_mint = ctx.accounts.bribe_mint.key();
     bribe.amount -= amount;
-    bribe.accumulated_stake = note.accumulated_stake;
+    bribe.accumulated_stake = entry.accumulated_stake;
     bribe.last_update = Clock::get()?.unix_timestamp;
 
     bribe_claim.bribe = bribe.key();
-    bribe_claim.claimant = ctx.accounts.signer.key();
-    bribe_claim.accumulated_stake = note.accumulated_stake;
+    bribe_claim.claimant = ctx.accounts.staker.key();
+    bribe_claim.accumulated_stake = entry.accumulated_stake;
 
-    let authority_bump = *ctx.bumps.get("forest_authority").unwrap();
+    let authority_bump = *ctx.bumps.get("leaderboard_authority").unwrap();
     let authority_seeds = &[
-        FOREST_AUTHORITY_SEED.as_bytes(),
-        &ctx.accounts.forest.key().to_bytes(),
+        LEADERBOARD_AUTHORITY_SEED.as_bytes(),
+        &ctx.accounts.leaderboard.id.to_bytes(),
         &[authority_bump],
     ];
     let signer_seeds = &[&authority_seeds[..]];
@@ -56,8 +56,8 @@ pub fn claim_bribe(ctx: Context<ClaimBribe>) -> Result<()> {
             ctx.accounts.token_program.to_account_info(),
             Transfer {
                 from: ctx.accounts.bribe_account.to_account_info(),
-                to: ctx.accounts.briber_account.to_account_info(),
-                authority: ctx.accounts.forest_authority.to_account_info(),
+                to: ctx.accounts.staker_account.to_account_info(),
+                authority: ctx.accounts.leaderboard_authority.to_account_info(),
             },
             signer_seeds,
         ),
@@ -70,82 +70,59 @@ pub fn claim_bribe(ctx: Context<ClaimBribe>) -> Result<()> {
 #[derive(Accounts)]
 pub struct ClaimBribe<'info> {
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub payer: Signer<'info>,
+
+    /// CHECK: Bribes can be claimed for anyone
+    pub staker: UncheckedAccount<'info>,
 
     /// The account that manages tokens
     /// CHECK: Safe because this read-only account only gets used as a constraint
     #[account(
         seeds = [
-            FOREST_AUTHORITY_SEED.as_bytes(),
-            &forest.key().to_bytes()
+            LEADERBOARD_AUTHORITY_SEED.as_bytes(),
+            &leaderboard.id.to_bytes()
         ],
         bump,
     )]
-    pub forest_authority: UncheckedAccount<'info>,
+    pub leaderboard_authority: UncheckedAccount<'info>,
 
-    /// The global forest
     #[account(
         seeds = [
-            FOREST_SEED.as_bytes(),
-            &forest.id.to_bytes(),
+            LEADERBOARD_SEED.as_bytes(),
+            &leaderboard.id.to_bytes(),
         ],
         bump,
     )]
-    pub forest: Box<Account<'info, Forest>>,
+    pub leaderboard: Box<Account<'info, Leaderboard>>,
 
-    /// The tree
     #[account(
         seeds = [
-            TREE_SEED.as_bytes(),
-            &forest.key().to_bytes(),
-            &tree.title.as_ref(),
+            ENTRY_SEED.as_bytes(),
+            &leaderboard.id.to_bytes(),
+            &entry.entry_mint.as_ref(),
         ],
         bump,
     )]
-    pub tree: Box<Account<'info, Tree>>,
-
-    /// The node to attach to
-    #[account(
-        seeds = [
-            NODE_SEED.as_bytes(),
-            &tree.key().to_bytes(),
-            &node.parent.key().to_bytes(),
-            &node.tags.last().unwrap().as_ref(),
-        ],
-        bump,
-    )]
-    pub node: Box<Account<'info, Node>>,
-
-    /// The bribed note
-    #[account(
-        mut,
-        seeds = [
-            NOTE_SEED.as_bytes(),
-            &tree.key().to_bytes(),
-            &note.id.to_bytes()
-        ],
-        bump,
-    )]
-    pub note: Box<Account<'info, Note>>,
+    pub entry: Box<Account<'info, Entry>>,
 
     /// The account storing vote tokens
     #[account(
         mut,
         seeds = [
             STAKE_SEED.as_bytes(),
-            &note.key().to_bytes(),
-            &signer.key().to_bytes()
+            &entry.key().to_bytes(),
+            &staker.key().to_bytes()
         ],
         bump
     )]
-    pub stake_state: Box<Account<'info, StakeState>>,
+    pub stake_state: Box<Account<'info, StakeDeposit>>,
 
     /// The bribe
     #[account(
         mut,
         seeds = [
             BRIBE_SEED.as_bytes(),
-            &note.key().to_bytes(),
+            &entry.key().to_bytes(),
             &bribe_mint.key().to_bytes()
         ],
         bump,
@@ -155,13 +132,13 @@ pub struct ClaimBribe<'info> {
     /// The bribe claim
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = payer,
         space = BribeClaim::LEN,
         seeds = [
             BRIBE_CLAIM_SEED.as_bytes(),
-            &note.key().to_bytes(),
+            &entry.key().to_bytes(),
             &bribe_mint.key().to_bytes(),
-            &signer.key().to_bytes()
+            &staker.key().to_bytes()
         ],
         bump,
     )]
@@ -171,21 +148,21 @@ pub struct ClaimBribe<'info> {
     #[account(owner = token::ID)]
     pub bribe_mint: Account<'info, Mint>,
 
-    /// The account paying the bribe
+    /// The account receiving the bribe
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = payer,
         associated_token::mint = bribe_mint,
-        associated_token::authority = signer,
+        associated_token::authority = staker,
     )]
-    pub briber_account: Account<'info, TokenAccount>,
+    pub staker_account: Account<'info, TokenAccount>,
 
     /// The account storing the bribe
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = payer,
         associated_token::mint = bribe_mint,
-        associated_token::authority = forest_authority,
+        associated_token::authority = leaderboard_authority,
     )]
     pub bribe_account: Account<'info, TokenAccount>,
 
