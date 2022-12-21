@@ -41,17 +41,11 @@ pub struct NewAttachedNote {
 
 #[event]
 pub struct UpdatedStake {
-    /// Forest where the tree is growing
-    pub forest: Pubkey,
+    /// The leaderboard
+    pub leaderboard: Pubkey,
 
-    /// The tree
-    pub tree: Pubkey,
-
-    /// The node on which the note is attached
-    pub node: Pubkey,
-
-    /// The note receiving the stake
-    pub note: Pubkey,
+    /// The entry staked on
+    pub entry: Pubkey,
 
     /// The account holding the stake
     #[index]

@@ -2,43 +2,37 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
-use crate::constants::{
-    FOREST_AUTHORITY_SEED, FOREST_SEED, NODE_SEED, NOTE_SEED, STAKE_SEED, TREE_SEED,
-};
+use crate::constants::{ENTRY_SEED, LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED, STAKE_SEED};
 use crate::events::UpdatedStake;
-use crate::state::{Forest, Node, Note, StakeState, Tree};
+use crate::state::{Entry, Leaderboard, StakeDeposit};
 
 pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
-    let tree = &mut ctx.accounts.tree;
-    let node = &mut ctx.accounts.node;
-    let note = &mut ctx.accounts.note;
-    let stake_state = &mut ctx.accounts.stake_state;
+    let entry = &mut ctx.accounts.entry;
+    let stake_deposit = &mut ctx.accounts.stake_deposit;
 
     // Updating accumulated stake
     // TODO: Handle wrapping
     let current_time = Clock::get()?.unix_timestamp;
-    let note_elapsed_time = (current_time - note.last_update) as u64;
-    note.last_update = current_time;
-    note.accumulated_stake += note.stake * note_elapsed_time;
-    let stake_elapsed_time = (current_time - stake_state.last_update) as u64;
-    stake_state.last_update = current_time;
-    stake_state.accumulated_stake += stake_state.stake * stake_elapsed_time;
+    let note_elapsed_time = (current_time - entry.last_update) as u64;
+    entry.last_update = current_time;
+    entry.accumulated_stake += entry.stake * note_elapsed_time;
+    let stake_elapsed_time = (current_time - stake_deposit.last_update) as u64;
+    stake_deposit.last_update = current_time;
+    stake_deposit.accumulated_stake += stake_deposit.stake * stake_elapsed_time;
 
     if stake >= 0 {
         let stake = stake as u64;
         msg!("Staking {} tokens", stake);
 
-        tree.stake += stake;
-        node.stake += stake;
-        note.stake += stake;
-        stake_state.stake += stake;
+        entry.stake += stake;
+        stake_deposit.stake += stake;
 
         let transfer_ctx = CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
             Transfer {
                 from: ctx.accounts.staker_account.to_account_info(),
                 to: ctx.accounts.vote_account.to_account_info(),
-                authority: ctx.accounts.signer.to_account_info(),
+                authority: ctx.accounts.staker.to_account_info(),
             },
         );
         token::transfer(transfer_ctx, stake)?;
@@ -46,15 +40,13 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         let stake = -stake as u64;
         msg!("Unstaking {} tokens", stake);
 
-        tree.stake -= stake;
-        node.stake -= stake;
-        note.stake -= stake;
-        stake_state.stake -= stake;
+        entry.stake -= stake;
+        stake_deposit.stake -= stake;
 
         let authority_bump = *ctx.bumps.get("forest_authority").unwrap();
         let authority_seeds = &[
-            FOREST_AUTHORITY_SEED.as_bytes(),
-            &ctx.accounts.forest.key().to_bytes(),
+            LEADERBOARD_AUTHORITY_SEED.as_bytes(),
+            &ctx.accounts.leaderboard.id.to_bytes(),
             &[authority_bump],
         ];
         let signer_seeds = &[&authority_seeds[..]];
@@ -63,7 +55,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
             Transfer {
                 from: ctx.accounts.vote_account.to_account_info(),
                 to: ctx.accounts.staker_account.to_account_info(),
-                authority: ctx.accounts.forest_authority.to_account_info(),
+                authority: ctx.accounts.leaderboard_authority.to_account_info(),
             },
             signer_seeds,
         );
@@ -71,12 +63,10 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
     }
 
     emit!(UpdatedStake {
-        forest: ctx.accounts.forest.key(),
-        tree: tree.key(),
-        node: node.key(),
-        note: note.key(),
-        stake: stake_state.key(),
-        amount: note.stake
+        leaderboard: ctx.accounts.leaderboard.key(),
+        entry: entry.key(),
+        stake: stake_deposit.key(),
+        amount: entry.stake
     });
 
     Ok(())
@@ -85,98 +75,73 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
 #[derive(Accounts)]
 pub struct UpdateStake<'info> {
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub staker: Signer<'info>,
 
     /// The account that manages tokens
     /// CHECK: Safe because this read-only account only gets used as a constraint
     #[account(
         seeds = [
-            FOREST_AUTHORITY_SEED.as_bytes(),
-            &forest.key().to_bytes()
+            LEADERBOARD_AUTHORITY_SEED.as_bytes(),
+            &leaderboard.id.to_bytes()
         ],
         bump,
     )]
-    pub forest_authority: UncheckedAccount<'info>,
+    pub leaderboard_authority: UncheckedAccount<'info>,
 
-    /// The forest
+    /// The leaderboard
     #[account(
         seeds = [
-            FOREST_SEED.as_bytes(),
-            &forest.id.to_bytes(),
+            LEADERBOARD_SEED.as_bytes(),
+            &leaderboard.id.to_bytes(),
         ],
         bump,
         has_one = vote_mint,
     )]
-    pub forest: Box<Account<'info, Forest>>,
+    pub leaderboard: Box<Account<'info, Leaderboard>>,
 
     /// The token used to vote for nodes and tags
     #[account(owner = token::ID)]
     pub vote_mint: Account<'info, Mint>,
 
-    /// The tree
+    /// The entry
     #[account(
         mut,
         seeds = [
-            TREE_SEED.as_bytes(),
-            &forest.key().to_bytes(),
-            &tree.title.as_ref(),
+            ENTRY_SEED.as_bytes(),
+            &leaderboard.key().to_bytes(),
+            &entry.entry_mint.as_ref(),
         ],
         bump,
     )]
-    pub tree: Box<Account<'info, Tree>>,
+    pub entry: Box<Account<'info, Entry>>,
 
-    /// The node the note is attached to
-    #[account(
-        mut,
-        seeds = [
-            NODE_SEED.as_bytes(),
-            &tree.key().to_bytes(),
-            &node.parent.key().to_bytes(),
-            &node.tags.last().unwrap().as_ref(),
-        ],
-        bump,
-    )]
-    pub node: Box<Account<'info, Node>>,
-
-    /// The attached note
-    #[account(
-        mut,
-        seeds = [
-            NOTE_SEED.as_bytes(),
-            &tree.key().to_bytes(),
-            &note.id.to_bytes(),
-        ],
-        bump,
-    )]
-    pub note: Box<Account<'info, Note>>,
-
-    /// The account storing vote tokens
+    /// The state of the staker's deposit
     #[account(
         mut,
         seeds = [
             STAKE_SEED.as_bytes(),
-            &note.key().to_bytes(),
-            &signer.key().to_bytes()
+            &entry.key().to_bytes(),
+            &staker.key().to_bytes()
         ],
         bump
     )]
-    pub stake_state: Box<Account<'info, StakeState>>,
+    pub stake_deposit: Box<Account<'info, StakeDeposit>>,
 
-    /// The account storing vote tokens
+    /// The account storing vote tokens of the staker
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = staker,
         associated_token::mint = vote_mint,
-        associated_token::authority = signer,
+        associated_token::authority = staker,
     )]
     pub staker_account: Box<Account<'info, TokenAccount>>,
 
-    /// The account storing vote tokens
+    /// The account storing vote tokens of the leaderboard
     #[account(
         init_if_needed,
-        payer = signer,
+        payer = staker,
         associated_token::mint = vote_mint,
-        associated_token::authority = forest_authority,
+        associated_token::authority = leaderboard_authority,
     )]
     pub vote_account: Box<Account<'info, TokenAccount>>,
 

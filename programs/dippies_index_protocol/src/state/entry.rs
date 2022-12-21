@@ -11,6 +11,9 @@ pub struct Entry {
     /// Total currently staked on this entry
     pub stake: u64,
 
+    /// Last time the stake was updated
+    pub last_update: i64,
+
     /// Total staked accumulated on this entry
     pub accumulated_stake: u64,
 }
