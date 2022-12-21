@@ -1,12 +1,12 @@
 use anchor_lang::prelude::*;
 
 #[account]
-pub struct StakeState {
+pub struct StakeDeposit {
     /// The staker owning this account
     pub staker: Pubkey,
 
-    /// The note staked on
-    pub note: Pubkey,
+    /// The entry staked on
+    pub entry: Pubkey,
 
     /// The amount currently staked
     pub stake: u64,
@@ -18,7 +18,7 @@ pub struct StakeState {
     pub last_update: i64,
 }
 
-impl StakeState {
+impl StakeDeposit {
     pub const LEN: usize = 8 // Discriminator
         + 32 // Staker
         + 32 // Note

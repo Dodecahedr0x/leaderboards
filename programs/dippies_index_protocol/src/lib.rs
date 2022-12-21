@@ -29,10 +29,6 @@ pub mod dippies_index_protocol {
         instructions::create_entry(ctx)
     }
 
-    pub fn create_node(ctx: Context<CreateNode>, tag: String) -> Result<()> {
-        instructions::create_node(ctx, tag)
-    }
-
     pub fn insert_entry(ctx: Context<InsertEntry>) -> Result<()> {
         instructions::insert_entry(ctx)
     }
@@ -41,23 +37,8 @@ pub mod dippies_index_protocol {
         instructions::replace_entry(ctx)
     }
 
-    pub fn create_note(
-        ctx: Context<CreateNote>,
-        id: Pubkey,
-        title: String,
-        website: String,
-        image: String,
-        description: String,
-    ) -> Result<()> {
-        instructions::create_note(ctx, id, title, website, image, description)
-    }
-
-    pub fn attach_note(ctx: Context<AttachNote>) -> Result<()> {
-        instructions::attach_note(ctx)
-    }
-
-    pub fn create_stake(ctx: Context<CreateStake>) -> Result<()> {
-        instructions::create_stake(ctx)
+    pub fn create_stake_deposit(ctx: Context<CreateStakeDeposit>) -> Result<()> {
+        instructions::create_stake_deposit(ctx)
     }
 
     pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
@@ -66,14 +47,6 @@ pub mod dippies_index_protocol {
 
     pub fn close_stake(ctx: Context<CloseStake>) -> Result<()> {
         instructions::close_stake(ctx)
-    }
-
-    pub fn move_note(ctx: Context<MoveNote>) -> Result<()> {
-        instructions::move_note(ctx)
-    }
-
-    pub fn replace_note(ctx: Context<ReplaceNote>) -> Result<()> {
-        instructions::replace_note(ctx)
     }
 
     pub fn set_bribe(ctx: Context<SetBribe>, amount: u64) -> Result<()> {
