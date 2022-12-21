@@ -3,11 +3,11 @@ seeds = true
 skip-lint = false
 
 [programs.localnet]
-dippies_index_protocol = "GrwRJ5fgKwethiy3Zf5rAYuYJVv938FT3N4hiwV71H8K"
+dippies_index_protocol = "C2WzwqdpPaiRP6H9C11331nLhyKtq2WA7hse25ajvJyb"
+delegator = "9NyqaDMnzDXDXRKW9uBnQSHmUUAQZh4VKj4d8dvECbKJ"
 
 [registry]
 url = "https://api.apr.dev"
-
 
 [provider]
 cluster = "localnet"

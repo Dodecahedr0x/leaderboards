@@ -7,7 +7,7 @@ mod state;
 use anchor_lang::prelude::*;
 use instructions::*;
 
-declare_id!("GrwRJ5fgKwethiy3Zf5rAYuYJVv938FT3N4hiwV71H8K");
+declare_id!("C2WzwqdpPaiRP6H9C11331nLhyKtq2WA7hse25ajvJyb");
 
 #[program]
 pub mod dippies_index_protocol {

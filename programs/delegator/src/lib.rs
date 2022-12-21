@@ -6,7 +6,7 @@ mod state;
 use anchor_lang::prelude::*;
 use instructions::*;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("9NyqaDMnzDXDXRKW9uBnQSHmUUAQZh4VKj4d8dvECbKJ");
 
 #[program]
 pub mod delegator {
