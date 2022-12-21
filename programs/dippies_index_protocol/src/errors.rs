@@ -5,6 +5,12 @@ pub enum DipErrors {
     #[msg("Not the admin")]
     NotAdmin,
 
+    #[msg("The entry is not on the leaderboard")]
+    NotOnLeaderboard,
+
+    #[msg("Highest stake entry must have a lower index")]
+    InvalidReplacement,
+
     #[msg("Given string is too long")]
     StringTooLong,
 
