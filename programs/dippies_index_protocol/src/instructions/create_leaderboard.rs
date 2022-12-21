@@ -5,20 +5,19 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use crate::constants::{LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED};
 use crate::state::Leaderboard;
 
-pub fn create_forest(
+pub fn create_leaderboard(
     ctx: Context<CreateLeaderboard>,
     id: Pubkey,
-    admin: Pubkey,
-    tree_creation_fee: u64,
+    entry_creation_fee: u64,
 ) -> Result<()> {
     msg!("Creating a leaderboard");
 
-    let forest = &mut ctx.accounts.leaderboard;
+    let leaderboard = &mut ctx.accounts.leaderboard;
 
-    forest.id = id;
-    forest.vote_mint = ctx.accounts.vote_mint.key();
-    forest.admin_mint = ctx.accounts.admin_mint.key();
-    forest.entry_creation_fee = tree_creation_fee;
+    leaderboard.id = id;
+    leaderboard.vote_mint = ctx.accounts.vote_mint.key();
+    leaderboard.admin_mint = ctx.accounts.admin_mint.key();
+    leaderboard.entry_creation_fee = entry_creation_fee;
 
     Ok(())
 }
@@ -29,6 +28,7 @@ pub struct CreateLeaderboard<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 
+    /// CHECK: Can be anyone
     pub admin: UncheckedAccount<'info>,
 
     /// The account that manages tokens
@@ -36,13 +36,13 @@ pub struct CreateLeaderboard<'info> {
     #[account(
         seeds = [
             LEADERBOARD_AUTHORITY_SEED.as_bytes(),
-            &leaderboard.key().to_bytes()
+            &id.to_bytes()
         ],
         bump,
     )]
-    pub forest_authority: UncheckedAccount<'info>,
+    pub leaderboard_authority: UncheckedAccount<'info>,
 
-    /// The forest
+    /// The leaderboard
     #[account(
         init,
         payer = payer,
@@ -55,16 +55,17 @@ pub struct CreateLeaderboard<'info> {
     )]
     pub leaderboard: Account<'info, Leaderboard>,
 
-    /// The token used to vote for nodes and tags
+    /// The token representing the leaderboard
+    /// Its holder has admin authority over the leaderboard
     #[account(
         init_if_needed,
         payer = payer,
         mint::authority = admin,
-        mint::decimals = 9
+        mint::decimals = 0
     )]
     pub admin_mint: Account<'info, Mint>,
 
-    /// The token used to vote for nodes and tags
+    /// The token used to vote on the leaderboard
     #[account(owner = token::ID)]
     pub vote_mint: Account<'info, Mint>,
 
@@ -73,7 +74,7 @@ pub struct CreateLeaderboard<'info> {
         init_if_needed,
         payer = payer,
         associated_token::mint = vote_mint,
-        associated_token::authority = forest_authority,
+        associated_token::authority = leaderboard_authority,
     )]
     pub vote_account: Account<'info, TokenAccount>,
 

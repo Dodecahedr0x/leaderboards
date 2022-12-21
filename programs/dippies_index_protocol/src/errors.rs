@@ -2,6 +2,9 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum DipErrors {
+    #[msg("Not the admin")]
+    NotAdmin,
+
     #[msg("Given string is too long")]
     StringTooLong,
 

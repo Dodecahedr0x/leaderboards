@@ -1,16 +1,13 @@
 use anchor_lang::prelude::*;
 
 #[event]
-pub struct NewTree {
-    /// Forest where the tree is growing
-    pub forest: Pubkey,
+pub struct NewEntry {
+    /// Leaderboard this entry is on
+    pub leaderboard: Pubkey,
 
-    /// The growing tree
+    /// The entry
     #[index]
-    pub tree: Pubkey,
-
-    /// The title of the tree
-    pub title: String,
+    pub entry: Pubkey,
 }
 
 #[event]

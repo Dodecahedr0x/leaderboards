@@ -7,7 +7,7 @@ pub const LEADERBOARD_AUTHORITY_SEED: &str = "leaderboard-authority";
 pub const LEADERBOARD_SEED: &str = "leaderboard";
 
 #[constant]
-pub const TREE_SEED: &str = "tree";
+pub const ENTRY_SEED: &str = "entry";
 
 #[constant]
 pub const NODE_SEED: &str = "node";

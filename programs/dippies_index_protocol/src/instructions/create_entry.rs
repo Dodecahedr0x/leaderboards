@@ -1,0 +1,133 @@
+use anchor_lang::prelude::*;
+use anchor_spl::associated_token::AssociatedToken;
+use anchor_spl::token::{self, transfer, Mint, Token, TokenAccount, Transfer};
+
+use crate::constants::{ENTRY_SEED, LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED};
+use crate::errors::DipErrors;
+use crate::events;
+use crate::state::{Entry, Leaderboard};
+
+pub fn create_entry(ctx: Context<CreateEntry>) -> Result<()> {
+    msg!("Creating the entry");
+
+    let fee = ctx.accounts.leaderboard.entry_creation_fee;
+    if fee > 0 {
+        transfer(
+            CpiContext::new(
+                ctx.accounts.token_program.to_account_info(),
+                Transfer {
+                    from: ctx.accounts.creator_account.to_account_info(),
+                    to: ctx.accounts.admin_vote_account.to_account_info(),
+                    authority: ctx.accounts.payer.to_account_info(),
+                },
+            ),
+            fee,
+        )?;
+    }
+
+    let entry = &mut ctx.accounts.entry;
+    entry.leaderboard = ctx.accounts.leaderboard.key();
+    entry.entry_mint = ctx.accounts.entry_mint.key();
+
+    emit!(events::NewEntry {
+        leaderboard: ctx.accounts.leaderboard.key(),
+        entry: ctx.accounts.entry.key(),
+    });
+
+    Ok(())
+}
+
+#[derive(Accounts)]
+#[instruction(title: String)]
+pub struct CreateEntry<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
+    /// CHECK: Check against leaderboard
+    pub admin: AccountInfo<'info>,
+
+    /// The token representing the leaderboard
+    /// Its holder has admin authority over the leaderboard
+    #[account(owner = token::ID)]
+    pub admin_mint: Account<'info, Mint>,
+
+    #[account(
+        init_if_needed,
+        payer = payer,
+        associated_token::mint = admin_mint,
+        associated_token::authority = admin,
+        constraint = admin_mint_account.amount == 1 @ DipErrors::NotAdmin,
+    )]
+    pub admin_mint_account: Box<Account<'info, TokenAccount>>,
+
+    /// The account that manages tokens
+    /// CHECK: Safe because this read-only account only gets used as a constraint
+    #[account(
+        seeds = [
+            LEADERBOARD_AUTHORITY_SEED.as_bytes(),
+            &leaderboard.id.to_bytes()
+        ],
+        bump,
+    )]
+    pub leaderboard_authority: UncheckedAccount<'info>,
+
+    /// The leaderboard
+    #[account(
+        seeds = [
+            LEADERBOARD_SEED.as_bytes(),
+            &leaderboard.id.to_bytes(),
+        ],
+        bump,
+        has_one = admin_mint,
+        has_one = vote_mint,
+    )]
+    pub leaderboard: Account<'info, Leaderboard>,
+
+    /// Mint of the token used to stake
+    pub vote_mint: Account<'info, Mint>,
+
+    #[account(
+        init_if_needed,
+        payer = payer,
+        associated_token::mint = vote_mint,
+        associated_token::authority = payer,
+    )]
+    pub creator_account: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+        init_if_needed,
+        payer = payer,
+        associated_token::mint = vote_mint,
+        associated_token::authority = admin,
+    )]
+    pub admin_vote_account: Box<Account<'info, TokenAccount>>,
+
+    /// The token representing the entry
+    #[account(
+        init_if_needed,
+        payer = payer,
+        mint::authority = payer,
+        mint::decimals = 0
+    )]
+    pub entry_mint: Account<'info, Mint>,
+
+    /// The entry
+    #[account(
+        init,
+        payer = payer,
+        space = Entry::LEN,
+        seeds = [
+            ENTRY_SEED.as_bytes(),
+            &leaderboard.key().to_bytes(),
+            &entry_mint.key().to_bytes(),
+        ],
+        bump,
+    )]
+    pub entry: Box<Account<'info, Entry>>,
+
+    /// Common Solana programs
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
+}
