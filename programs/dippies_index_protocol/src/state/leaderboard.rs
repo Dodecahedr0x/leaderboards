@@ -1,7 +1,5 @@
 use anchor_lang::prelude::*;
 
-use crate::constants::MAX_ENTRIES_PER_LEADERBOARD;
-
 #[account]
 pub struct Leaderboard {
     /// The ID of the leaderboard
@@ -16,8 +14,8 @@ pub struct Leaderboard {
     /// Cost to create a new entry in this leaderboard
     pub entry_creation_fee: u64,
 
-    /// Leaderboard entries
-    pub entries: Vec<Pubkey>,
+    /// Number of entries
+    pub entries: u32,
 }
 
 impl Leaderboard {
@@ -25,5 +23,5 @@ impl Leaderboard {
     + 32 // Admin mint
     + 32 // Vote mint
     + 8  // Entry creation fee
-    + (4 + MAX_ENTRIES_PER_LEADERBOARD * 32);
+    + 4; // Entries;
 }

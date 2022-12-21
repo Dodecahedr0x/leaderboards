@@ -109,7 +109,7 @@ pub struct UpdateStake<'info> {
         seeds = [
             ENTRY_SEED.as_bytes(),
             &leaderboard.key().to_bytes(),
-            &entry.entry_mint.as_ref(),
+            &entry.rank.to_le_bytes(),
         ],
         bump,
     )]

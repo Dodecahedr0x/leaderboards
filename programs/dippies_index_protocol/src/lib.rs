@@ -29,12 +29,8 @@ pub mod dippies_index_protocol {
         instructions::create_entry(ctx)
     }
 
-    pub fn insert_entry(ctx: Context<InsertEntry>) -> Result<()> {
-        instructions::insert_entry(ctx)
-    }
-
-    pub fn replace_entry(ctx: Context<ReplaceEntry>) -> Result<()> {
-        instructions::replace_entry(ctx)
+    pub fn swap_entries(ctx: Context<SwapEntries>) -> Result<()> {
+        instructions::swap_entries(ctx)
     }
 
     pub fn create_stake_deposit(ctx: Context<CreateStakeDeposit>) -> Result<()> {

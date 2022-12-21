@@ -10,6 +10,9 @@ pub const LEADERBOARD_SEED: &str = "leaderboard";
 pub const ENTRY_SEED: &str = "entry";
 
 #[constant]
+pub const ENTRY_CONTENT_SEED: &str = "content";
+
+#[constant]
 pub const STAKE_SEED: &str = "stake";
 
 #[constant]
@@ -17,7 +20,3 @@ pub const BRIBE_SEED: &str = "bribe";
 
 #[constant]
 pub const BRIBE_CLAIM_SEED: &str = "bribe-claim";
-
-/// Indicates the maximum nuber of index per group
-#[constant]
-pub const MAX_ENTRIES_PER_LEADERBOARD: usize = 100;

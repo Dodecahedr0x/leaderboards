@@ -55,7 +55,7 @@ pub struct CreateStakeDeposit<'info> {
         seeds = [
             ENTRY_SEED.as_bytes(),
             &leaderboard.key().to_bytes(),
-            &entry.entry_mint.to_bytes(),
+            &entry.rank.to_le_bytes(),
         ],
         bump,
     )]

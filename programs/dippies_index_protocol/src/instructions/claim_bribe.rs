@@ -99,7 +99,7 @@ pub struct ClaimBribe<'info> {
         seeds = [
             ENTRY_SEED.as_bytes(),
             &leaderboard.id.to_bytes(),
-            &entry.entry_mint.as_ref(),
+            &entry.rank.to_le_bytes(),
         ],
         bump,
     )]

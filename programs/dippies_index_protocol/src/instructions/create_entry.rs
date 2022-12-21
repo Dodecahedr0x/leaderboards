@@ -2,10 +2,12 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, transfer, Mint, Token, TokenAccount, Transfer};
 
-use crate::constants::{ENTRY_SEED, LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED};
+use crate::constants::{
+    ENTRY_CONTENT_SEED, ENTRY_SEED, LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED,
+};
 use crate::errors::DipErrors;
 use crate::events;
-use crate::state::{Entry, Leaderboard};
+use crate::state::{Entry, EntryContent, Leaderboard};
 
 pub fn create_entry(ctx: Context<CreateEntry>) -> Result<()> {
     msg!("Creating the entry");
@@ -25,9 +27,17 @@ pub fn create_entry(ctx: Context<CreateEntry>) -> Result<()> {
         )?;
     }
 
+    let leaderboard = &mut ctx.accounts.leaderboard;
+
     let entry = &mut ctx.accounts.entry;
-    entry.leaderboard = ctx.accounts.leaderboard.key();
-    entry.entry_mint = ctx.accounts.entry_mint.key();
+    entry.leaderboard = leaderboard.key();
+    entry.rank = leaderboard.entries;
+
+    let content = &mut ctx.accounts.content;
+    content.content_mint = ctx.accounts.content_mint.key();
+    content.entry = entry.key();
+
+    leaderboard.entries += 1;
 
     emit!(events::NewEntry {
         leaderboard: ctx.accounts.leaderboard.key(),
@@ -73,6 +83,7 @@ pub struct CreateEntry<'info> {
 
     /// The leaderboard
     #[account(
+        mut,
         seeds = [
             LEADERBOARD_SEED.as_bytes(),
             &leaderboard.id.to_bytes(),
@@ -102,16 +113,6 @@ pub struct CreateEntry<'info> {
     )]
     pub admin_vote_account: Box<Account<'info, TokenAccount>>,
 
-    /// The token representing the entry
-    #[account(
-        init_if_needed,
-        payer = payer,
-        mint::authority = payer,
-        mint::decimals = 0
-    )]
-    pub entry_mint: Account<'info, Mint>,
-
-    /// The entry
     #[account(
         init,
         payer = payer,
@@ -119,11 +120,33 @@ pub struct CreateEntry<'info> {
         seeds = [
             ENTRY_SEED.as_bytes(),
             &leaderboard.id.to_bytes(),
-            &entry_mint.key().to_bytes(),
+            &leaderboard.entries.to_le_bytes(),
         ],
         bump,
     )]
     pub entry: Box<Account<'info, Entry>>,
+
+    /// The token representing the entry
+    #[account(
+        init_if_needed,
+        payer = payer,
+        mint::authority = payer,
+        mint::decimals = 0
+    )]
+    pub content_mint: Account<'info, Mint>,
+
+    #[account(
+        init,
+        payer = payer,
+        space = EntryContent::LEN,
+        seeds = [
+            ENTRY_CONTENT_SEED.as_bytes(),
+            &leaderboard.id.to_bytes(),
+            &content_mint.key().to_bytes(),
+        ],
+        bump,
+    )]
+    pub content: Box<Account<'info, EntryContent>>,
 
     /// Common Solana programs
     pub token_program: Program<'info, Token>,
