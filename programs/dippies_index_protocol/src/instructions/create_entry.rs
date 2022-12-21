@@ -118,7 +118,7 @@ pub struct CreateEntry<'info> {
         space = Entry::LEN,
         seeds = [
             ENTRY_SEED.as_bytes(),
-            &leaderboard.key().to_bytes(),
+            &leaderboard.id.to_bytes(),
             &entry_mint.key().to_bytes(),
         ],
         bump,

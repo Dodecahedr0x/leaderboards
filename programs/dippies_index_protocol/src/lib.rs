@@ -33,8 +33,8 @@ pub mod dippies_index_protocol {
         instructions::create_node(ctx, tag)
     }
 
-    pub fn attach_node(ctx: Context<AttachNode>) -> Result<()> {
-        instructions::attach_node(ctx)
+    pub fn insert_entry(ctx: Context<InsertEntry>) -> Result<()> {
+        instructions::insert_entry(ctx)
     }
 
     pub fn replace_entry(ctx: Context<ReplaceEntry>) -> Result<()> {

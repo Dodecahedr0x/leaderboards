@@ -57,7 +57,7 @@ pub struct ReplaceEntry<'info> {
     #[account(
         seeds = [
             ENTRY_SEED.as_bytes(),
-            &leaderboard.key().to_bytes(),
+            &leaderboard.id.to_bytes(),
             &incoming_entry.entry_mint.to_bytes(),
         ],
         bump,
@@ -70,7 +70,7 @@ pub struct ReplaceEntry<'info> {
     #[account(
         seeds = [
             ENTRY_SEED.as_bytes(),
-            &leaderboard.key().to_bytes(),
+            &leaderboard.id.to_bytes(),
             &outgoing_entry.entry_mint.to_bytes(),
         ],
         bump,
