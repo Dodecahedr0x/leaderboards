@@ -21,12 +21,8 @@ pub mod dippies_index_protocol {
         instructions::create_leaderboard(ctx, id, tree_creation_fee)
     }
 
-    pub fn set_forest(
-        ctx: Context<SetForest>,
-        admin: Pubkey,
-        tree_creation_fee: u64,
-    ) -> Result<()> {
-        instructions::set_forest(ctx, admin, tree_creation_fee)
+    pub fn set_forest(ctx: Context<SetLeaderboardFee>, entry_creation_fee: u64) -> Result<()> {
+        instructions::set_leaderboard_fee(ctx, entry_creation_fee)
     }
 
     pub fn create_entry(ctx: Context<CreateEntry>) -> Result<()> {
