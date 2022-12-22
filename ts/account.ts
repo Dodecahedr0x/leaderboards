@@ -4,21 +4,13 @@ import {
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import {
-  AttachNodeAccounts,
-  AttachNoteAccounts,
   ClaimBribeAccounts,
-  CloseStakeAccounts,
-  CreateForestAccounts,
-  CreateNodeAccounts,
-  CreateNoteAccounts,
-  CreateStakeAccounts,
-  CreateTreeAccounts,
-  Forest,
-  MoveNoteAccounts,
-  Node,
-  ReplaceNoteAccounts,
+  CreateEntryAccounts,
+  CreateLeaderboardAccounts,
+  CreateStakeDepositAccounts,
+  Entry,
+  Leaderboard,
   SetBribeAccounts,
-  Tree,
   UpdateStakeAccounts,
 } from "./types";
 import { Keypair, PublicKey } from "@solana/web3.js";
@@ -30,25 +22,27 @@ import {
 import {
   getBribeAddress,
   getBribeClaimAddress,
-  getForestAddress,
-  getForestAuthorityAddress,
-  getNodeAddress,
-  getNoteAddress,
-  getStakeAddress,
-  getTreeAddress,
+  getEntryAddress,
+  getLeaderboardAddress,
+  getLeaderboardAuthorityAddress,
+  getStakeDepositAddress,
 } from "./pda";
 
-export function getCreateForestAccounts(
+export function getCreateLeaderboardAccounts(
   id: PublicKey,
   voteMint: PublicKey,
-  signer: PublicKey
-): CreateForestAccounts {
-  const forest = getForestAddress(id);
-  const authority = getForestAuthorityAddress(forest);
+  payer: PublicKey,
+  admin: PublicKey,
+  adminMint: PublicKey = Keypair.generate().publicKey
+): CreateLeaderboardAccounts {
+  const leaderboard = getLeaderboardAddress(id);
+  const authority = getLeaderboardAuthorityAddress(id);
   return {
-    signer,
-    forestAuthority: authority,
-    forest,
+    payer,
+    admin,
+    adminMint,
+    leaderboardAuthority: authority,
+    leaderboard,
     voteMint,
     voteAccount: getAssociatedTokenAddressSync(voteMint, authority, true),
     tokenProgram: TOKEN_PROGRAM_ID,
@@ -58,166 +52,30 @@ export function getCreateForestAccounts(
   };
 }
 
-export function getCreateTreeAccounts(
-  forest: PublicKey,
-  admin: PublicKey,
-  voteMint: PublicKey,
-  title: string,
-  signer: PublicKey
-): CreateTreeAccounts {
-  const authority = getForestAuthorityAddress(forest);
-  const tree = getTreeAddress(forest, title);
-  const rootNode = getNodeAddress(tree, PublicKey.default, title);
-  return {
-    signer,
-    forestAuthority: authority,
-    forest,
-    voteMint: voteMint,
-    admin,
-    creatorAccount: getAssociatedTokenAddressSync(voteMint, signer, true),
-    adminAccount: getAssociatedTokenAddressSync(voteMint, admin, true),
-    tree,
-    rootNode,
-    tokenProgram: TOKEN_PROGRAM_ID,
-    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-    systemProgram: SystemProgram.programId,
-    rent: SYSVAR_RENT_PUBKEY,
-  };
-}
-
-export function getCreateNodeAccounts(
-  forest: PublicKey,
-  tree: PublicKey,
-  parentNode: PublicKey,
-  tag: string,
-  signer: PublicKey
-): CreateNodeAccounts {
-  const node = getNodeAddress(tree, parentNode, tag);
-  return {
-    signer,
-    forest,
-    tree,
-    parentNode,
-    node,
-    systemProgram: SystemProgram.programId,
-    rent: SYSVAR_RENT_PUBKEY,
-  };
-}
-
-export function getAttachNodeAccounts(
-  forest: PublicKey,
-  tree: PublicKey,
-  parentNode: PublicKey,
-  node: PublicKey,
-  signer: PublicKey
-): AttachNodeAccounts {
-  return {
-    signer,
-    forest,
-    tree,
-    parentNode,
-    node,
-    systemProgram: SystemProgram.programId,
-    rent: SYSVAR_RENT_PUBKEY,
-  };
-}
-
-export function getCreateNoteAccounts(
-  forest: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
+export function getCreateEntryAccounts(
   id: PublicKey,
-  signer: PublicKey
-): CreateNoteAccounts {
-  const note = getNoteAddress(tree, id);
-  return {
-    signer,
-    forest,
-    tree,
-    node,
-    note,
-    systemProgram: SystemProgram.programId,
-    rent: SYSVAR_RENT_PUBKEY,
-  };
-}
-
-export function getAttachNoteAccounts(
-  forest: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
-  note: PublicKey,
-  signer: PublicKey
-): AttachNoteAccounts {
-  return {
-    signer,
-    forest,
-    tree,
-    node,
-    note,
-    systemProgram: SystemProgram.programId,
-    rent: SYSVAR_RENT_PUBKEY,
-  };
-}
-
-export function getMoveNoteAccounts(
-  forest: PublicKey,
-  tree: PublicKey,
-  note: PublicKey,
-  sourceNode: PublicKey,
-  destinationNode: PublicKey,
-  signer: PublicKey
-): MoveNoteAccounts {
-  return {
-    signer,
-    forest,
-    tree,
-    note,
-    sourceNode,
-    destinationNode,
-    systemProgram: SystemProgram.programId,
-  };
-}
-
-export function getReplaceNoteAccounts(
-  forest: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
-  note: PublicKey,
-  weakNote: PublicKey,
-  signer: PublicKey
-): ReplaceNoteAccounts {
-  return {
-    signer,
-    forest,
-    tree,
-    node,
-    note,
-    weakNote,
-    systemProgram: SystemProgram.programId,
-  };
-}
-
-export function getCreateStakeAccounts(
-  forest: PublicKey,
+  admin: PublicKey,
+  adminMint: PublicKey,
   voteMint: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
-  note: PublicKey,
-  signer: PublicKey
-): CreateStakeAccounts {
-  const forestAuthority = getForestAuthorityAddress(forest);
-  const stakeState = getStakeAddress(note, signer);
+  contentMint: PublicKey,
+  payer: PublicKey,
+  rank: number
+): CreateEntryAccounts {
+  const leaderboard = getLeaderboardAddress(id);
+  const authority = getLeaderboardAuthorityAddress(id);
+  const entry = getEntryAddress(id, rank);
   return {
-    signer,
-    forestAuthority,
-    forest,
-    voteMint,
-    tree,
-    node,
-    note,
-    stakeState,
-    stakerAccount: getAssociatedTokenAddressSync(voteMint, signer, true),
-    voteAccount: getAssociatedTokenAddressSync(voteMint, forestAuthority, true),
+    payer,
+    leaderboardAuthority: authority,
+    leaderboard,
+    voteMint: voteMint,
+    creatorAccount: getAssociatedTokenAddressSync(voteMint, payer, true),
+    admin,
+    adminMint,
+    adminVoteAccount: getAssociatedTokenAddressSync(voteMint, admin, true),
+    adminMintAccount: getAssociatedTokenAddressSync(adminMint, admin, true),
+    entry,
+    contentMint,
     tokenProgram: TOKEN_PROGRAM_ID,
     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
     systemProgram: SystemProgram.programId,
@@ -225,116 +83,264 @@ export function getCreateStakeAccounts(
   };
 }
 
-export function getUpdateStakeAccounts(
-  forest: PublicKey,
-  voteMint: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
-  note: PublicKey,
-  signer: PublicKey
-): UpdateStakeAccounts {
-  const forestAuthority = getForestAuthorityAddress(forest);
-  const stakeState = getStakeAddress(note, signer);
-  return {
-    signer,
-    forestAuthority,
-    forest,
-    voteMint,
-    tree,
-    node,
-    note,
-    stakeState,
-    stakerAccount: getAssociatedTokenAddressSync(voteMint, signer, true),
-    voteAccount: getAssociatedTokenAddressSync(voteMint, forestAuthority, true),
-    tokenProgram: TOKEN_PROGRAM_ID,
-    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-    systemProgram: SystemProgram.programId,
-    clock: SYSVAR_CLOCK_PUBKEY,
-    rent: SYSVAR_RENT_PUBKEY,
-  };
-}
+// export function getCreateNodeAccounts(
+//   leaderboard: PublicKey,
+//   entry: PublicKey,
+//   parentNode: PublicKey,
+//   tag: string,
+//   signer: PublicKey
+// ): CreateNodeAccounts {
+//   const node = getNodeAddress(entry, parentNode, tag);
+//   return {
+//     signer,
+//     leaderboard,
+//     entry,
+//     parentNode,
+//     node,
+//     systemProgram: SystemProgram.programId,
+//     rent: SYSVAR_RENT_PUBKEY,
+//   };
+// }
 
-export function getCloseStakeAccounts(
-  forest: PublicKey,
-  tree: PublicKey,
-  note: PublicKey,
-  signer: PublicKey
-): CloseStakeAccounts {
-  const stakeState = getStakeAddress(note, signer);
-  return {
-    signer,
-    forest,
-    tree,
-    note,
-    stakeState,
-    systemProgram: SystemProgram.programId,
-    rent: SYSVAR_RENT_PUBKEY,
-  };
-}
+// export function getAttachNodeAccounts(
+//   leaderboard: PublicKey,
+//   entry: PublicKey,
+//   parentNode: PublicKey,
+//   node: PublicKey,
+//   signer: PublicKey
+// ): AttachNodeAccounts {
+//   return {
+//     signer,
+//     leaderboard,
+//     entry,
+//     parentNode,
+//     node,
+//     systemProgram: SystemProgram.programId,
+//     rent: SYSVAR_RENT_PUBKEY,
+//   };
+// }
 
-export function getSetBribeAccounts(
-  forest: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
-  note: PublicKey,
-  bribeMint: PublicKey,
-  signer: PublicKey
-): SetBribeAccounts {
-  const forestAuthority = getForestAuthorityAddress(forest);
-  const stakeState = getStakeAddress(note, signer);
-  return {
-    signer,
-    forestAuthority,
-    forest,
-    tree,
-    note,
-    stakeState,
-    node,
-    bribe: getBribeAddress(note, bribeMint),
-    bribeMint,
-    briberAccount: getAssociatedTokenAddressSync(bribeMint, signer, true),
-    bribeAccount: getAssociatedTokenAddressSync(
-      bribeMint,
-      forestAuthority,
-      true
-    ),
-    tokenProgram: TOKEN_PROGRAM_ID,
-    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-    systemProgram: SystemProgram.programId,
-    rent: SYSVAR_RENT_PUBKEY,
-  };
-}
+// export function getCreateNoteAccounts(
+//   leaderboard: PublicKey,
+//   entry: PublicKey,
+//   node: PublicKey,
+//   id: PublicKey,
+//   signer: PublicKey
+// ): CreateNoteAccounts {
+//   const note = getNoteAddress(entry, id);
+//   return {
+//     signer,
+//     leaderboard,
+//     entry,
+//     node,
+//     note,
+//     systemProgram: SystemProgram.programId,
+//     rent: SYSVAR_RENT_PUBKEY,
+//   };
+// }
 
-export function getClaimBribeAccounts(
-  forest: PublicKey,
-  tree: PublicKey,
-  node: PublicKey,
-  note: PublicKey,
-  bribeMint: PublicKey,
-  signer: PublicKey
-): ClaimBribeAccounts {
-  const forestAuthority = getForestAuthorityAddress(forest);
-  const stakeState = getStakeAddress(note, signer);
-  return {
-    signer,
-    forestAuthority,
-    forest,
-    tree,
-    note,
-    stakeState,
-    node,
-    bribe: getBribeAddress(note, bribeMint),
-    bribeClaim: getBribeClaimAddress(note, bribeMint, signer),
-    bribeMint,
-    briberAccount: getAssociatedTokenAddressSync(bribeMint, signer, true),
-    bribeAccount: getAssociatedTokenAddressSync(
-      bribeMint,
-      forestAuthority,
-      true
-    ),
-    tokenProgram: TOKEN_PROGRAM_ID,
-    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-    systemProgram: SystemProgram.programId,
-    rent: SYSVAR_RENT_PUBKEY,
-  };
-}
+// export function getAttachNoteAccounts(
+//   leaderboard: PublicKey,
+//   entry: PublicKey,
+//   node: PublicKey,
+//   note: PublicKey,
+//   signer: PublicKey
+// ): AttachNoteAccounts {
+//   return {
+//     signer,
+//     leaderboard,
+//     entry,
+//     node,
+//     note,
+//     systemProgram: SystemProgram.programId,
+//     rent: SYSVAR_RENT_PUBKEY,
+//   };
+// }
+
+// export function getMoveNoteAccounts(
+//   leaderboard: PublicKey,
+//   entry: PublicKey,
+//   note: PublicKey,
+//   sourceNode: PublicKey,
+//   destinationNode: PublicKey,
+//   signer: PublicKey
+// ): MoveNoteAccounts {
+//   return {
+//     signer,
+//     leaderboard,
+//     entry,
+//     note,
+//     sourceNode,
+//     destinationNode,
+//     systemProgram: SystemProgram.programId,
+//   };
+// }
+
+// export function getReplaceNoteAccounts(
+//   leaderboard: PublicKey,
+//   entry: PublicKey,
+//   node: PublicKey,
+//   note: PublicKey,
+//   weakNote: PublicKey,
+//   signer: PublicKey
+// ): ReplaceNoteAccounts {
+//   return {
+//     signer,
+//     leaderboard,
+//     entry,
+//     node,
+//     note,
+//     weakNote,
+//     systemProgram: SystemProgram.programId,
+//   };
+// }
+
+// export function getCreateStakeAccounts(
+//   leaderboard: PublicKey,
+//   voteMint: PublicKey,
+//   entry: PublicKey,
+//   node: PublicKey,
+//   note: PublicKey,
+//   signer: PublicKey
+// ): CreateStakeAccounts {
+//   const leaderboardAuthority = getLeaderboardAuthorityAddress(leaderboard);
+//   const stakeState = getStakeAddress(note, signer);
+//   return {
+//     signer,
+//     leaderboardAuthority,
+//     leaderboard,
+//     voteMint,
+//     entry,
+//     node,
+//     note,
+//     stakeState,
+//     stakerAccount: getAssociatedTokenAddressSync(voteMint, signer, true),
+//     voteAccount: getAssociatedTokenAddressSync(
+//       voteMint,
+//       leaderboardAuthority,
+//       true
+//     ),
+//     tokenProgram: TOKEN_PROGRAM_ID,
+//     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+//     systemProgram: SystemProgram.programId,
+//     rent: SYSVAR_RENT_PUBKEY,
+//   };
+// }
+
+// export function getUpdateStakeAccounts(
+//   leaderboard: PublicKey,
+//   voteMint: PublicKey,
+//   entry: PublicKey,
+//   node: PublicKey,
+//   note: PublicKey,
+//   signer: PublicKey
+// ): UpdateStakeAccounts {
+//   const leaderboardAuthority = getLeaderboardAuthorityAddress(leaderboard);
+//   const stakeState = getStakeAddress(note, signer);
+//   return {
+//     signer,
+//     leaderboardAuthority,
+//     leaderboard,
+//     voteMint,
+//     entry,
+//     node,
+//     note,
+//     stakeState,
+//     stakerAccount: getAssociatedTokenAddressSync(voteMint, signer, true),
+//     voteAccount: getAssociatedTokenAddressSync(
+//       voteMint,
+//       leaderboardAuthority,
+//       true
+//     ),
+//     tokenProgram: TOKEN_PROGRAM_ID,
+//     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+//     systemProgram: SystemProgram.programId,
+//     clock: SYSVAR_CLOCK_PUBKEY,
+//     rent: SYSVAR_RENT_PUBKEY,
+//   };
+// }
+
+// export function getCloseStakeAccounts(
+//   leaderboard: PublicKey,
+//   entry: PublicKey,
+//   note: PublicKey,
+//   signer: PublicKey
+// ): CloseStakeAccounts {
+//   const stakeState = getStakeAddress(note, signer);
+//   return {
+//     signer,
+//     leaderboard,
+//     entry,
+//     note,
+//     stakeState,
+//     systemProgram: SystemProgram.programId,
+//     rent: SYSVAR_RENT_PUBKEY,
+//   };
+// }
+
+// export function getSetBribeAccounts(
+//   leaderboard: PublicKey,
+//   entry: PublicKey,
+//   node: PublicKey,
+//   note: PublicKey,
+//   bribeMint: PublicKey,
+//   signer: PublicKey
+// ): SetBribeAccounts {
+//   const leaderboardAuthority = getLeaderboardAuthorityAddress(leaderboard);
+//   const stakeState = getStakeAddress(note, signer);
+//   return {
+//     signer,
+//     leaderboardAuthority,
+//     leaderboard,
+//     entry,
+//     note,
+//     stakeState,
+//     node,
+//     bribe: getBribeAddress(note, bribeMint),
+//     bribeMint,
+//     briberAccount: getAssociatedTokenAddressSync(bribeMint, signer, true),
+//     bribeAccount: getAssociatedTokenAddressSync(
+//       bribeMint,
+//       leaderboardAuthority,
+//       true
+//     ),
+//     tokenProgram: TOKEN_PROGRAM_ID,
+//     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+//     systemProgram: SystemProgram.programId,
+//     rent: SYSVAR_RENT_PUBKEY,
+//   };
+// }
+
+// export function getClaimBribeAccounts(
+//   leaderboard: PublicKey,
+//   entry: PublicKey,
+//   node: PublicKey,
+//   note: PublicKey,
+//   bribeMint: PublicKey,
+//   signer: PublicKey
+// ): ClaimBribeAccounts {
+//   const leaderboardAuthority = getLeaderboardAuthorityAddress(leaderboard);
+//   const stakeState = getStakeAddress(note, signer);
+//   return {
+//     signer,
+//     leaderboardAuthority,
+//     leaderboard,
+//     entry,
+//     note,
+//     stakeState,
+//     node,
+//     bribe: getBribeAddress(note, bribeMint),
+//     bribeClaim: getBribeClaimAddress(note, bribeMint, signer),
+//     bribeMint,
+//     briberAccount: getAssociatedTokenAddressSync(bribeMint, signer, true),
+//     bribeAccount: getAssociatedTokenAddressSync(
+//       bribeMint,
+//       leaderboardAuthority,
+//       true
+//     ),
+//     tokenProgram: TOKEN_PROGRAM_ID,
+//     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+//     systemProgram: SystemProgram.programId,
+//     rent: SYSVAR_RENT_PUBKEY,
+//   };
+// }

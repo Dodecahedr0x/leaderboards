@@ -10,9 +10,6 @@ pub const LEADERBOARD_SEED: &str = "leaderboard";
 pub const ENTRY_SEED: &str = "entry";
 
 #[constant]
-pub const ENTRY_CONTENT_SEED: &str = "content";
-
-#[constant]
 pub const STAKE_SEED: &str = "stake";
 
 #[constant]

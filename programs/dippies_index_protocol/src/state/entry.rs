@@ -5,6 +5,9 @@ pub struct Entry {
     /// The leaderboard this entry is from
     pub leaderboard: Pubkey,
 
+    /// Content NFT
+    pub content: Pubkey,
+
     /// The current rank of the entry
     pub rank: u32,
 
@@ -21,6 +24,7 @@ pub struct Entry {
 impl Entry {
     pub const LEN: usize = 8 // Discriminator
     + 32 // Leaderboard
+    + 32 // Content
     + 4  // Rank
     + 8  // Stake
     + 8  // Last Update

@@ -20,6 +20,7 @@ pub struct Leaderboard {
 
 impl Leaderboard {
     pub const LEN: usize = 8 // Discriminator 
+    + 32 // ID
     + 32 // Admin mint
     + 32 // Vote mint
     + 8  // Entry creation fee

@@ -3,6 +3,7 @@ use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 
 use crate::constants::{LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED};
+use crate::errors::*;
 use crate::state::Leaderboard;
 
 pub fn create_leaderboard(
@@ -58,10 +59,9 @@ pub struct CreateLeaderboard<'info> {
     /// The token representing the leaderboard
     /// Its holder has admin authority over the leaderboard
     #[account(
-        init_if_needed,
-        payer = payer,
-        mint::authority = admin,
-        mint::decimals = 0
+        owner = token::ID,
+        constraint = admin_mint.supply == 1 @ DipErrors::InvalidAdminMint,
+        constraint = admin_mint.decimals == 1 @ DipErrors::InvalidAdminMint,
     )]
     pub admin_mint: Account<'info, Mint>,
 

@@ -2,12 +2,10 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{self, transfer, Mint, Token, TokenAccount, Transfer};
 
-use crate::constants::{
-    ENTRY_CONTENT_SEED, ENTRY_SEED, LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED,
-};
+use crate::constants::{ENTRY_SEED, LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED};
 use crate::errors::DipErrors;
 use crate::events;
-use crate::state::{Entry, EntryContent, Leaderboard};
+use crate::state::{Entry, Leaderboard};
 
 pub fn create_entry(ctx: Context<CreateEntry>) -> Result<()> {
     msg!("Creating the entry");
@@ -31,11 +29,8 @@ pub fn create_entry(ctx: Context<CreateEntry>) -> Result<()> {
 
     let entry = &mut ctx.accounts.entry;
     entry.leaderboard = leaderboard.key();
+    entry.content = ctx.accounts.content_mint.key();
     entry.rank = leaderboard.entries;
-
-    let content = &mut ctx.accounts.content;
-    content.content_mint = ctx.accounts.content_mint.key();
-    content.entry = entry.key();
 
     leaderboard.entries += 1;
 
@@ -48,7 +43,6 @@ pub fn create_entry(ctx: Context<CreateEntry>) -> Result<()> {
 }
 
 #[derive(Accounts)]
-#[instruction(title: String)]
 pub struct CreateEntry<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -127,26 +121,8 @@ pub struct CreateEntry<'info> {
     pub entry: Box<Account<'info, Entry>>,
 
     /// The token representing the entry
-    #[account(
-        init_if_needed,
-        payer = payer,
-        mint::authority = payer,
-        mint::decimals = 0
-    )]
+    #[account(owner = token::ID)]
     pub content_mint: Account<'info, Mint>,
-
-    #[account(
-        init,
-        payer = payer,
-        space = EntryContent::LEN,
-        seeds = [
-            ENTRY_CONTENT_SEED.as_bytes(),
-            &leaderboard.id.to_bytes(),
-            &content_mint.key().to_bytes(),
-        ],
-        bump,
-    )]
-    pub content: Box<Account<'info, EntryContent>>,
 
     /// Common Solana programs
     pub token_program: Program<'info, Token>,

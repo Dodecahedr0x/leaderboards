@@ -13,15 +13,18 @@ declare_id!("C2WzwqdpPaiRP6H9C11331nLhyKtq2WA7hse25ajvJyb");
 pub mod dippies_index_protocol {
     use super::*;
 
-    pub fn create_forest(
+    pub fn create_leaderboard(
         ctx: Context<CreateLeaderboard>,
         id: Pubkey,
-        tree_creation_fee: u64,
+        entry_creation_fee: u64,
     ) -> Result<()> {
-        instructions::create_leaderboard(ctx, id, tree_creation_fee)
+        instructions::create_leaderboard(ctx, id, entry_creation_fee)
     }
 
-    pub fn set_forest(ctx: Context<SetLeaderboardFee>, entry_creation_fee: u64) -> Result<()> {
+    pub fn set_leaderboard_fee(
+        ctx: Context<SetLeaderboardFee>,
+        entry_creation_fee: u64,
+    ) -> Result<()> {
         instructions::set_leaderboard_fee(ctx, entry_creation_fee)
     }
 

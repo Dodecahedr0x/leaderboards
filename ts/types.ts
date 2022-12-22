@@ -2,56 +2,33 @@ import { Accounts, Event, IdlAccounts } from "@project-serum/anchor";
 
 import { DippiesIndexProtocol } from "./";
 
-export type Forest = IdlAccounts<DippiesIndexProtocol>["forest"];
-export type Tree = IdlAccounts<DippiesIndexProtocol>["tree"];
-export type Node = IdlAccounts<DippiesIndexProtocol>["node"];
-export type Note = IdlAccounts<DippiesIndexProtocol>["note"];
-export type StakeState = IdlAccounts<DippiesIndexProtocol>["stakeState"];
+export type Leaderboard = IdlAccounts<DippiesIndexProtocol>["leaderboard"];
+export type Entry = IdlAccounts<DippiesIndexProtocol>["entry"];
+export type StakeDeposit = IdlAccounts<DippiesIndexProtocol>["stakeDeposit"];
 
-export type CreateForestAccounts = Partial<
+export type CreateLeaderboardAccounts = Partial<
   Accounts<DippiesIndexProtocol["instructions"]["0"]>
->["createForest"];
-export type SetTreeAccounts = Partial<
+>["createLeaderboard"];
+export type SetLeaderboardFeeAccounts = Partial<
   Accounts<DippiesIndexProtocol["instructions"]["1"]>
->["setForest"];
-export type CreateTreeAccounts = Partial<
+>["setLeaderboardFee"];
+export type CreateEntryAccounts = Partial<
   Accounts<DippiesIndexProtocol["instructions"]["2"]>
->["createTree"];
-export type CreateNodeAccounts = Partial<
+>["createEntry"];
+export type SwapEntriesAccounts = Partial<
   Accounts<DippiesIndexProtocol["instructions"]["3"]>
->["createNode"];
-export type AttachNodeAccounts = Partial<
+>["swapEntries"];
+export type CreateStakeDepositAccounts = Partial<
   Accounts<DippiesIndexProtocol["instructions"]["4"]>
->["attachNode"];
-export type ReplaceNodeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["5"]>
->["replaceNode"];
-export type CreateNoteAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["6"]>
->["createNote"];
-export type AttachNoteAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["7"]>
->["attachNote"];
-export type CreateStakeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["8"]>
->["createStake"];
+>["createStakeDeposit"];
 export type UpdateStakeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["9"]>
+  Accounts<DippiesIndexProtocol["instructions"]["5"]>
 >["updateStake"];
-export type CloseStakeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["10"]>
->["closeStake"];
-export type MoveNoteAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["11"]>
->["moveNote"];
-export type ReplaceNoteAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["12"]>
->["replaceNote"];
 export type SetBribeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["13"]>
+  Accounts<DippiesIndexProtocol["instructions"]["6"]>
 >["setBribe"];
 export type ClaimBribeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["14"]>
+  Accounts<DippiesIndexProtocol["instructions"]["7"]>
 >["claimBribe"];
 
 export type NewTreeEvent = Partial<

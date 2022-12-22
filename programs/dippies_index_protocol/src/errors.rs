@@ -11,6 +11,9 @@ pub enum DipErrors {
     #[msg("Highest stake entry must have a lower index")]
     InvalidReplacement,
 
+    #[msg("Admin mint should be an NFT")]
+    InvalidAdminMint,
+
     #[msg("Given string is too long")]
     StringTooLong,
 

@@ -6,6 +6,10 @@ skip-lint = false
 dippies_index_protocol = "C2WzwqdpPaiRP6H9C11331nLhyKtq2WA7hse25ajvJyb"
 delegator = "9NyqaDMnzDXDXRKW9uBnQSHmUUAQZh4VKj4d8dvECbKJ"
 
+[[test.genesis]]
+address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+program = "./tests/genesis/mpl_token_metadata.so"
+
 [registry]
 url = "https://api.apr.dev"
 
