@@ -10,20 +10,8 @@ pub fn swap_entries(ctx: Context<SwapEntries>) -> Result<()> {
     let climbing_entry = &mut ctx.accounts.climbing_entry;
     let falling_entry = &mut ctx.accounts.falling_entry;
 
-    // Entries keep the same rank but their content and state are swapped
+    // Entries keep the same rank but their content are swapped
     // This is done to have easily accessible entries using their rank
-    let tmp_stake = climbing_entry.stake;
-    climbing_entry.stake = falling_entry.stake;
-    falling_entry.stake = tmp_stake;
-
-    let tmp_last_update = climbing_entry.last_update;
-    climbing_entry.last_update = falling_entry.last_update;
-    falling_entry.last_update = tmp_last_update;
-
-    let tmp_accumulated_stake = climbing_entry.accumulated_stake;
-    climbing_entry.accumulated_stake = falling_entry.accumulated_stake;
-    falling_entry.accumulated_stake = tmp_accumulated_stake;
-
     let tmp_content = climbing_entry.content;
     climbing_entry.content = falling_entry.content;
     falling_entry.content = tmp_content;
@@ -54,7 +42,7 @@ pub struct SwapEntries<'info> {
             &climbing_entry.rank.to_le_bytes(),
         ],
         bump,
-        constraint = climbing_entry.stake > falling_entry.stake @ DipErrors::NotEnoughStake,
+        constraint = climbing_entry.content.stake > falling_entry.content.stake @ DipErrors::NotEnoughStake,
         constraint = climbing_entry.rank < falling_entry.rank @ DipErrors::InvalidReplacement,
     )]
     pub climbing_entry: Account<'info, Entry>,

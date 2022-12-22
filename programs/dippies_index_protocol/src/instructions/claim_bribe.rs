@@ -19,15 +19,16 @@ pub fn claim_bribe(ctx: Context<ClaimBribe>) -> Result<()> {
     // Updating accumulated stake
     // TODO: Handle wrapping
     let current_time = Clock::get()?.unix_timestamp;
-    let entry_elapsed_time = (current_time - entry.last_update) as u64;
+    let entry_elapsed_time = (current_time - entry.content.last_update) as u64;
     let stake_elapsed_time = (current_time - stake_state.last_update) as u64;
-    entry.last_update = current_time;
-    entry.accumulated_stake += entry.stake * entry_elapsed_time;
+    entry.content.last_update = current_time;
+    entry.content.accumulated_stake += entry.content.stake * entry_elapsed_time;
     stake_state.last_update = current_time;
     stake_state.accumulated_stake += stake_state.stake * stake_elapsed_time;
 
-    let mut amount = bribe.amount * stake_state.accumulated_stake / entry.accumulated_stake
-        * ((entry.accumulated_stake - bribe_claim.accumulated_stake) / entry.accumulated_stake);
+    let mut amount = bribe.amount * stake_state.accumulated_stake / entry.content.accumulated_stake
+        * ((entry.content.accumulated_stake - bribe_claim.accumulated_stake)
+            / entry.content.accumulated_stake);
     amount = if amount > bribe.amount {
         bribe.amount
     } else {
@@ -37,12 +38,12 @@ pub fn claim_bribe(ctx: Context<ClaimBribe>) -> Result<()> {
     bribe.entry = entry.key();
     bribe.bribe_mint = ctx.accounts.bribe_mint.key();
     bribe.amount -= amount;
-    bribe.accumulated_stake = entry.accumulated_stake;
+    bribe.accumulated_stake = entry.content.accumulated_stake;
     bribe.last_update = Clock::get()?.unix_timestamp;
 
     bribe_claim.bribe = bribe.key();
     bribe_claim.claimant = ctx.accounts.staker.key();
-    bribe_claim.accumulated_stake = entry.accumulated_stake;
+    bribe_claim.accumulated_stake = entry.content.accumulated_stake;
 
     let authority_bump = *ctx.bumps.get("leaderboard_authority").unwrap();
     let authority_seeds = &[

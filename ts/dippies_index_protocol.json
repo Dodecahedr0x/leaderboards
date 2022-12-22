@@ -1318,13 +1318,6 @@
             "type": "publicKey"
           },
           {
-            "name": "content",
-            "docs": [
-              "Content NFT"
-            ],
-            "type": "publicKey"
-          },
-          {
             "name": "rank",
             "docs": [
               "The current rank of the entry"
@@ -1332,25 +1325,13 @@
             "type": "u32"
           },
           {
-            "name": "stake",
+            "name": "content",
             "docs": [
-              "Total currently staked on this entry"
+              "The content of the entry"
             ],
-            "type": "u64"
-          },
-          {
-            "name": "lastUpdate",
-            "docs": [
-              "Last time the stake was updated"
-            ],
-            "type": "i64"
-          },
-          {
-            "name": "accumulatedStake",
-            "docs": [
-              "Total staked accumulated on this entry"
-            ],
-            "type": "u64"
+            "type": {
+              "defined": "EntryContent"
+            }
           }
         ]
       }
@@ -1437,6 +1418,44 @@
               "The last time this account was updated"
             ],
             "type": "i64"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "EntryContent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "contentMint",
+            "docs": [
+              "Content NFT"
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "stake",
+            "docs": [
+              "Total currently staked on this entry"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "lastUpdate",
+            "docs": [
+              "Last time the stake was updated"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "accumulatedStake",
+            "docs": [
+              "Total staked accumulated on this entry"
+            ],
+            "type": "u64"
           }
         ]
       }
@@ -1572,56 +1591,61 @@
     },
     {
       "code": 6003,
+      "name": "InvalidAdminMint",
+      "msg": "Admin mint should be an NFT"
+    },
+    {
+      "code": 6004,
       "name": "StringTooLong",
       "msg": "Given string is too long"
     },
     {
-      "code": 6004,
+      "code": 6005,
       "name": "NodeFull",
       "msg": "Node is already full"
     },
     {
-      "code": 6005,
+      "code": 6006,
       "name": "NodeNotFull",
       "msg": "Node is not full yet"
     },
     {
-      "code": 6006,
+      "code": 6007,
       "name": "NotAChild",
       "msg": "Target node is not a child"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "AlreadyAChild",
       "msg": "Target node is already a child"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "NotEnoughStake",
       "msg": "Not enough stake to replace"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "InvalidNode",
       "msg": "Invalid node"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "TagsMismatch",
       "msg": "Tags do not match"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "NotChildNote",
       "msg": "Target note is not a child of the node"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "NotOnNode",
       "msg": "Target note is not attached to the node"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "AlreadyOnNode",
       "msg": "Target note is already on the node"
     }

@@ -13,15 +13,15 @@ pub fn set_bribe(ctx: Context<SetBribe>, amount: u64) -> Result<()> {
     // TODO: Handle wrapping
     let entry = &mut ctx.accounts.entry;
     let current_time = Clock::get()?.unix_timestamp;
-    let elapsed_time = (current_time - entry.last_update) as u64;
-    entry.last_update = current_time;
-    entry.accumulated_stake += entry.stake * elapsed_time;
+    let elapsed_time = (current_time - entry.content.last_update) as u64;
+    entry.content.last_update = current_time;
+    entry.content.accumulated_stake += entry.content.stake * elapsed_time;
 
     let bribe = &mut ctx.accounts.bribe;
     bribe.entry = entry.key();
     bribe.bribe_mint = ctx.accounts.bribe_mint.key();
     bribe.amount += amount;
-    bribe.accumulated_stake = entry.accumulated_stake;
+    bribe.accumulated_stake = entry.content.accumulated_stake;
     bribe.last_update = Clock::get()?.unix_timestamp;
 
     transfer(

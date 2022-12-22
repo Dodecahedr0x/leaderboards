@@ -13,9 +13,9 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
     // Updating accumulated stake
     // TODO: Handle wrapping
     let current_time = Clock::get()?.unix_timestamp;
-    let note_elapsed_time = (current_time - entry.last_update) as u64;
-    entry.last_update = current_time;
-    entry.accumulated_stake += entry.stake * note_elapsed_time;
+    let note_elapsed_time = (current_time - entry.content.last_update) as u64;
+    entry.content.last_update = current_time;
+    entry.content.accumulated_stake += entry.content.stake * note_elapsed_time;
     let stake_elapsed_time = (current_time - stake_deposit.last_update) as u64;
     stake_deposit.last_update = current_time;
     stake_deposit.accumulated_stake += stake_deposit.stake * stake_elapsed_time;
@@ -24,7 +24,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         let stake = stake as u64;
         msg!("Staking {} tokens", stake);
 
-        entry.stake += stake;
+        entry.content.stake += stake;
         stake_deposit.stake += stake;
 
         let transfer_ctx = CpiContext::new(
@@ -40,7 +40,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         let stake = -stake as u64;
         msg!("Unstaking {} tokens", stake);
 
-        entry.stake -= stake;
+        entry.content.stake -= stake;
         stake_deposit.stake -= stake;
 
         let authority_bump = *ctx.bumps.get("leaderboard_authority").unwrap();
@@ -66,7 +66,7 @@ pub fn update_stake(ctx: Context<UpdateStake>, stake: i128) -> Result<()> {
         leaderboard: ctx.accounts.leaderboard.key(),
         entry: entry.key(),
         stake: stake_deposit.key(),
-        amount: entry.stake
+        amount: entry.content.stake
     });
 
     Ok(())

@@ -10,6 +10,7 @@ import {
 import {
   getAccount,
   getAssociatedTokenAddressSync,
+  getMint,
   getOrCreateAssociatedTokenAccount,
   transfer,
 } from "@solana/spl-token";
@@ -93,6 +94,7 @@ describe("Dippies Index Protocol", () => {
 
     const leaderboardKey = getLeaderboardAddress(leaderboardId);
 
+    console.log(await getMint(provider.connection, adminToken.mint));
     await provider.connection.confirmTransaction(
       await program.methods
         .createLeaderboard(leaderboardId, entryCreationFee)
@@ -163,9 +165,13 @@ describe("Dippies Index Protocol", () => {
     expect(entryAccount.leaderboard.toString()).to.equal(
       leaderboardKey.toString()
     );
-    expect(entryAccount.content.toString()).to.equal(
+    expect(entryAccount.rank.toString()).to.equal("0");
+    expect(entryAccount.content.contentMint.toString()).to.equal(
       contentMints[0].toString()
     );
+    expect(entryAccount.content.stake.toString()).to.equal("0");
+    expect(entryAccount.content.lastUpdate.toString()).to.equal("0");
+    expect(entryAccount.content.accumulatedStake.toString()).to.equal("0");
 
     // // Stake on a note of a child node and then unstake
     // const stake = new anchor.BN(1000);

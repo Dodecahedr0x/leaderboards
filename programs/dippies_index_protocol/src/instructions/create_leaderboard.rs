@@ -59,9 +59,8 @@ pub struct CreateLeaderboard<'info> {
     /// The token representing the leaderboard
     /// Its holder has admin authority over the leaderboard
     #[account(
-        owner = token::ID,
         constraint = admin_mint.supply == 1 @ DipErrors::InvalidAdminMint,
-        constraint = admin_mint.decimals == 1 @ DipErrors::InvalidAdminMint,
+        constraint = admin_mint.decimals == 0 @ DipErrors::InvalidAdminMint,
     )]
     pub admin_mint: Account<'info, Mint>,
 

@@ -11,7 +11,7 @@ pub fn create_stake_deposit(ctx: Context<CreateStakeDeposit>) -> Result<()> {
     let stake_deposit = &mut ctx.accounts.stake_deposit;
     stake_deposit.staker = ctx.accounts.staker.key();
     stake_deposit.entry = ctx.accounts.entry.key();
-    stake_deposit.accumulated_stake = ctx.accounts.entry.accumulated_stake;
+    stake_deposit.accumulated_stake = ctx.accounts.entry.content.accumulated_stake;
 
     Ok(())
 }

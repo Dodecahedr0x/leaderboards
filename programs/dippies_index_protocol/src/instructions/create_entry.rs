@@ -5,7 +5,7 @@ use anchor_spl::token::{self, transfer, Mint, Token, TokenAccount, Transfer};
 use crate::constants::{ENTRY_SEED, LEADERBOARD_AUTHORITY_SEED, LEADERBOARD_SEED};
 use crate::errors::DipErrors;
 use crate::events;
-use crate::state::{Entry, Leaderboard};
+use crate::state::{Entry, EntryContent, Leaderboard};
 
 pub fn create_entry(ctx: Context<CreateEntry>) -> Result<()> {
     msg!("Creating the entry");
@@ -29,7 +29,12 @@ pub fn create_entry(ctx: Context<CreateEntry>) -> Result<()> {
 
     let entry = &mut ctx.accounts.entry;
     entry.leaderboard = leaderboard.key();
-    entry.content = ctx.accounts.content_mint.key();
+    entry.content = EntryContent {
+        content_mint: ctx.accounts.content_mint.key(),
+        stake: 0,
+        last_update: 0,
+        accumulated_stake: 0,
+    };
     entry.rank = leaderboard.entries;
 
     leaderboard.entries += 1;
