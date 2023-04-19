@@ -18,6 +18,7 @@ import {
   getCreateEntryAccounts,
   getCreateLeaderboardAccounts,
   getCreateStakeDepositAccounts,
+  getUpdateStakeAccounts,
 } from "../ts";
 // import {
 //   getAttachNodeAccounts,
@@ -38,8 +39,9 @@ import { PublicKey } from "@solana/web3.js";
 import { expect } from "chai";
 
 describe("Dippies Index Protocol", () => {
-  let provider = anchor.getProvider();
-  let program = anchor.workspace
+  const provider = anchor.getProvider();
+  const connection = provider.connection;
+  const program = anchor.workspace
     .DippiesIndexProtocol as Program<DippiesIndexProtocol>;
   let leaderboardId = PublicKey.default;
   let leaderboardCreator: anchor.web3.Keypair;
@@ -52,17 +54,7 @@ describe("Dippies Index Protocol", () => {
 
   before(async () => {
     [leaderboardCreator, entriesCreator, stakeholder1, stakeholder2] =
-      await createKeypairs(program.provider.connection, 4);
-    provider = new anchor.AnchorProvider(
-      program.provider.connection,
-      new anchor.Wallet(leaderboardCreator),
-      {}
-    );
-    program = new Program<DippiesIndexProtocol>(
-      DippiesIndexProtocolIdl as any,
-      program.programId,
-      provider
-    );
+      await createKeypairs(connection, 4);
     voteMint = (
       await mintToken(provider, leaderboardCreator, stakeholder1.publicKey)
     ).mint;
@@ -74,11 +66,11 @@ describe("Dippies Index Protocol", () => {
     );
 
     await transfer(
-      provider.connection,
+      connection,
       stakeholder1,
       (
         await getOrCreateAssociatedTokenAccount(
-          provider.connection,
+          connection,
           stakeholder1,
           voteMint,
           stakeholder1.publicKey
@@ -86,7 +78,7 @@ describe("Dippies Index Protocol", () => {
       ).address,
       (
         await getOrCreateAssociatedTokenAccount(
-          provider.connection,
+          connection,
           stakeholder1,
           voteMint,
           entriesCreator.publicKey
@@ -102,20 +94,19 @@ describe("Dippies Index Protocol", () => {
 
     const leaderboardKey = getLeaderboardAddress(leaderboardId);
 
-    console.log(await getMint(provider.connection, adminToken.mint));
-    await provider.connection.confirmTransaction(
+    console.log(await getMint(connection, adminToken.mint));
+    await connection.confirmTransaction(
       await program.methods
         .createLeaderboard(leaderboardId, entryCreationFee)
         .accounts(
-          getCreateLeaderboardAccounts(
-            leaderboardId,
+          getCreateLeaderboardAccounts({
+            id: leaderboardId,
             voteMint,
-            leaderboardCreator.publicKey,
-            feeEarner.publicKey,
-            adminToken.mint
-          )
+            payer: provider.publicKey,
+            admin: feeEarner.publicKey,
+            adminMint: adminToken.mint,
+          })
         )
-        .signers([leaderboardCreator])
         .rpc({ skipPreflight: true })
     );
 
@@ -140,28 +131,28 @@ describe("Dippies Index Protocol", () => {
         .mint,
     ];
 
-    await provider.connection.confirmTransaction(
+    await connection.confirmTransaction(
       await program.methods
         .createEntry()
         .accounts(
-          getCreateEntryAccounts(
-            leaderboardId,
-            feeEarner.publicKey,
-            adminToken.mint,
+          getCreateEntryAccounts({
+            id: leaderboardId,
+            admin: feeEarner.publicKey,
+            adminMint: adminToken.mint,
             voteMint,
-            contentMints[0],
-            entriesCreator.publicKey,
-            0
-          )
+            contentMint: contentMints[0],
+            payer: stakeholder1.publicKey,
+            rank: 0,
+          })
         )
-        .signers([entriesCreator])
+        .signers([stakeholder1])
         .rpc({ skipPreflight: true })
     );
 
     expect(
       (
         await getAccount(
-          provider.connection,
+          connection,
           getAssociatedTokenAddressSync(voteMint, feeEarner.publicKey)
         )
       ).amount.toString()
@@ -182,86 +173,84 @@ describe("Dippies Index Protocol", () => {
     expect(entryAccount.content.accumulatedStake.toString()).to.equal("0");
 
     // Stake on a note of a child node and then unstake
+    await connection.confirmTransaction(
+      await program.methods
+        .createStakeDeposit()
+        .accounts(
+          getCreateStakeDepositAccounts({
+            id: leaderboardId,
+            voteMint,
+            rank: 0,
+            staker: stakeholder1.publicKey,
+            payer: provider.publicKey,
+          })
+        )
+        .rpc({ skipPreflight: true })
+    );
+
     const stake = new anchor.BN(1000);
     const stakeDepositKey = getStakeDepositAddress(
       entriesKey[0],
       stakeholder1.publicKey
     );
+    let stakeDepositAccount = await program.account.stakeDeposit.fetch(
+      stakeDepositKey
+    );
+    expect(stakeDepositAccount.stake.toString()).to.equal("0");
 
-    await provider.connection.confirmTransaction(
+    await connection.confirmTransaction(
       await program.methods
-        .createStakeDeposit()
+        .updateStake(stake)
         .accounts(
-          getCreateStakeDepositAccounts(
-            leaderboardId,
+          getUpdateStakeAccounts({
+            id: leaderboardId,
             voteMint,
-            0,
-            stakeholder1.publicKey,
-            stakeholder1.publicKey
-          )
+            entry: entriesKey[0],
+            staker: stakeholder1.publicKey,
+          })
+        )
+        .signers([stakeholder1])
+        .rpc({ skipPreflight: true })
+    );
+    const timeBefore = await provider.connection.getBlockTime(
+      await provider.connection.getSlot()
+    );
+
+    stakeDepositAccount = await program.account.stakeDeposit.fetch(
+      stakeDepositKey
+    );
+    expect(stakeDepositAccount.stake.toString()).to.equal(stake.toString());
+
+    await connection.confirmTransaction(
+      await program.methods
+        .updateStake(stake.neg())
+        .accounts(
+          getUpdateStakeAccounts({
+            id: leaderboardId,
+            voteMint,
+            entry: entriesKey[0],
+            staker: stakeholder1.publicKey,
+          })
         )
         .signers([stakeholder1])
         .rpc({ skipPreflight: true })
     );
 
-    // let stakeAccount = await user1Program.account.stakeState.fetch(
-    //   stakeStateKey
-    // );
-    // expect(stakeAccount.stake.toString()).to.equal("0");
-
-    // await provider.connection.confirmTransaction(
-    //   await program.methods
-    //     .updateStake(stake)
-    //     .accounts(
-    //       getUpdateStakeAccounts(
-    //         leaderboardKey,
-    //         voteMint,
-    //         entryKey,
-    //         nodeKeys[0],
-    //         noteKeys[0],
-    //         user1.publicKey
-    //       )
-    //     )
-    //     .signers([user1])
-    //     .rpc({ skipPreflight: true })
-    // );
-    // const timeBefore = await provider.connection.getBlockTime(
-    //   await provider.connection.getSlot()
-    // );
-
-    // stakeAccount = await user1Program.account.stakeState.fetch(stakeStateKey);
-    // expect(stakeAccount.stake.toString()).to.equal(stake.toString());
-
-    // await provider.connection.confirmTransaction(
-    //   await program.methods
-    //     .updateStake(stake.neg())
-    //     .accounts(
-    //       getUpdateStakeAccounts(
-    //         leaderboardKey,
-    //         voteMint,
-    //         entryKey,
-    //         nodeKeys[0],
-    //         noteKeys[0],
-    //         user1.publicKey
-    //       )
-    //     )
-    //     .signers([user1])
-    //     .rpc({ skipPreflight: true })
-    // );
-
-    // stakeAccount = await user1Program.account.stakeState.fetch(stakeStateKey);
-    // expect(stakeAccount.stake.toString()).to.equal("0");
-    // expect(stakeAccount.accumulatedStake.toString()).to.equal(
-    //   stake
-    //     .mul(
-    //       new anchor.BN(
-    //         (await provider.connection.getBlockTime(
-    //           await provider.connection.getSlot()
-    //         )) - timeBefore
-    //       )
-    //     )
-    //     .toString()
-    // );
+    stakeDepositAccount = await program.account.stakeDeposit.fetch(
+      stakeDepositKey
+    );
+    expect(stakeDepositAccount.stake.toString()).to.equal("0");
+    expect(stakeDepositAccount.accumulatedStake.toString()).to.equal(
+      stake
+        .mul(
+          new anchor.BN(
+            (await provider.connection.getBlockTime(
+              await provider.connection.getSlot()
+            )) - timeBefore
+          )
+        )
+        .toString()
+    );
 
     // await provider.connection.confirmTransaction(
     //   await program.methods

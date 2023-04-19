@@ -28,13 +28,19 @@ import {
   getStakeDepositAddress,
 } from "./pda";
 
-export function getCreateLeaderboardAccounts(
-  id: PublicKey,
-  voteMint: PublicKey,
-  payer: PublicKey,
-  admin: PublicKey,
-  adminMint: PublicKey = Keypair.generate().publicKey
-): CreateLeaderboardAccounts {
+export function getCreateLeaderboardAccounts({
+  id,
+  voteMint,
+  payer,
+  admin,
+  adminMint = Keypair.generate().publicKey,
+}: {
+  id: PublicKey;
+  voteMint: PublicKey;
+  payer: PublicKey;
+  admin: PublicKey;
+  adminMint: PublicKey;
+}): CreateLeaderboardAccounts {
   const leaderboard = getLeaderboardAddress(id);
   const authority = getLeaderboardAuthorityAddress(id);
   return {
@@ -52,15 +58,23 @@ export function getCreateLeaderboardAccounts(
   };
 }
 
-export function getCreateEntryAccounts(
-  id: PublicKey,
-  admin: PublicKey,
-  adminMint: PublicKey,
-  voteMint: PublicKey,
-  contentMint: PublicKey,
-  payer: PublicKey,
-  rank: number
-): CreateEntryAccounts {
+export function getCreateEntryAccounts({
+  id,
+  admin,
+  adminMint,
+  voteMint,
+  contentMint,
+  payer,
+  rank,
+}: {
+  id: PublicKey;
+  admin: PublicKey;
+  adminMint: PublicKey;
+  voteMint: PublicKey;
+  contentMint: PublicKey;
+  payer: PublicKey;
+  rank: number;
+}): CreateEntryAccounts {
   const leaderboard = getLeaderboardAddress(id);
   const authority = getLeaderboardAuthorityAddress(id);
   const entry = getEntryAddress(id, rank);
@@ -83,13 +97,19 @@ export function getCreateEntryAccounts(
   };
 }
 
-export function getCreateStakeDepositAccounts(
-  id: PublicKey,
-  voteMint: PublicKey,
-  rank: number,
-  staker: PublicKey,
-  payer: PublicKey
-): CreateStakeDepositAccounts {
+export function getCreateStakeDepositAccounts({
+  id,
+  voteMint,
+  rank,
+  staker,
+  payer,
+}: {
+  id: PublicKey;
+  voteMint: PublicKey;
+  rank: number;
+  staker: PublicKey;
+  payer: PublicKey;
+}): CreateStakeDepositAccounts {
   const leaderboardAuthority = getLeaderboardAuthorityAddress(id);
   const leaderboard = getLeaderboardAddress(id);
   const entry = getEntryAddress(id, rank);
@@ -115,38 +135,40 @@ export function getCreateStakeDepositAccounts(
   };
 }
 
-// export function getUpdateStakeAccounts(
-//   leaderboard: PublicKey,
-//   voteMint: PublicKey,
-//   entry: PublicKey,
-//   node: PublicKey,
-//   note: PublicKey,
-//   signer: PublicKey
-// ): UpdateStakeAccounts {
-//   const leaderboardAuthority = getLeaderboardAuthorityAddress(leaderboard);
-//   const stakeState = getStakeAddress(note, signer);
-//   return {
-//     signer,
-//     leaderboardAuthority,
-//     leaderboard,
-//     voteMint,
-//     entry,
-//     node,
-//     note,
-//     stakeState,
-//     stakerAccount: getAssociatedTokenAddressSync(voteMint, signer, true),
-//     voteAccount: getAssociatedTokenAddressSync(
-//       voteMint,
-//       leaderboardAuthority,
-//       true
-//     ),
-//     tokenProgram: TOKEN_PROGRAM_ID,
-//     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-//     systemProgram: SystemProgram.programId,
-//     clock: SYSVAR_CLOCK_PUBKEY,
-//     rent: SYSVAR_RENT_PUBKEY,
-//   };
-// }
+export function getUpdateStakeAccounts({
+  id,
+  voteMint,
+  entry,
+  staker,
+}: {
+  id: PublicKey;
+  voteMint: PublicKey;
+  entry: PublicKey;
+  staker: PublicKey;
+}): UpdateStakeAccounts {
+  const leaderboard = getLeaderboardAddress(id);
+  const leaderboardAuthority = getLeaderboardAuthorityAddress(id);
+  const stakeDeposit = getStakeDepositAddress(entry, staker);
+  return {
+    staker,
+    leaderboardAuthority,
+    leaderboard,
+    voteMint,
+    entry,
+    stakeDeposit,
+    stakerAccount: getAssociatedTokenAddressSync(voteMint, staker, true),
+    voteAccount: getAssociatedTokenAddressSync(
+      voteMint,
+      leaderboardAuthority,
+      true
+    ),
+    tokenProgram: TOKEN_PROGRAM_ID,
+    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+    systemProgram: SystemProgram.programId,
+    clock: SYSVAR_CLOCK_PUBKEY,
+    rent: SYSVAR_RENT_PUBKEY,
+  };
+}
 
 // export function getCloseStakeAccounts(
 //   leaderboard: PublicKey,
