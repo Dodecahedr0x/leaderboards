@@ -14,14 +14,22 @@ import {
   getOrCreateAssociatedTokenAccount,
   transfer,
 } from "@solana/spl-token";
-import { getCreateEntryAccounts, getCreateLeaderboardAccounts } from "../ts";
+import {
+  getCreateEntryAccounts,
+  getCreateLeaderboardAccounts,
+  getCreateStakeDepositAccounts,
+} from "../ts";
 // import {
 //   getAttachNodeAccounts,
 //   getAttachNoteAccounts,
 //   getCreateNodeAccounts,
 //   getCreateNoteAccounts,
 // } from "../ts/account";
-import { getEntryAddress, getLeaderboardAddress } from "../ts/pda";
+import {
+  getEntryAddress,
+  getLeaderboardAddress,
+  getStakeDepositAddress,
+} from "../ts/pda";
 
 import { DippiesIndexProtocol } from "../ts/dippies_index_protocol";
 import DippiesIndexProtocolIdl from "../ts/dippies_index_protocol.json";
@@ -159,9 +167,9 @@ describe("Dippies Index Protocol", () => {
       ).amount.toString()
     ).to.equal(entryCreationFee.toString());
 
-    const entryKey = getEntryAddress(leaderboardId, 0);
+    const entriesKey = [getEntryAddress(leaderboardId, 0)];
 
-    let entryAccount = await program.account.entry.fetch(entryKey);
+    let entryAccount = await program.account.entry.fetch(entriesKey[0]);
     expect(entryAccount.leaderboard.toString()).to.equal(
       leaderboardKey.toString()
     );
@@ -173,37 +181,28 @@ describe("Dippies Index Protocol", () => {
     expect(entryAccount.content.lastUpdate.toString()).to.equal("0");
     expect(entryAccount.content.accumulatedStake.toString()).to.equal("0");
 
-    // // Stake on a note of a child node and then unstake
-    // const stake = new anchor.BN(1000);
-    // const user1Program = new Program(
-    //   program.idl,
-    //   program.programId,
-    //   new anchor.AnchorProvider(
-    //     program.provider.connection,
-    //     new anchor.Wallet(user1),
-    //     {
-    //       skipPreflight: true,
-    //     }
-    //   )
-    // );
-    // const stakeStateKey = getStakeAddress(noteKeys[0], user1.publicKey);
+    // Stake on a note of a child node and then unstake
+    const stake = new anchor.BN(1000);
+    const stakeDepositKey = getStakeDepositAddress(
+      entriesKey[0],
+      stakeholder1.publicKey
+    );
 
-    // await provider.connection.confirmTransaction(
-    //   await program.methods
-    //     .createStake()
-    //     .accounts(
-    //       getCreateStakeAccounts(
-    //         leaderboardKey,
-    //         voteMint,
-    //         entryKey,
-    //         nodeKeys[0],
-    //         noteKeys[0],
-    //         user1.publicKey
-    //       )
-    //     )
-    //     .signers([user1])
-    //     .rpc({ skipPreflight: true })
-    // );
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .createStakeDeposit()
+        .accounts(
+          getCreateStakeDepositAccounts(
+            leaderboardId,
+            voteMint,
+            0,
+            stakeholder1.publicKey,
+            stakeholder1.publicKey
+          )
+        )
+        .signers([stakeholder1])
+        .rpc({ skipPreflight: true })
+    );
 
     // let stakeAccount = await user1Program.account.stakeState.fetch(
     //   stakeStateKey

@@ -83,149 +83,37 @@ export function getCreateEntryAccounts(
   };
 }
 
-// export function getCreateNodeAccounts(
-//   leaderboard: PublicKey,
-//   entry: PublicKey,
-//   parentNode: PublicKey,
-//   tag: string,
-//   signer: PublicKey
-// ): CreateNodeAccounts {
-//   const node = getNodeAddress(entry, parentNode, tag);
-//   return {
-//     signer,
-//     leaderboard,
-//     entry,
-//     parentNode,
-//     node,
-//     systemProgram: SystemProgram.programId,
-//     rent: SYSVAR_RENT_PUBKEY,
-//   };
-// }
-
-// export function getAttachNodeAccounts(
-//   leaderboard: PublicKey,
-//   entry: PublicKey,
-//   parentNode: PublicKey,
-//   node: PublicKey,
-//   signer: PublicKey
-// ): AttachNodeAccounts {
-//   return {
-//     signer,
-//     leaderboard,
-//     entry,
-//     parentNode,
-//     node,
-//     systemProgram: SystemProgram.programId,
-//     rent: SYSVAR_RENT_PUBKEY,
-//   };
-// }
-
-// export function getCreateNoteAccounts(
-//   leaderboard: PublicKey,
-//   entry: PublicKey,
-//   node: PublicKey,
-//   id: PublicKey,
-//   signer: PublicKey
-// ): CreateNoteAccounts {
-//   const note = getNoteAddress(entry, id);
-//   return {
-//     signer,
-//     leaderboard,
-//     entry,
-//     node,
-//     note,
-//     systemProgram: SystemProgram.programId,
-//     rent: SYSVAR_RENT_PUBKEY,
-//   };
-// }
-
-// export function getAttachNoteAccounts(
-//   leaderboard: PublicKey,
-//   entry: PublicKey,
-//   node: PublicKey,
-//   note: PublicKey,
-//   signer: PublicKey
-// ): AttachNoteAccounts {
-//   return {
-//     signer,
-//     leaderboard,
-//     entry,
-//     node,
-//     note,
-//     systemProgram: SystemProgram.programId,
-//     rent: SYSVAR_RENT_PUBKEY,
-//   };
-// }
-
-// export function getMoveNoteAccounts(
-//   leaderboard: PublicKey,
-//   entry: PublicKey,
-//   note: PublicKey,
-//   sourceNode: PublicKey,
-//   destinationNode: PublicKey,
-//   signer: PublicKey
-// ): MoveNoteAccounts {
-//   return {
-//     signer,
-//     leaderboard,
-//     entry,
-//     note,
-//     sourceNode,
-//     destinationNode,
-//     systemProgram: SystemProgram.programId,
-//   };
-// }
-
-// export function getReplaceNoteAccounts(
-//   leaderboard: PublicKey,
-//   entry: PublicKey,
-//   node: PublicKey,
-//   note: PublicKey,
-//   weakNote: PublicKey,
-//   signer: PublicKey
-// ): ReplaceNoteAccounts {
-//   return {
-//     signer,
-//     leaderboard,
-//     entry,
-//     node,
-//     note,
-//     weakNote,
-//     systemProgram: SystemProgram.programId,
-//   };
-// }
-
-// export function getCreateStakeAccounts(
-//   leaderboard: PublicKey,
-//   voteMint: PublicKey,
-//   entry: PublicKey,
-//   node: PublicKey,
-//   note: PublicKey,
-//   signer: PublicKey
-// ): CreateStakeAccounts {
-//   const leaderboardAuthority = getLeaderboardAuthorityAddress(leaderboard);
-//   const stakeState = getStakeAddress(note, signer);
-//   return {
-//     signer,
-//     leaderboardAuthority,
-//     leaderboard,
-//     voteMint,
-//     entry,
-//     node,
-//     note,
-//     stakeState,
-//     stakerAccount: getAssociatedTokenAddressSync(voteMint, signer, true),
-//     voteAccount: getAssociatedTokenAddressSync(
-//       voteMint,
-//       leaderboardAuthority,
-//       true
-//     ),
-//     tokenProgram: TOKEN_PROGRAM_ID,
-//     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-//     systemProgram: SystemProgram.programId,
-//     rent: SYSVAR_RENT_PUBKEY,
-//   };
-// }
+export function getCreateStakeDepositAccounts(
+  id: PublicKey,
+  voteMint: PublicKey,
+  rank: number,
+  staker: PublicKey,
+  payer: PublicKey
+): CreateStakeDepositAccounts {
+  const leaderboardAuthority = getLeaderboardAuthorityAddress(id);
+  const leaderboard = getLeaderboardAddress(id);
+  const entry = getEntryAddress(id, rank);
+  const stakeDeposit = getStakeDepositAddress(entry, staker);
+  return {
+    payer,
+    leaderboardAuthority,
+    leaderboard,
+    voteMint,
+    entry,
+    stakeDeposit,
+    staker,
+    stakerAccount: getAssociatedTokenAddressSync(voteMint, staker, true),
+    voteAccount: getAssociatedTokenAddressSync(
+      voteMint,
+      leaderboardAuthority,
+      true
+    ),
+    tokenProgram: TOKEN_PROGRAM_ID,
+    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+    systemProgram: SystemProgram.programId,
+    rent: SYSVAR_RENT_PUBKEY,
+  };
+}
 
 // export function getUpdateStakeAccounts(
 //   leaderboard: PublicKey,

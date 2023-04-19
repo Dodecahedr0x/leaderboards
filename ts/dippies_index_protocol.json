@@ -579,7 +579,7 @@
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Leaderboard",
-                "path": "leaderboard"
+                "path": "leaderboard.id"
               },
               {
                 "kind": "account",

@@ -7,7 +7,7 @@ import {
   STAKE_SEED,
 } from "./constants";
 
-import BN from "bn.js";
+import { BN } from "@project-serum/anchor";
 import { DIP_PROGRAM_ID } from "./";
 import { PublicKey } from "@solana/web3.js";
 

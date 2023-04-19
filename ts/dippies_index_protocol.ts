@@ -579,7 +579,7 @@ export type DippiesIndexProtocol = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Leaderboard",
-                "path": "leaderboard"
+                "path": "leaderboard.id"
               },
               {
                 "kind": "account",
@@ -2233,7 +2233,7 @@ export const IDL: DippiesIndexProtocol = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Leaderboard",
-                "path": "leaderboard"
+                "path": "leaderboard.id"
               },
               {
                 "kind": "account",
