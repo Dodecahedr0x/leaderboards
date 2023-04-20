@@ -389,7 +389,7 @@
       "name": "swapEntries",
       "accounts": [
         {
-          "name": "signer",
+          "name": "payer",
           "isMut": true,
           "isSigner": true
         },

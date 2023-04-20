@@ -19,6 +19,7 @@ import {
   getCreateEntryAccounts,
   getCreateLeaderboardAccounts,
   getCreateStakeDepositAccounts,
+  getSwapEntriesAccounts,
   getUpdateStakeAccounts,
 } from "../ts";
 // import {
@@ -33,6 +34,7 @@ import {
   getStakeDepositAddress,
 } from "../ts/pda";
 
+import { BN } from "bn.js";
 import { DippiesIndexProtocol } from "../ts/dippies_index_protocol";
 import DippiesIndexProtocolIdl from "../ts/dippies_index_protocol.json";
 import { Program } from "@project-serum/anchor";
@@ -95,7 +97,6 @@ describe("Dippies Index Protocol", () => {
 
     const leaderboardKey = getLeaderboardAddress(leaderboardId);
 
-    console.log(await getMint(connection, adminToken.mint));
     await connection.confirmTransaction(
       await program.methods
         .createLeaderboard(leaderboardId, entryCreationFee)
@@ -114,7 +115,6 @@ describe("Dippies Index Protocol", () => {
     let leaderboardAccount = await program.account.leaderboard.fetch(
       leaderboardKey
     );
-    console.log(leaderboardAccount);
     expect(leaderboardAccount.id.toString()).to.equal(leaderboardId.toString());
     expect(leaderboardAccount.voteMint.toString()).to.equal(
       voteMint.toString()
@@ -128,6 +128,8 @@ describe("Dippies Index Protocol", () => {
     expect(leaderboardAccount.entries.toString()).to.equal("0");
 
     const contentMints = [
+      (await mintToken(provider, leaderboardCreator, stakeholder1.publicKey))
+        .mint,
       (await mintToken(provider, leaderboardCreator, stakeholder1.publicKey))
         .mint,
     ];
@@ -159,7 +161,9 @@ describe("Dippies Index Protocol", () => {
       ).amount.toString()
     ).to.equal(entryCreationFee.toString());
 
-    const entriesKey = [getEntryAddress(leaderboardId, 0)];
+    const entriesKey = Array(5)
+      .fill(0)
+      .map((_, i) => getEntryAddress(leaderboardId, i));
 
     let entryAccount = await program.account.entry.fetch(entriesKey[0]);
     expect(entryAccount.leaderboard.toString()).to.equal(
@@ -206,7 +210,7 @@ describe("Dippies Index Protocol", () => {
           getUpdateStakeAccounts({
             id: leaderboardId,
             voteMint,
-            entry: entriesKey[0],
+            rank: 0,
             staker: stakeholder1.publicKey,
           })
         )
@@ -229,7 +233,7 @@ describe("Dippies Index Protocol", () => {
           getUpdateStakeAccounts({
             id: leaderboardId,
             voteMint,
-            entry: entriesKey[0],
+            rank: 0,
             staker: stakeholder1.publicKey,
           })
         )
@@ -261,7 +265,7 @@ describe("Dippies Index Protocol", () => {
             id: leaderboardId,
             staker: stakeholder1.publicKey,
             payer: provider.publicKey,
-            entry: entriesKey[0],
+            rank: 0,
           })
         )
         .rpc({ skipPreflight: true })
@@ -269,58 +273,105 @@ describe("Dippies Index Protocol", () => {
 
     await expectRevert(program.account.stakeDeposit.fetch(stakeDepositKey));
 
-    // // Stake on a note and then upgrade the note
-    // await provider.connection.confirmTransaction(
-    //   await program.methods
-    //     .createStake()
-    //     .accounts(
-    //       getCreateStakeAccounts(
-    //         leaderboardKey,
-    //         voteMint,
-    //         entryKey,
-    //         nodeKeys[0],
-    //         noteKeys[0],
-    //         user1.publicKey
-    //       )
-    //     )
-    //     .signers([user1])
-    //     .rpc({ skipPreflight: true })
-    // );
-    // await provider.connection.confirmTransaction(
-    //   await program.methods
-    //     .updateStake(stake)
-    //     .accounts(
-    //       getUpdateStakeAccounts(
-    //         leaderboardKey,
-    //         voteMint,
-    //         entryKey,
-    //         nodeKeys[0],
-    //         noteKeys[0],
-    //         user1.publicKey
-    //       )
-    //     )
-    //     .signers([user1])
-    //     .rpc({ skipPreflight: true })
-    // );
+    // Stake on a note and then upgrade the note
+    await connection.confirmTransaction(
+      await program.methods
+        .createStakeDeposit()
+        .accounts(
+          getCreateStakeDepositAccounts({
+            id: leaderboardId,
+            voteMint,
+            rank: 0,
+            staker: stakeholder1.publicKey,
+            payer: provider.publicKey,
+          })
+        )
+        .rpc({ skipPreflight: true })
+    );
+    await connection.confirmTransaction(
+      await program.methods
+        .updateStake(stake)
+        .accounts(
+          getUpdateStakeAccounts({
+            id: leaderboardId,
+            voteMint,
+            rank: 0,
+            staker: stakeholder1.publicKey,
+          })
+        )
+        .signers([stakeholder1])
+        .rpc({ skipPreflight: true })
+    );
 
-    // await provider.connection.confirmTransaction(
-    //   await program.methods
-    //     .moveNote()
-    //     .accounts(
-    //       getMoveNoteAccounts(
-    //         leaderboardKey,
-    //         entryKey,
-    //         noteKeys[0],
-    //         nodeKeys[0],
-    //         rootNodeKey,
-    //         program.provider.publicKey
-    //       )
-    //     )
-    //     .rpc({ skipPreflight: true })
-    // );
+    // Create a new entry, stake double the amount and swap it with the previous one
+    await connection.confirmTransaction(
+      await program.methods
+        .createEntry()
+        .accounts(
+          getCreateEntryAccounts({
+            id: leaderboardId,
+            admin: feeEarner.publicKey,
+            adminMint: adminToken.mint,
+            voteMint,
+            contentMint: contentMints[1],
+            payer: stakeholder1.publicKey,
+            rank: 1,
+          })
+        )
+        .signers([stakeholder1])
+        .rpc({ skipPreflight: true })
+    );
+    await connection.confirmTransaction(
+      await program.methods
+        .createStakeDeposit()
+        .accounts(
+          getCreateStakeDepositAccounts({
+            id: leaderboardId,
+            voteMint,
+            rank: 1,
+            staker: stakeholder1.publicKey,
+            payer: provider.publicKey,
+          })
+        )
+        .rpc({ skipPreflight: true })
+    );
+    await connection.confirmTransaction(
+      await program.methods
+        .updateStake(stake.mul(new BN(2)))
+        .accounts(
+          getUpdateStakeAccounts({
+            id: leaderboardId,
+            voteMint,
+            rank: 1,
+            staker: stakeholder1.publicKey,
+          })
+        )
+        .signers([stakeholder1])
+        .rpc({ skipPreflight: true })
+    );
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .swapEntries()
+        .accounts(
+          getSwapEntriesAccounts({
+            id: leaderboardId,
+            payer: provider.publicKey,
+            sourceRank: 1,
+            destinationRank: 0,
+          })
+        )
+        .rpc({ skipPreflight: true })
+    );
 
-    // let noteAccount = await program.account.note.fetch(noteKeys[0]);
-    // expect(noteAccount.parent.toString()).to.equal(rootNodeKey.toString());
+    entryAccount = await program.account.entry.fetch(
+      getEntryAddress(leaderboardId, 0)
+    );
+    expect(entryAccount.content.stake.toString()).to.equal(
+      stake.mul(new BN(2)).toString()
+    );
+    expect(entryAccount.content.contentMint.toString()).to.equal(
+      contentMints[1].toString()
+    );
 
     // // Replace a note on the root
     // await provider.connection.confirmTransaction(

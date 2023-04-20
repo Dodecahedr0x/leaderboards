@@ -389,7 +389,7 @@ export type DippiesIndexProtocol = {
       "name": "swapEntries",
       "accounts": [
         {
-          "name": "signer",
+          "name": "payer",
           "isMut": true,
           "isSigner": true
         },
@@ -2178,7 +2178,7 @@ export const IDL: DippiesIndexProtocol = {
       "name": "swapEntries",
       "accounts": [
         {
-          "name": "signer",
+          "name": "payer",
           "isMut": true,
           "isSigner": true
         },

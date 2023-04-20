@@ -12,6 +12,7 @@ import {
   Entry,
   Leaderboard,
   SetBribeAccounts,
+  SwapEntriesAccounts,
   UpdateStakeAccounts,
 } from "./types";
 import { Keypair, PublicKey } from "@solana/web3.js";
@@ -98,6 +99,31 @@ export function getCreateEntryAccounts({
   };
 }
 
+export function getSwapEntriesAccounts({
+  id,
+  payer,
+  sourceRank,
+  destinationRank,
+}: {
+  id: PublicKey;
+  payer: PublicKey;
+  sourceRank: number;
+  destinationRank: number;
+}): SwapEntriesAccounts {
+  const leaderboard = getLeaderboardAddress(id);
+  const climbingEntry = getEntryAddress(id, sourceRank);
+  const fallingEntry = getEntryAddress(id, destinationRank);
+
+  return {
+    payer,
+    leaderboard,
+    climbingEntry,
+    fallingEntry,
+    systemProgram: SystemProgram.programId,
+    rent: SYSVAR_RENT_PUBKEY,
+  };
+}
+
 export function getCreateStakeDepositAccounts({
   id,
   voteMint,
@@ -139,16 +165,17 @@ export function getCreateStakeDepositAccounts({
 export function getUpdateStakeAccounts({
   id,
   voteMint,
-  entry,
+  rank,
   staker,
 }: {
   id: PublicKey;
   voteMint: PublicKey;
-  entry: PublicKey;
   staker: PublicKey;
+  rank: number;
 }): UpdateStakeAccounts {
   const leaderboard = getLeaderboardAddress(id);
   const leaderboardAuthority = getLeaderboardAuthorityAddress(id);
+  const entry = getEntryAddress(id, rank);
   const stakeDeposit = getStakeDepositAddress(entry, staker);
   return {
     staker,
@@ -173,16 +200,17 @@ export function getUpdateStakeAccounts({
 
 export function getCloseStakeAccounts({
   id,
-  entry,
+  rank,
   staker,
   payer,
 }: {
   id: PublicKey;
-  entry: PublicKey;
+  rank: number;
   staker: PublicKey;
   payer?: PublicKey;
 }): CloseStakeDepositAccounts {
   const leaderboard = getLeaderboardAddress(id);
+  const entry = getEntryAddress(id, rank);
   const stakeDeposit = getStakeDepositAddress(entry, staker);
   return {
     payer: payer || staker,

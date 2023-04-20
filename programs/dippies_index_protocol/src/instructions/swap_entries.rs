@@ -22,7 +22,7 @@ pub fn swap_entries(ctx: Context<SwapEntries>) -> Result<()> {
 #[derive(Accounts)]
 pub struct SwapEntries<'info> {
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub payer: Signer<'info>,
 
     /// The leaderboard
     #[account(
@@ -36,6 +36,7 @@ pub struct SwapEntries<'info> {
 
     /// The incomming entry
     #[account(
+        mut,
         seeds = [
             ENTRY_SEED.as_bytes(),
             &leaderboard.id.to_bytes(),
@@ -43,13 +44,14 @@ pub struct SwapEntries<'info> {
         ],
         bump,
         constraint = climbing_entry.content.stake > falling_entry.content.stake @ DipErrors::NotEnoughStake,
-        constraint = climbing_entry.rank < falling_entry.rank @ DipErrors::InvalidReplacement,
+        constraint = climbing_entry.rank > falling_entry.rank @ DipErrors::InvalidReplacement,
     )]
     pub climbing_entry: Account<'info, Entry>,
 
     /// The outgoing entry
     /// It has to already be on the leaderboard
     #[account(
+        mut,
         seeds = [
             ENTRY_SEED.as_bytes(),
             &leaderboard.id.to_bytes(),
