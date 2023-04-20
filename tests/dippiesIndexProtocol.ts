@@ -15,6 +15,7 @@ import {
   transfer,
 } from "@solana/spl-token";
 import {
+  getClaimBribeAccounts,
   getCloseStakeAccounts,
   getCreateEntryAccounts,
   getCreateLeaderboardAccounts,
@@ -410,30 +411,28 @@ describe("Dippies Index Protocol", () => {
         .toString()
     );
 
-    // await provider.connection.confirmTransaction(
-    //   await program.methods
-    //     .claimBribe()
-    //     .accounts(
-    //       getClaimBribeAccounts(
-    //         leaderboardKey,
-    //         entryKey,
-    //         nodeKeys[0],
-    //         noteKeys[0],
-    //         voteMint,
-    //         user1.publicKey
-    //       )
-    //     )
-    //     .signers([user1])
-    //     .rpc({ skipPreflight: true })
-    // );
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .claimBribe()
+        .accounts(
+          getClaimBribeAccounts({
+            id: leaderboardId,
+            rank: 0,
+            bribeMint: voteMint,
+            staker: stakeholder1.publicKey,
+            payer: provider.publicKey,
+          })
+        )
+        .rpc({ skipPreflight: true })
+    );
 
-    // expect(
-    //   (
-    //     await getAccount(
-    //       provider.connection,
-    //       getAssociatedTokenAddressSync(voteMint, user1.publicKey)
-    //     )
-    //   ).amount.toString()
-    // ).to.equal(balanceBefore.toString());
+    expect(
+      (
+        await getAccount(
+          provider.connection,
+          getAssociatedTokenAddressSync(voteMint, stakeholder1.publicKey)
+        )
+      ).amount.toString()
+    ).to.equal(balanceBefore.toString());
   });
 });

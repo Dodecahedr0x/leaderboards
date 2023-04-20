@@ -12,7 +12,7 @@ pub fn claim_bribe(ctx: Context<ClaimBribe>) -> Result<()> {
     msg!("Claim a bribe");
 
     let entry = &mut ctx.accounts.entry;
-    let stake_state = &mut ctx.accounts.stake_state;
+    let stake_deposit = &mut ctx.accounts.stake_deposit;
     let bribe = &mut ctx.accounts.bribe;
     let bribe_claim = &mut ctx.accounts.bribe_claim;
 
@@ -20,13 +20,14 @@ pub fn claim_bribe(ctx: Context<ClaimBribe>) -> Result<()> {
     // TODO: Handle wrapping
     let current_time = Clock::get()?.unix_timestamp;
     let entry_elapsed_time = (current_time - entry.content.last_update) as u64;
-    let stake_elapsed_time = (current_time - stake_state.last_update) as u64;
+    let stake_elapsed_time = (current_time - stake_deposit.last_update) as u64;
     entry.content.last_update = current_time;
     entry.content.accumulated_stake += entry.content.stake * entry_elapsed_time;
-    stake_state.last_update = current_time;
-    stake_state.accumulated_stake += stake_state.stake * stake_elapsed_time;
+    stake_deposit.last_update = current_time;
+    stake_deposit.accumulated_stake += stake_deposit.stake * stake_elapsed_time;
 
-    let mut amount = bribe.amount * stake_state.accumulated_stake / entry.content.accumulated_stake
+    let mut amount = bribe.amount * stake_deposit.accumulated_stake
+        / entry.content.accumulated_stake
         * ((entry.content.accumulated_stake - bribe_claim.accumulated_stake)
             / entry.content.accumulated_stake);
     amount = if amount > bribe.amount {
@@ -39,7 +40,7 @@ pub fn claim_bribe(ctx: Context<ClaimBribe>) -> Result<()> {
     bribe.bribe_mint = ctx.accounts.bribe_mint.key();
     bribe.amount -= amount;
     bribe.accumulated_stake = entry.content.accumulated_stake;
-    bribe.last_update = Clock::get()?.unix_timestamp;
+    bribe.last_update = current_time;
 
     bribe_claim.bribe = bribe.key();
     bribe_claim.claimant = ctx.accounts.staker.key();
@@ -97,6 +98,7 @@ pub struct ClaimBribe<'info> {
     pub leaderboard: Box<Account<'info, Leaderboard>>,
 
     #[account(
+        mut,
         seeds = [
             ENTRY_SEED.as_bytes(),
             &leaderboard.id.to_bytes(),
@@ -116,7 +118,7 @@ pub struct ClaimBribe<'info> {
         ],
         bump
     )]
-    pub stake_state: Box<Account<'info, StakeDeposit>>,
+    pub stake_deposit: Box<Account<'info, StakeDeposit>>,
 
     /// The bribe
     #[account(

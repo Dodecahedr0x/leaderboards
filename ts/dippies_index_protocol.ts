@@ -418,7 +418,7 @@ export type DippiesIndexProtocol = {
         },
         {
           "name": "climbingEntry",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "docs": [
             "The incomming entry"
@@ -447,7 +447,7 @@ export type DippiesIndexProtocol = {
         },
         {
           "name": "fallingEntry",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "docs": [
             "The outgoing entry",
@@ -1021,7 +1021,7 @@ export type DippiesIndexProtocol = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Leaderboard",
-                "path": "leaderboard"
+                "path": "leaderboard.id"
               },
               {
                 "kind": "account",
@@ -1199,7 +1199,7 @@ export type DippiesIndexProtocol = {
           }
         },
         {
-          "name": "stakeState",
+          "name": "stakeDeposit",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -2207,7 +2207,7 @@ export const IDL: DippiesIndexProtocol = {
         },
         {
           "name": "climbingEntry",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "docs": [
             "The incomming entry"
@@ -2236,7 +2236,7 @@ export const IDL: DippiesIndexProtocol = {
         },
         {
           "name": "fallingEntry",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "docs": [
             "The outgoing entry",
@@ -2810,7 +2810,7 @@ export const IDL: DippiesIndexProtocol = {
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Leaderboard",
-                "path": "leaderboard"
+                "path": "leaderboard.id"
               },
               {
                 "kind": "account",
@@ -2988,7 +2988,7 @@ export const IDL: DippiesIndexProtocol = {
           }
         },
         {
-          "name": "stakeState",
+          "name": "stakeDeposit",
           "isMut": true,
           "isSigner": false,
           "docs": [

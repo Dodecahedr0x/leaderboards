@@ -418,7 +418,7 @@
         },
         {
           "name": "climbingEntry",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "docs": [
             "The incomming entry"
@@ -447,7 +447,7 @@
         },
         {
           "name": "fallingEntry",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "docs": [
             "The outgoing entry",
@@ -1021,7 +1021,7 @@
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Leaderboard",
-                "path": "leaderboard"
+                "path": "leaderboard.id"
               },
               {
                 "kind": "account",
@@ -1199,7 +1199,7 @@
           }
         },
         {
-          "name": "stakeState",
+          "name": "stakeDeposit",
           "isMut": true,
           "isSigner": false,
           "docs": [

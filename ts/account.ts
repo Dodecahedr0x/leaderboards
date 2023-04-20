@@ -237,7 +237,6 @@ export function getSetBribeAccounts({
   const leaderboard = getLeaderboardAddress(id);
   const leaderboardAuthority = getLeaderboardAuthorityAddress(id);
   const entry = getEntryAddress(id, rank);
-  const stakeState = getStakeDepositAddress(id, briber);
   return {
     briber,
     leaderboardAuthority,
@@ -258,36 +257,42 @@ export function getSetBribeAccounts({
   };
 }
 
-// export function getClaimBribeAccounts(
-//   leaderboard: PublicKey,
-//   entry: PublicKey,
-//   node: PublicKey,
-//   note: PublicKey,
-//   bribeMint: PublicKey,
-//   signer: PublicKey
-// ): ClaimBribeAccounts {
-//   const leaderboardAuthority = getLeaderboardAuthorityAddress(leaderboard);
-//   const stakeState = getStakeAddress(note, signer);
-//   return {
-//     signer,
-//     leaderboardAuthority,
-//     leaderboard,
-//     entry,
-//     note,
-//     stakeState,
-//     node,
-//     bribe: getBribeAddress(note, bribeMint),
-//     bribeClaim: getBribeClaimAddress(note, bribeMint, signer),
-//     bribeMint,
-//     briberAccount: getAssociatedTokenAddressSync(bribeMint, signer, true),
-//     bribeAccount: getAssociatedTokenAddressSync(
-//       bribeMint,
-//       leaderboardAuthority,
-//       true
-//     ),
-//     tokenProgram: TOKEN_PROGRAM_ID,
-//     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-//     systemProgram: SystemProgram.programId,
-//     rent: SYSVAR_RENT_PUBKEY,
-//   };
-// }
+export function getClaimBribeAccounts({
+  id,
+  rank,
+  bribeMint,
+  staker,
+  payer,
+}: {
+  id: PublicKey;
+  rank: number;
+  bribeMint: PublicKey;
+  staker: PublicKey;
+  payer?: PublicKey;
+}): ClaimBribeAccounts {
+  const leaderboard = getLeaderboardAddress(id);
+  const leaderboardAuthority = getLeaderboardAuthorityAddress(id);
+  const entry = getEntryAddress(id, rank);
+  const stakeDeposit = getStakeDepositAddress(entry, staker);
+  return {
+    payer: payer || staker,
+    staker,
+    leaderboardAuthority,
+    leaderboard,
+    entry,
+    stakeDeposit,
+    bribe: getBribeAddress(entry, bribeMint),
+    bribeClaim: getBribeClaimAddress(entry, bribeMint, staker),
+    bribeMint,
+    stakerAccount: getAssociatedTokenAddressSync(bribeMint, staker, true),
+    bribeAccount: getAssociatedTokenAddressSync(
+      bribeMint,
+      leaderboardAuthority,
+      true
+    ),
+    tokenProgram: TOKEN_PROGRAM_ID,
+    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+    systemProgram: SystemProgram.programId,
+    rent: SYSVAR_RENT_PUBKEY,
+  };
+}
