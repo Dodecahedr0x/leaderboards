@@ -3,7 +3,7 @@ seeds = true
 skip-lint = false
 
 [programs.localnet]
-dippies_index_protocol = "C2WzwqdpPaiRP6H9C11331nLhyKtq2WA7hse25ajvJyb"
+leaderboards = "C2WzwqdpPaiRP6H9C11331nLhyKtq2WA7hse25ajvJyb"
 delegator = "9NyqaDMnzDXDXRKW9uBnQSHmUUAQZh4VKj4d8dvECbKJ"
 
 [[test.genesis]]

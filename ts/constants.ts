@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
-import idl from "./dippies_index_protocol.json";
+import idl from "./leaderboards.json";
 
-export const DIP_PROGRAM_ID: PublicKey = new PublicKey(
+export const LEADERBOARDS_PROGRAM_ID: PublicKey = new PublicKey(
   "C2WzwqdpPaiRP6H9C11331nLhyKtq2WA7hse25ajvJyb"
 );
 

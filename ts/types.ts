@@ -1,51 +1,47 @@
 import { Accounts, Event, IdlAccounts } from "@project-serum/anchor";
 
-import { DippiesIndexProtocol } from "./";
+import { Leaderboards } from "./";
 
-export type Leaderboard = IdlAccounts<DippiesIndexProtocol>["leaderboard"];
-export type Entry = IdlAccounts<DippiesIndexProtocol>["entry"];
-export type StakeDeposit = IdlAccounts<DippiesIndexProtocol>["stakeDeposit"];
+export type Leaderboard = IdlAccounts<Leaderboards>["leaderboard"];
+export type Entry = IdlAccounts<Leaderboards>["entry"];
+export type StakeDeposit = IdlAccounts<Leaderboards>["stakeDeposit"];
 
 export type CreateLeaderboardAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["0"]>
+  Accounts<Leaderboards["instructions"]["0"]>
 >["createLeaderboard"];
 export type SetLeaderboardFeeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["1"]>
+  Accounts<Leaderboards["instructions"]["1"]>
 >["setLeaderboardFee"];
 export type CreateEntryAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["2"]>
+  Accounts<Leaderboards["instructions"]["2"]>
 >["createEntry"];
 export type SwapEntriesAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["3"]>
+  Accounts<Leaderboards["instructions"]["3"]>
 >["swapEntries"];
 export type CreateStakeDepositAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["4"]>
+  Accounts<Leaderboards["instructions"]["4"]>
 >["createStakeDeposit"];
 export type UpdateStakeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["5"]>
+  Accounts<Leaderboards["instructions"]["5"]>
 >["updateStake"];
 export type CloseStakeDepositAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["6"]>
+  Accounts<Leaderboards["instructions"]["6"]>
 >["closeStakeDeposit"];
 export type SetBribeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["7"]>
+  Accounts<Leaderboards["instructions"]["7"]>
 >["setBribe"];
 export type ClaimBribeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["8"]>
+  Accounts<Leaderboards["instructions"]["8"]>
 >["claimBribe"];
 
-export type NewTreeEvent = Partial<
-  Event<DippiesIndexProtocol["events"]["0"]>["data"]
->;
-export type NewNodeEvent = Partial<
-  Event<DippiesIndexProtocol["events"]["1"]>["data"]
->;
+export type NewTreeEvent = Partial<Event<Leaderboards["events"]["0"]>["data"]>;
+export type NewNodeEvent = Partial<Event<Leaderboards["events"]["1"]>["data"]>;
 export type NewAttachedNoteEvent = Partial<
-  Event<DippiesIndexProtocol["events"]["2"]>["data"]
+  Event<Leaderboards["events"]["2"]>["data"]
 >;
 export type UpdatedStakeEvent = Partial<
-  Event<DippiesIndexProtocol["events"]["3"]>["data"]
+  Event<Leaderboards["events"]["3"]>["data"]
 >;
 export type UpdatedBribeEvent = Partial<
-  Event<DippiesIndexProtocol["events"]["4"]>["data"]
+  Event<Leaderboards["events"]["4"]>["data"]
 >;

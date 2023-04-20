@@ -1,5 +1,5 @@
-export { default as DipIdl } from "./dippies_index_protocol.json";
-export * from "./dippies_index_protocol";
+export { default as DipIdl } from "./leaderboards.json";
+export * from "./leaderboards";
 
 export * from "./constants";
 export * from "./account";

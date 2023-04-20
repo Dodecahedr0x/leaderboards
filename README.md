@@ -1,33 +1,22 @@
-# Dippies Index Protocol
+# Leaderboards
 
-Anchor implementation of the Dippies Index Protocol, a token-curated binary tree registry where participants stake on notes to increase their exposure.
+Anchor implementation of Leaderboards, a token-curated registry where participants stake on leaderboard's entries to increase their exposure.
 
-## Concepts
+## Design
 
-- **Forest**
-  - The forest is the base upon which trees grow.
-  - A forest defines the token used to stake.
-- **Trees**
-  - Trees are the basis are the base for the binary tree.
-  - They are linked to their respective root node.
-  - Each tree has a distinct title that defines what subsequent nodes and notes are about.
-- **Node**
-  - A node is a component of a tree.
-  - By default, nodes are not attached to a parent.
-    - To attach a node to a parent, the parent must either have room for more child, or the node must have more votes than some other child to replace it.
-    - Nodes are created below a parent and can only stay there, only replacements are allowed.
-  - Each node has a set a tags, inherited from their parent.
-  - Each node has a set of notes. Notes attached to a node have AT LEAST the same tags as the node.
-- **Note**
-  - A note is attached to a node.
-  - A note has a set of tags inherited from the parent node it was created on.
-  - A note can only be created on a leaf node, a node without children.
-  - Users can vote for a note.
-  - Notes are connected to a node but have two states: attached or floating.
-  - By default, notes are not attached to a node.
-    - To attach a note to a parent, the parent must either have room for more notes, or the note must have more votes than some other note to replace it.
-    - Notes are created on a node but can also move to any other node that has AT LEAST the same tags as the note.
-    - Notes can also replace any other note attached to a node if it has more votes.
-- **Votes**
-  - Users can vote for a note using the root token.
-  - Votes on a note are transmitted to the attached node and the tree.
+- **Leaderboard**
+  - Anybody can create a leaderboard
+    - When creating a leaderboard, the creator mints an NFT that represents their authority over the leaderboard.
+    - The creator decides at the time of creation of a constant fee that will be paid to the holder of the authority NFT when someone creates a new entry in the leaderboard.
+    - The token used to pay the fee is also the token used to vote on entries
+  - Leaderboards have unbounded size
+  - Leaderboards have immutable parameters.
+    - To help build trust in the leaderboard, its parameters can never change.
+- **Entries**
+  - Anybody can create new entries
+    - Entry creators however need to pay a fee in the leaderboard's token
+    - When creating an entry, the creator also creates an NFT and its metadata can be used as the entry's content
+  - New entries are always added at the last position
+- **Stake**
+  - Anybody can stake on an entry
+  - If an entry has a higher stake than another entry with a lower rank (lower is better), the two entries can be swapped.

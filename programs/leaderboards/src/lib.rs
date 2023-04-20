@@ -10,7 +10,7 @@ use instructions::*;
 declare_id!("C2WzwqdpPaiRP6H9C11331nLhyKtq2WA7hse25ajvJyb");
 
 #[program]
-pub mod dippies_index_protocol {
+pub mod leaderboards {
     use super::*;
 
     pub fn create_leaderboard(

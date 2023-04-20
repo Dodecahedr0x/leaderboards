@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "name": "dippies_index_protocol",
+  "name": "leaderboards",
   "constants": [
     {
       "name": "LEADERBOARD_AUTHORITY_SEED",
@@ -1174,7 +1174,7 @@
         },
         {
           "name": "entry",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "pda": {
             "seeds": [

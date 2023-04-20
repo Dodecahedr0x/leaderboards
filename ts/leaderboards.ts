@@ -1,6 +1,6 @@
-export type DippiesIndexProtocol = {
+export type Leaderboards = {
   "version": "0.1.0",
-  "name": "dippies_index_protocol",
+  "name": "leaderboards",
   "constants": [
     {
       "name": "LEADERBOARD_AUTHORITY_SEED",
@@ -1174,7 +1174,7 @@ export type DippiesIndexProtocol = {
         },
         {
           "name": "entry",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "pda": {
             "seeds": [
@@ -1787,9 +1787,9 @@ export type DippiesIndexProtocol = {
   ]
 };
 
-export const IDL: DippiesIndexProtocol = {
+export const IDL: Leaderboards = {
   "version": "0.1.0",
-  "name": "dippies_index_protocol",
+  "name": "leaderboards",
   "constants": [
     {
       "name": "LEADERBOARD_AUTHORITY_SEED",
@@ -2963,7 +2963,7 @@ export const IDL: DippiesIndexProtocol = {
         },
         {
           "name": "entry",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "pda": {
             "seeds": [

@@ -1,16 +1,9 @@
 import * as anchor from "@project-serum/anchor";
 
-import {
-  createKeypairs,
-  expectRevert,
-  mintNft,
-  mintToken,
-  printAccounts,
-} from "./utils";
+import { createKeypairs, expectRevert, mintNft, mintToken } from "./utils";
 import {
   getAccount,
   getAssociatedTokenAddressSync,
-  getMint,
   getOrCreateAssociatedTokenAccount,
   transfer,
 } from "@solana/spl-token";
@@ -24,12 +17,6 @@ import {
   getSwapEntriesAccounts,
   getUpdateStakeAccounts,
 } from "../ts";
-// import {
-//   getAttachNodeAccounts,
-//   getAttachNoteAccounts,
-//   getCreateNodeAccounts,
-//   getCreateNoteAccounts,
-// } from "../ts/account";
 import {
   getEntryAddress,
   getLeaderboardAddress,
@@ -37,17 +24,15 @@ import {
 } from "../ts/pda";
 
 import { BN } from "bn.js";
-import { DippiesIndexProtocol } from "../ts/dippies_index_protocol";
-import DippiesIndexProtocolIdl from "../ts/dippies_index_protocol.json";
+import { Leaderboards } from "../ts/leaderboards";
 import { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { expect } from "chai";
 
-describe("Dippies Index Protocol", () => {
+describe("Leaderboards", () => {
   const provider = anchor.getProvider();
   const connection = provider.connection;
-  const program = anchor.workspace
-    .DippiesIndexProtocol as Program<DippiesIndexProtocol>;
+  const program = anchor.workspace.Leaderboards as Program<Leaderboards>;
   let leaderboardId = PublicKey.default;
   let leaderboardCreator: anchor.web3.Keypair;
   let feeEarner = anchor.web3.Keypair.generate();
