@@ -15,6 +15,7 @@ import {
   transfer,
 } from "@solana/spl-token";
 import {
+  getCloseStakeAccounts,
   getCreateEntryAccounts,
   getCreateLeaderboardAccounts,
   getCreateStakeDepositAccounts,
@@ -252,22 +253,21 @@ describe("Dippies Index Protocol", () => {
         .toString()
     );
 
-    // await provider.connection.confirmTransaction(
-    //   await program.methods
-    //     .closeStake()
-    //     .accounts(
-    //       getCloseStakeAccounts(
-    //         leaderboardKey,
-    //         entryKey,
-    //         noteKeys[0],
-    //         user1.publicKey
-    //       )
-    //     )
-    //     .signers([user1])
-    //     .rpc({ skipPreflight: true })
-    // );
+    await provider.connection.confirmTransaction(
+      await program.methods
+        .closeStakeDeposit()
+        .accounts(
+          getCloseStakeAccounts({
+            id: leaderboardId,
+            staker: stakeholder1.publicKey,
+            payer: provider.publicKey,
+            entry: entriesKey[0],
+          })
+        )
+        .rpc({ skipPreflight: true })
+    );
 
-    // await expectRevert(user1Program.account.stakeState.fetch(stakeStateKey));
+    await expectRevert(program.account.stakeDeposit.fetch(stakeDepositKey));
 
     // // Stake on a note and then upgrade the note
     // await provider.connection.confirmTransaction(

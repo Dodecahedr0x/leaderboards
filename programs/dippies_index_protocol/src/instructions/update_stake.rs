@@ -123,7 +123,8 @@ pub struct UpdateStake<'info> {
             &entry.key().to_bytes(),
             &staker.key().to_bytes()
         ],
-        bump
+        bump,
+        has_one = staker,
     )]
     pub stake_deposit: Box<Account<'info, StakeDeposit>>,
 

@@ -56,6 +56,16 @@ pub struct UpdatedStake {
 }
 
 #[event]
+pub struct ClosedStake {
+    /// The entry staked on
+    pub staker: Pubkey,
+
+    /// The account holding the stake
+    #[index]
+    pub stake: Pubkey,
+}
+
+#[event]
 pub struct UpdatedBribe {
     /// The leaderboard
     pub leaderboard: Pubkey,

@@ -32,6 +32,9 @@ pub enum DipErrors {
     #[msg("Not enough stake to replace")]
     NotEnoughStake,
 
+    #[msg("The stake deposit account needs to be empty")]
+    NotEmptyStakeDeposit,
+
     #[msg("Invalid node")]
     InvalidNode,
 

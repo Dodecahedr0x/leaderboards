@@ -743,7 +743,7 @@
                 "kind": "account",
                 "type": "publicKey",
                 "account": "Leaderboard",
-                "path": "leaderboard"
+                "path": "leaderboard.id"
               },
               {
                 "kind": "account",
@@ -780,7 +780,10 @@
                 "path": "staker"
               }
             ]
-          }
+          },
+          "relations": [
+            "staker"
+          ]
         },
         {
           "name": "stakerAccount",
@@ -833,6 +836,118 @@
           "type": "i128"
         }
       ]
+    },
+    {
+      "name": "closeStakeDeposit",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "staker",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "leaderboard",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The leaderboard"
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "leaderboard"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Leaderboard",
+                "path": "leaderboard.id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "entry",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The entry"
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "entry"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Leaderboard",
+                "path": "leaderboard.id"
+              },
+              {
+                "kind": "account",
+                "type": "u32",
+                "account": "Entry",
+                "path": "entry.rank"
+              }
+            ]
+          }
+        },
+        {
+          "name": "stakeDeposit",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The state of the staker's deposit"
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "stake"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "Entry",
+                "path": "entry"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "staker"
+              }
+            ]
+          },
+          "relations": [
+            "staker"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Common Solana programs"
+          ]
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
       "name": "setBribe",
@@ -1548,6 +1663,21 @@
       ]
     },
     {
+      "name": "ClosedStake",
+      "fields": [
+        {
+          "name": "staker",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "stake",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
       "name": "UpdatedBribe",
       "fields": [
         {
@@ -1626,26 +1756,31 @@
     },
     {
       "code": 6010,
+      "name": "NotEmptyStakeDeposit",
+      "msg": "The stake deposit account needs to be empty"
+    },
+    {
+      "code": 6011,
       "name": "InvalidNode",
       "msg": "Invalid node"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "TagsMismatch",
       "msg": "Tags do not match"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "NotChildNote",
       "msg": "Target note is not a child of the node"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "NotOnNode",
       "msg": "Target note is not attached to the node"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "AlreadyOnNode",
       "msg": "Target note is already on the node"
     }

@@ -5,6 +5,7 @@ import {
 } from "@solana/spl-token";
 import {
   ClaimBribeAccounts,
+  CloseStakeDepositAccounts,
   CreateEntryAccounts,
   CreateLeaderboardAccounts,
   CreateStakeDepositAccounts,
@@ -170,23 +171,29 @@ export function getUpdateStakeAccounts({
   };
 }
 
-// export function getCloseStakeAccounts(
-//   leaderboard: PublicKey,
-//   entry: PublicKey,
-//   note: PublicKey,
-//   signer: PublicKey
-// ): CloseStakeAccounts {
-//   const stakeState = getStakeAddress(note, signer);
-//   return {
-//     signer,
-//     leaderboard,
-//     entry,
-//     note,
-//     stakeState,
-//     systemProgram: SystemProgram.programId,
-//     rent: SYSVAR_RENT_PUBKEY,
-//   };
-// }
+export function getCloseStakeAccounts({
+  id,
+  entry,
+  staker,
+  payer,
+}: {
+  id: PublicKey;
+  entry: PublicKey;
+  staker: PublicKey;
+  payer?: PublicKey;
+}): CloseStakeDepositAccounts {
+  const leaderboard = getLeaderboardAddress(id);
+  const stakeDeposit = getStakeDepositAddress(entry, staker);
+  return {
+    payer: payer || staker,
+    staker,
+    leaderboard,
+    entry,
+    stakeDeposit,
+    systemProgram: SystemProgram.programId,
+    rent: SYSVAR_RENT_PUBKEY,
+  };
+}
 
 // export function getSetBribeAccounts(
 //   leaderboard: PublicKey,

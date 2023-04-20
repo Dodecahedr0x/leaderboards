@@ -24,11 +24,14 @@ export type CreateStakeDepositAccounts = Partial<
 export type UpdateStakeAccounts = Partial<
   Accounts<DippiesIndexProtocol["instructions"]["5"]>
 >["updateStake"];
-export type SetBribeAccounts = Partial<
+export type CloseStakeDepositAccounts = Partial<
   Accounts<DippiesIndexProtocol["instructions"]["6"]>
+>["closeStakeDeposit"];
+export type SetBribeAccounts = Partial<
+  Accounts<DippiesIndexProtocol["instructions"]["7"]>
 >["setBribe"];
 export type ClaimBribeAccounts = Partial<
-  Accounts<DippiesIndexProtocol["instructions"]["7"]>
+  Accounts<DippiesIndexProtocol["instructions"]["8"]>
 >["claimBribe"];
 
 export type NewTreeEvent = Partial<
