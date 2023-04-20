@@ -223,38 +223,40 @@ export function getCloseStakeAccounts({
   };
 }
 
-// export function getSetBribeAccounts(
-//   leaderboard: PublicKey,
-//   entry: PublicKey,
-//   node: PublicKey,
-//   note: PublicKey,
-//   bribeMint: PublicKey,
-//   signer: PublicKey
-// ): SetBribeAccounts {
-//   const leaderboardAuthority = getLeaderboardAuthorityAddress(leaderboard);
-//   const stakeState = getStakeAddress(note, signer);
-//   return {
-//     signer,
-//     leaderboardAuthority,
-//     leaderboard,
-//     entry,
-//     note,
-//     stakeState,
-//     node,
-//     bribe: getBribeAddress(note, bribeMint),
-//     bribeMint,
-//     briberAccount: getAssociatedTokenAddressSync(bribeMint, signer, true),
-//     bribeAccount: getAssociatedTokenAddressSync(
-//       bribeMint,
-//       leaderboardAuthority,
-//       true
-//     ),
-//     tokenProgram: TOKEN_PROGRAM_ID,
-//     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-//     systemProgram: SystemProgram.programId,
-//     rent: SYSVAR_RENT_PUBKEY,
-//   };
-// }
+export function getSetBribeAccounts({
+  id,
+  rank,
+  bribeMint,
+  briber,
+}: {
+  id: PublicKey;
+  rank: number;
+  briber: PublicKey;
+  bribeMint: PublicKey;
+}): SetBribeAccounts {
+  const leaderboard = getLeaderboardAddress(id);
+  const leaderboardAuthority = getLeaderboardAuthorityAddress(id);
+  const entry = getEntryAddress(id, rank);
+  const stakeState = getStakeDepositAddress(id, briber);
+  return {
+    briber,
+    leaderboardAuthority,
+    leaderboard,
+    entry,
+    bribe: getBribeAddress(entry, bribeMint),
+    bribeMint,
+    briberAccount: getAssociatedTokenAddressSync(bribeMint, briber, true),
+    bribeAccount: getAssociatedTokenAddressSync(
+      bribeMint,
+      leaderboardAuthority,
+      true
+    ),
+    tokenProgram: TOKEN_PROGRAM_ID,
+    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+    systemProgram: SystemProgram.programId,
+    rent: SYSVAR_RENT_PUBKEY,
+  };
+}
 
 // export function getClaimBribeAccounts(
 //   leaderboard: PublicKey,

@@ -76,7 +76,7 @@ pub struct SetBribe<'info> {
     #[account(
         seeds = [
             ENTRY_SEED.as_bytes(),
-            &leaderboard.key().to_bytes(),
+            &leaderboard.id.to_bytes(),
             &entry.rank.to_le_bytes(),
         ],
         bump,

@@ -19,6 +19,7 @@ import {
   getCreateEntryAccounts,
   getCreateLeaderboardAccounts,
   getCreateStakeDepositAccounts,
+  getSetBribeAccounts,
   getSwapEntriesAccounts,
   getUpdateStakeAccounts,
 } from "../ts";
@@ -349,7 +350,7 @@ describe("Dippies Index Protocol", () => {
         .signers([stakeholder1])
         .rpc({ skipPreflight: true })
     );
-    await provider.connection.confirmTransaction(
+    await connection.confirmTransaction(
       await program.methods
         .swapEntries()
         .accounts(
@@ -373,70 +374,41 @@ describe("Dippies Index Protocol", () => {
       contentMints[1].toString()
     );
 
-    // // Replace a note on the root
-    // await provider.connection.confirmTransaction(
-    //   await program.methods
-    //     .replaceNote()
-    //     .accounts(
-    //       getReplaceNoteAccounts(
-    //         leaderboardKey,
-    //         entryKey,
-    //         rootNodeKey,
-    //         noteKeys[0],
-    //         rootNoteKeys[0],
-    //         program.provider.publicKey
-    //       )
-    //     )
-    //     .rpc({ skipPreflight: true })
-    // );
+    // Bribe and claim it
+    const bribeAmount = new anchor.BN(10000);
+    let balanceBefore = (
+      await getAccount(
+        connection,
+        getAssociatedTokenAddressSync(voteMint, stakeholder1.publicKey)
+      )
+    ).amount;
+    await connection.confirmTransaction(
+      await program.methods
+        .setBribe(bribeAmount)
+        .accounts(
+          getSetBribeAccounts({
+            id: leaderboardId,
+            rank: 0,
+            briber: stakeholder1.publicKey,
+            bribeMint: voteMint,
+          })
+        )
+        .signers([stakeholder1])
+        .rpc({ skipPreflight: true })
+    );
 
-    // // Bribe and claim it
-    // let updateCount = 0;
-    // const listener = program.addEventListener(
-    //   "UpdatedBribe",
-    //   (event: UpdatedBribeEvent, slot, sig) => {
-    //     updateCount += 1;
-    //   }
-    // );
-    // const bribeAmount = new anchor.BN(10000);
-    // let balanceBefore = (
-    //   await getAccount(
-    //     provider.connection,
-    //     getAssociatedTokenAddressSync(voteMint, user1.publicKey)
-    //   )
-    // ).amount;
-    // await provider.connection.confirmTransaction(
-    //   await program.methods
-    //     .setBribe(bribeAmount)
-    //     .accounts(
-    //       getSetBribeAccounts(
-    //         leaderboardKey,
-    //         entryKey,
-    //         nodeKeys[0],
-    //         noteKeys[0],
-    //         voteMint,
-    //         user1.publicKey
-    //       )
-    //     )
-    //     .signers([user1])
-    //     .rpc({ skipPreflight: true })
-    // );
-
-    // expect(
-    //   (
-    //     await getAccount(
-    //       provider.connection,
-    //       getAssociatedTokenAddressSync(voteMint, user1.publicKey)
-    //     )
-    //   ).amount.toString()
-    // ).to.equal(
-    //   new anchor.BN(balanceBefore.toString())
-    //     .sub(new anchor.BN(bribeAmount))
-    //     .toString()
-    // );
-    // expect(updateCount).to.equal(1);
-
-    // program.removeEventListener(listener);
+    expect(
+      (
+        await getAccount(
+          provider.connection,
+          getAssociatedTokenAddressSync(voteMint, stakeholder1.publicKey)
+        )
+      ).amount.toString()
+    ).to.equal(
+      new anchor.BN(balanceBefore.toString())
+        .sub(new anchor.BN(bribeAmount))
+        .toString()
+    );
 
     // await provider.connection.confirmTransaction(
     //   await program.methods
